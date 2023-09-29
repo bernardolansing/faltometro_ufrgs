@@ -34,6 +34,34 @@ class _HomepageState extends State<Homepage> {
     if (shouldUpdate == true) { setState(() {}); }
   }
 
+  Future<void> deleteCourse(Course course) async {
+    final deletionConfirmed = await showDialog<bool>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Confirmar exclusão'),
+          content: Text(
+              'Você tem certeza de que quer excluir a disciplina '
+                  '${course.title}?'
+          ),
+          actions: [
+            TextButton(
+                onPressed: Navigator.of(context).pop,
+                child: const Text('Cancelar')
+            ),
+            ElevatedButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: const Text('Confirmar')
+            )
+          ],
+        )
+    );
+
+    if (deletionConfirmed == true) {
+      Courses.deleteCourse(course);
+      setState(() {});
+    }
+  }
+
   Widget get _contentToDisplay {
     if (loading) { return buildLoading(); }
     if (Courses.courses.isNotEmpty) { return buildCoursesList(); }
@@ -97,14 +125,14 @@ class _HomepageState extends State<Homepage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Flexible(
-                    child: Text(
-                        course.title,
-                        softWrap: true,
-                        style: const TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold
-                        )
-                    )
+                      child: Text(
+                          course.title,
+                          softWrap: true,
+                          style: const TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold
+                          )
+                      )
                   ),
 
                   Row(
@@ -114,7 +142,7 @@ class _HomepageState extends State<Homepage> {
                         icon: PhosphorIcon(PhosphorIcons.regular.pencil),
                       ),
                       IconButton(
-                          onPressed: () {},
+                          onPressed: () => deleteCourse(course),
                           icon: PhosphorIcon(PhosphorIcons.regular.trash)
                       )
                     ],

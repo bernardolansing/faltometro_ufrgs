@@ -40,6 +40,11 @@ class Courses {
     _courses.add(newCourse);
     Storage.updateCourses();
   }
+
+  static void deleteCourse(Course courseToDelete) {
+    _courses.remove(courseToDelete);
+    Storage.updateCourses();
+  }
 }
 
 class Course {
