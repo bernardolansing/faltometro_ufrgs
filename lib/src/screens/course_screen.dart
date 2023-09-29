@@ -3,41 +3,86 @@ import 'package:faltometro_ufrgs/src/course.dart';
 import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
-class NewCourseScreen extends StatefulWidget {
-  const NewCourseScreen({super.key});
+/// Screen for creating or editing course. If you want to create a new course,
+/// use CourseScreen.newCourse() constructor. If you want to edit a course, use
+/// CourseScreen.edit.
+class CourseScreen extends StatefulWidget {
+  final Course? courseToEdit;  // null if creating new course
+
+  const CourseScreen.newCourse({super.key}) :
+        courseToEdit = null;
+
+  const CourseScreen.edit({super.key, required Course course}) :
+        courseToEdit = course;
 
   @override
-  State<NewCourseScreen> createState() => _NewCourseScreenState();
+  State<CourseScreen> createState() => _CourseScreenState();
 }
 
-class _NewCourseScreenState extends State<NewCourseScreen> {
-  final _titleController = TextEditingController();
-  final _periodsPerWeek = [0, 0, 0, 0, 0];
+class _CourseScreenState extends State<CourseScreen> {
+  late final TextEditingController _titleController;
+  late final List<int> _periodsPerWeekday;
+  late final AppBar _appBar;
 
-  void _increasePeriods(int index) => setState(() => _periodsPerWeek[index]++);
+  @override
+  void initState() {
+    // Creating new course
+    if (widget.courseToEdit == null) {
+      _titleController = TextEditingController();
+      _periodsPerWeekday = [0, 0, 0, 0, 0];
+      _appBar = AppBar(
+          leading: PhosphorIcon(PhosphorIcons.bold.plus),
+          title: const Text('Adicionar disciplina')
+      );
+    }
+
+    // Editing course
+    else {
+      final course = widget.courseToEdit!;
+      _titleController = TextEditingController(text: course.title);
+      _periodsPerWeekday = course.periodsPerWeekday;
+      _appBar = AppBar(
+        leading: PhosphorIcon(PhosphorIcons.bold.pencil),
+        title: const Text('Editar disciplina'),
+      );
+    }
+    super.initState();
+  }
+
+  void _increasePeriods(int index) => setState(() => _periodsPerWeekday[index]++);
 
   void _decreasePeriods(int index) => setState(() {
-    _periodsPerWeek[index] = max(_periodsPerWeek[index] - 1, 0);
+    _periodsPerWeekday[index] = max(_periodsPerWeekday[index] - 1, 0);
   });
 
-  bool get _buttonAvailable => _periodsPerWeek.any((weekday) => weekday > 0)
+  bool get _buttonAvailable => _periodsPerWeekday.any((weekday) => weekday > 0)
       && _titleController.text.isNotEmpty;
 
-  void _newCourse() {
-    Courses.newCourse(
-        title: _titleController.text,
-        periodsPerWeekday: _periodsPerWeek
-    );
-    // Popping true will indicate that a new course has been created.
+  void _buttonAction() {
+    // Creating new course
+    if (widget.courseToEdit == null) {
+      Courses.newCourse(
+          title: _titleController.text,
+          periodsPerWeekday: _periodsPerWeekday
+      );
+    }
+
+    // Editing course
+    else {
+      Courses.editCourse(
+          course: widget.courseToEdit!,
+          title: _titleController.text,
+          periodsPerWeekday: _periodsPerWeekday
+      );
+    }
+
+    // Popping true will indicate that a new course has been created or edited.
     Navigator.of(context).pop(true);
   }
 
   @override
   Widget build(BuildContext context) => Scaffold(
-      appBar: AppBar(
-          leading: PhosphorIcon(PhosphorIcons.bold.plus),
-          title: const Text('Adicionar disciplina')
-      ),
+      appBar: _appBar,
       // A builder is necessary for us to know the height of the AppBar. We need
       // to know this so we can avoid overflow when the keyboard pops up.
       body: Builder(
@@ -99,7 +144,7 @@ class _NewCourseScreenState extends State<NewCourseScreen> {
                         icon: PhosphorIcon(PhosphorIcons.bold.minus),
                         splashRadius: 28,
                       ),
-                      Text(_periodsPerWeek[index].toString()),
+                      Text(_periodsPerWeekday[index].toString()),
                       IconButton(
                         onPressed: () => _increasePeriods(index),
                         icon: PhosphorIcon(PhosphorIcons.bold.plus),
@@ -114,7 +159,7 @@ class _NewCourseScreenState extends State<NewCourseScreen> {
                 SizedBox(
                     width: 200,
                     child: ElevatedButton(
-                      onPressed: _buttonAvailable ? _newCourse : null,
+                      onPressed: _buttonAvailable ? _buttonAction : null,
                       style: ButtonStyle(
                           shape: MaterialStateProperty.all(_buttonBorder)
                       ),

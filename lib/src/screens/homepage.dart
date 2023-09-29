@@ -1,5 +1,5 @@
 import 'package:faltometro_ufrgs/src/course.dart';
-import 'package:faltometro_ufrgs/src/screens/new_course.dart';
+import 'package:faltometro_ufrgs/src/screens/course_screen.dart';
 import 'package:faltometro_ufrgs/src/storage.dart';
 import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
@@ -28,9 +28,17 @@ class _HomepageState extends State<Homepage> {
 
   Future<void> openNewCourseScreen() async {
     final route = MaterialPageRoute<bool>(
-        builder: (context) => const NewCourseScreen()
+        builder: (context) => const CourseScreen.newCourse()
     );
-    final shouldUpdate = await Navigator.of(context).push<bool>(route);
+    final shouldUpdate = await Navigator.of(context).push(route);
+    if (shouldUpdate == true) { setState(() {}); }
+  }
+
+  Future<void> openEditCourseScreen(Course course) async {
+    final route = MaterialPageRoute<bool>(
+        builder: (context) => CourseScreen.edit(course: course)
+    );
+    final shouldUpdate = await Navigator.of(context).push(route);
     if (shouldUpdate == true) { setState(() {}); }
   }
 
@@ -138,7 +146,7 @@ class _HomepageState extends State<Homepage> {
                   Row(
                     children: [
                       IconButton(
-                        onPressed: () {},
+                        onPressed: () => openEditCourseScreen(course),
                         icon: PhosphorIcon(PhosphorIcons.regular.pencil),
                       ),
                       IconButton(

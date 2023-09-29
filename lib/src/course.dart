@@ -41,6 +41,16 @@ class Courses {
     Storage.updateCourses();
   }
 
+  static void editCourse({
+    required Course course,
+    String? title,
+    List<int>? periodsPerWeekday
+  }) {
+    course.title = title ?? course.title;
+    course.periodsPerWeekday = periodsPerWeekday ?? course.periodsPerWeekday;
+    Storage.updateCourses();
+  }
+
   static void deleteCourse(Course courseToDelete) {
     _courses.remove(courseToDelete);
     Storage.updateCourses();
