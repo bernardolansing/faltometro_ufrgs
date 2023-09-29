@@ -4,7 +4,7 @@ class Courses {
   static bool _initialized = false;
   static late final List<Course> _courses;
 
-  List<Course> get courses {
+  static List<Course> get courses {
     assert (_initialized);
     return _courses;
   }
@@ -17,6 +17,24 @@ class Courses {
     on TypeError { Storage.condemnStoredCourses(); }
 
     _initialized = true;
+  }
+
+  /// Create new course.
+  static void newCourse({
+    required String title,
+    required List<int> periodsPerWeekday,
+  }) {
+    assert (periodsPerWeekday.length == 5);
+    assert (periodsPerWeekday.any((element) => element > 0));
+    assert (title.isNotEmpty);
+
+    final newCourse = Course(
+        title: title,
+        periodsPerWeekday: periodsPerWeekday,
+        periodsSkipped: 0
+    );
+    _courses.add(newCourse);
+    Storage.updateCourses();
   }
 }
 
@@ -32,9 +50,9 @@ class Course {
   });
 
   Course.fromEntry(Map<String, dynamic> entry) :
-      title = entry['title'],
-      periodsPerWeekday = entry['periodsPerWeekday'],
-      periodsSkipped = entry['periodsSkipped'];
+        title = entry['title'],
+        periodsPerWeekday = entry['periodsPerWeekday'],
+        periodsSkipped = entry['periodsSkipped'];
 
   Map<String, dynamic> get entry => {
     'title': title,

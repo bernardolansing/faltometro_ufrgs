@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:faltometro_ufrgs/src/course.dart';
 import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
@@ -18,6 +19,18 @@ class _NewCourseScreenState extends State<NewCourseScreen> {
   void _decreasePeriods(int index) => setState(() {
     _periodsPerWeek[index] = max(_periodsPerWeek[index] - 1, 0);
   });
+
+  bool get _buttonAvailable => _periodsPerWeek.any((weekday) => weekday > 0)
+      && _titleController.text.isNotEmpty;
+
+  void _newCourse() {
+    Courses.newCourse(
+        title: _titleController.text,
+        periodsPerWeekday: _periodsPerWeek
+    );
+    // Popping true will indicate that a new course has been created.
+    Navigator.of(context).pop(true);
+  }
 
   @override
   Widget build(BuildContext context) => Scaffold(
@@ -45,6 +58,9 @@ class _NewCourseScreenState extends State<NewCourseScreen> {
               children: [
                 TextField(
                   controller: _titleController,
+                  // setState is needed to update the _buttonAvailable
+                  // condition:
+                  onChanged: (value) => setState(() {}),
                   style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
@@ -98,7 +114,7 @@ class _NewCourseScreenState extends State<NewCourseScreen> {
                 SizedBox(
                     width: 200,
                     child: ElevatedButton(
-                      onPressed: () {},
+                      onPressed: _buttonAvailable ? _newCourse : null,
                       style: ButtonStyle(
                           shape: MaterialStateProperty.all(_buttonBorder)
                       ),

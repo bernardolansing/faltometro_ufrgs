@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
+import 'course.dart';
 
 const _configFilename = 'config.json';
 const Map<String, dynamic> _emptyConfigTemplate = {
@@ -40,6 +41,13 @@ class Storage {
   /// all courses will be deleted.
   static Future<void> condemnStoredCourses() async {
     _content['courses'] = [];
+    await _saveToFile();
+  }
+
+  static Future<void> updateCourses() async {
+    _content['courses'] = Courses.courses
+        .map((course) => course.entry)
+        .toList(growable: false);
     await _saveToFile();
   }
 
