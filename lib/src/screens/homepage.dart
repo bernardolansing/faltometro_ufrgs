@@ -1,3 +1,4 @@
+import 'package:faltometro_ufrgs/src/course.dart';
 import 'package:faltometro_ufrgs/src/screens/new_course.dart';
 import 'package:faltometro_ufrgs/src/storage.dart';
 import 'package:flutter/material.dart';
@@ -11,10 +12,18 @@ class Homepage extends StatefulWidget {
 }
 
 class _HomepageState extends State<Homepage> {
+  bool loading = true;
+
   @override
   void initState() {
-    Storage.initialize();
+    initialize();
     super.initState();
+  }
+
+  Future<void> initialize() async {
+    await Storage.initialize();
+    Courses.load(Storage.coursesEntry);
+    setState(() => loading = false);
   }
 
   Future<void> openNewCourseScreen() => Navigator.of(context)

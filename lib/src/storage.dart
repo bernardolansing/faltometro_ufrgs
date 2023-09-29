@@ -22,8 +22,9 @@ class Storage {
     final fileExists = await _file.exists();
 
     if (fileExists) {
-      final fileRawContent = await _file.readAsBytes();
-      _content = jsonDecode(fileRawContent.toString());
+      final fileRawBytes = await _file.readAsBytes();
+      final fileDecodedRaw = utf8.decode(fileRawBytes.toList());
+      _content = jsonDecode(fileDecodedRaw);
     }
     else {
       await _file.create();
@@ -32,6 +33,14 @@ class Storage {
     }
 
     _initialized = true;
+  }
+
+  /// If the courses parsing fails, it means that this section of the file
+  /// could be outdated or was corrupted. As the data can't be trusted anymore,
+  /// all courses will be deleted.
+  static Future<void> condemnStoredCourses() async {
+    _content['courses'] = [];
+    await _saveToFile();
   }
 
   static Future<void> _saveToFile() async {
