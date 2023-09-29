@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'package:faltometro_ufrgs/src/storage.dart';
 
 class Courses {
@@ -14,7 +15,10 @@ class Courses {
     assert (! _initialized);
 
     try { _courses = entries.map(Course.fromEntry).toList(); }
-    on TypeError { Storage.condemnStoredCourses(); }
+    on TypeError catch (error) {
+      log('Error on decoding courses entries: ${error.toString()}');
+      Storage.condemnStoredCourses();
+    }
 
     _initialized = true;
   }
@@ -51,7 +55,7 @@ class Course {
 
   Course.fromEntry(Map<String, dynamic> entry) :
         title = entry['title'],
-        periodsPerWeekday = entry['periodsPerWeekday'],
+        periodsPerWeekday = List<int>.from(entry['periodsPerWeekday']),
         periodsSkipped = entry['periodsSkipped'];
 
   Map<String, dynamic> get entry => {

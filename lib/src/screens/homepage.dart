@@ -26,8 +26,19 @@ class _HomepageState extends State<Homepage> {
     setState(() => loading = false);
   }
 
-  Future<void> openNewCourseScreen() => Navigator.of(context)
-      .push(MaterialPageRoute(builder: (context) => const NewCourseScreen()));
+  Future<void> openNewCourseScreen() async {
+    final route = MaterialPageRoute<bool>(
+        builder: (context) => const NewCourseScreen()
+    );
+    final shouldUpdate = await Navigator.of(context).push<bool>(route);
+    if (shouldUpdate == true) { setState(() {}); }
+  }
+
+  Widget get _contentToDisplay {
+    if (loading) { return buildLoading(); }
+    if (Courses.courses.isNotEmpty) { return buildCoursesList(); }
+    return buildEmptyList();
+  }
 
   @override
   Widget build(BuildContext context) => Scaffold(
@@ -36,12 +47,23 @@ class _HomepageState extends State<Homepage> {
         title: const Text('Faltômetro UFRGS')
     ),
     body: SafeArea(
-      child: buildEmptyList(),
+      child: _contentToDisplay,
     ),
     floatingActionButton: FloatingActionButton(
       onPressed: openNewCourseScreen,
       backgroundColor: Theme.of(context).colorScheme.primary,
       child: PhosphorIcon(PhosphorIcons.bold.plus, size: 28),
+    ),
+  );
+
+  Widget buildLoading() => const Center(
+    child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SizedBox(height: 32, width: 32, child: CircularProgressIndicator()),
+          SizedBox(height: 12),
+          Text('Carregando...', style: TextStyle(fontSize: 16))
+        ]
     ),
   );
 
@@ -63,5 +85,62 @@ class _HomepageState extends State<Homepage> {
       )
   );
 
-  Widget buildCoursesList() => Container();
+  Widget buildCoursesList() => SingleChildScrollView(
+    padding: const EdgeInsets.all(10),
+    child: Column(
+      children: Courses.courses.map((course) => Card(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Flexible(
+                    child: Text(
+                        course.title,
+                        softWrap: true,
+                        style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold
+                        )
+                    )
+                  ),
+
+                  Row(
+                    children: [
+                      IconButton(
+                        onPressed: () {},
+                        icon: PhosphorIcon(PhosphorIcons.regular.pencil),
+                      ),
+                      IconButton(
+                          onPressed: () {},
+                          icon: PhosphorIcon(PhosphorIcons.regular.trash)
+                      )
+                    ],
+                  )
+                ],
+              ),
+
+              const SizedBox(height: 8),
+
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                    onPressed: () {},
+                    style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty
+                            .all(Theme.of(context).colorScheme.secondary),
+                        textStyle: MaterialStateProperty
+                            .all(const TextStyle(fontSize: 16))
+                    ),
+                    child: const Text('Registrar falta')
+                ),
+              )
+            ],
+          ),
+        ),
+      )).toList(growable: false),
+    ),
+  );
 }
