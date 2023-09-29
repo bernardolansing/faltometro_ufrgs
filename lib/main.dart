@@ -1,4 +1,4 @@
-import 'package:faltometro_ufrgs/src/homepage.dart';
+import 'package:faltometro_ufrgs/src/screens/homepage.dart';
 import 'package:flutter/material.dart';
 
 void main() {
