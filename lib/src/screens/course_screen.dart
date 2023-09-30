@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:faltometro_ufrgs/src/course.dart';
+import 'package:faltometro_ufrgs/src/screens/common.dart';
 import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
@@ -161,7 +162,7 @@ class _CourseScreenState extends State<CourseScreen> {
                     child: ElevatedButton(
                       onPressed: _buttonAvailable ? _buttonAction : null,
                       style: ButtonStyle(
-                          shape: MaterialStateProperty.all(_buttonBorder)
+                          shape: MaterialStateProperty.all(buttonRoundBorder)
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -187,10 +188,6 @@ const _periodsExplanationText = 'Cada período corresponde a 50 minutos de '
     'aula. Se a sua aula começa, por exemplo, às 8:30 e termina às 10:10, '
     'então você tem dois períodos desta disciplina naquele dia.';
 
-const weekdaysNames = [
-  'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira'
-];
 
-final _buttonBorder = RoundedRectangleBorder(
-    borderRadius: BorderRadius.circular(16)
-);
+
+

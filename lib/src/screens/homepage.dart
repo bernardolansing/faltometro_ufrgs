@@ -1,4 +1,5 @@
 import 'package:faltometro_ufrgs/src/course.dart';
+import 'package:faltometro_ufrgs/src/screens/common.dart';
 import 'package:faltometro_ufrgs/src/screens/course_screen.dart';
 import 'package:faltometro_ufrgs/src/screens/register_absence_dialogs.dart';
 import 'package:faltometro_ufrgs/src/storage.dart';
@@ -13,21 +14,21 @@ class Homepage extends StatefulWidget {
 }
 
 class _HomepageState extends State<Homepage> {
-  bool loading = true;
+  bool _loading = true;
 
   @override
   void initState() {
-    initialize();
+    _initialize();
     super.initState();
   }
 
-  Future<void> initialize() async {
+  Future<void> _initialize() async {
     await Storage.initialize();
     Courses.load(Storage.coursesEntry);
-    setState(() => loading = false);
+    setState(() => _loading = false);
   }
 
-  Future<void> openNewCourseScreen() async {
+  Future<void> _openNewCourseScreen() async {
     final route = MaterialPageRoute<bool>(
         builder: (context) => const CourseScreen.newCourse()
     );
@@ -35,7 +36,7 @@ class _HomepageState extends State<Homepage> {
     if (shouldUpdate == true) { setState(() {}); }
   }
 
-  Future<void> openEditCourseScreen(Course course) async {
+  Future<void> _openEditCourseScreen(Course course) async {
     final route = MaterialPageRoute<bool>(
         builder: (context) => CourseScreen.edit(course: course)
     );
@@ -43,7 +44,7 @@ class _HomepageState extends State<Homepage> {
     if (shouldUpdate == true) { setState(() {}); }
   }
 
-  Future<void> openRegisterAbsenceDialog(Course course) async {
+  Future<void> _openRegisterAbsenceDialog(Course course) async {
     final shouldUpdate = await showDialog<bool>(
         context: context,
         builder: (context) => course.isUniform
@@ -54,7 +55,7 @@ class _HomepageState extends State<Homepage> {
     if (shouldUpdate == true) { setState(() {}); }
   }
 
-  Future<void> deleteCourse(Course course) async {
+  Future<void> _deleteCourse(Course course) async {
     final deletionConfirmed = await showDialog<bool>(
         context: context,
         builder: (context) => AlertDialog(
@@ -83,9 +84,9 @@ class _HomepageState extends State<Homepage> {
   }
 
   Widget get _contentToDisplay {
-    if (loading) { return buildLoading(); }
-    if (Courses.courses.isNotEmpty) { return buildCoursesList(); }
-    return buildEmptyList();
+    if (_loading) { return _buildLoading(); }
+    if (Courses.courses.isNotEmpty) { return _buildCoursesList(); }
+    return _buildEmptyList();
   }
 
   @override
@@ -98,13 +99,13 @@ class _HomepageState extends State<Homepage> {
       child: _contentToDisplay,
     ),
     floatingActionButton: FloatingActionButton(
-      onPressed: openNewCourseScreen,
+      onPressed: _openNewCourseScreen,
       backgroundColor: Theme.of(context).colorScheme.primary,
       child: PhosphorIcon(PhosphorIcons.bold.plus, size: 28),
     ),
   );
 
-  Widget buildLoading() => const Center(
+  Widget _buildLoading() => const Center(
     child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -115,7 +116,7 @@ class _HomepageState extends State<Homepage> {
     ),
   );
 
-  Widget buildEmptyList() => Center(
+  Widget _buildEmptyList() => Center(
       child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
@@ -133,7 +134,7 @@ class _HomepageState extends State<Homepage> {
       )
   );
 
-  Widget buildCoursesList() => SingleChildScrollView(
+  Widget _buildCoursesList() => SingleChildScrollView(
     padding: const EdgeInsets.all(10),
     child: Column(
       children: Courses.courses.map((course) => Card(
@@ -158,11 +159,11 @@ class _HomepageState extends State<Homepage> {
                   Row(
                     children: [
                       IconButton(
-                        onPressed: () => openEditCourseScreen(course),
+                        onPressed: () => _openEditCourseScreen(course),
                         icon: PhosphorIcon(PhosphorIcons.regular.pencil),
                       ),
                       IconButton(
-                          onPressed: () => deleteCourse(course),
+                          onPressed: () => _deleteCourse(course),
                           icon: PhosphorIcon(PhosphorIcons.regular.trash)
                       )
                     ],
@@ -175,12 +176,13 @@ class _HomepageState extends State<Homepage> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                    onPressed: () => openRegisterAbsenceDialog(course),
+                    onPressed: () => _openRegisterAbsenceDialog(course),
                     style: ButtonStyle(
                         backgroundColor: MaterialStateProperty
                             .all(Theme.of(context).colorScheme.secondary),
                         textStyle: MaterialStateProperty
-                            .all(const TextStyle(fontSize: 16))
+                            .all(const TextStyle(fontSize: 16)),
+                        shape: MaterialStateProperty.all(buttonRoundBorder)
                     ),
                     child: const Text('Registrar falta')
                 ),
