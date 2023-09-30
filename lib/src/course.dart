@@ -78,4 +78,14 @@ class Course {
     'periodsPerWeekday': periodsPerWeekday,
     'periodsSkipped': periodsSkipped
   };
+
+  /// A course is uniform if the amount of periods is the same in all class
+  /// days. So for example if a course has two periods on Monday, Wednesday and
+  /// Friday, it will be uniform. In contrast, if a course has two periods on
+  /// Monday and three periods on Wednesday, it will NOT me uniform.
+  bool get isUniform => periodsPerWeekday.toSet().length < 3;
+  // With .toSet(), we remove the duplicates in periodsPerWeekday. We expect to
+  // have 0 (from the days that there is no class) and at least one other
+  // number. If we have only one number other than 0, the course is uniform as
+  // that is the amount of periods for all class days.
 }

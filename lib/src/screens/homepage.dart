@@ -1,5 +1,6 @@
 import 'package:faltometro_ufrgs/src/course.dart';
 import 'package:faltometro_ufrgs/src/screens/course_screen.dart';
+import 'package:faltometro_ufrgs/src/screens/register_absence_dialogs.dart';
 import 'package:faltometro_ufrgs/src/storage.dart';
 import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
@@ -39,6 +40,15 @@ class _HomepageState extends State<Homepage> {
         builder: (context) => CourseScreen.edit(course: course)
     );
     final shouldUpdate = await Navigator.of(context).push(route);
+    if (shouldUpdate == true) { setState(() {}); }
+  }
+
+  Future<void> openRegisterAbsenceDialog(Course course) async {
+    final shouldUpdate = await showDialog<bool>(
+        context: context,
+        builder: (context) => UniformCourseRegisterAbsenceDialog(course)
+    );
+
     if (shouldUpdate == true) { setState(() {}); }
   }
 
@@ -163,7 +173,7 @@ class _HomepageState extends State<Homepage> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () => openRegisterAbsenceDialog(course),
                     style: ButtonStyle(
                         backgroundColor: MaterialStateProperty
                             .all(Theme.of(context).colorScheme.secondary),
