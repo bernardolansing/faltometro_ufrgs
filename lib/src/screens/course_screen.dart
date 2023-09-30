@@ -133,7 +133,7 @@ class _CourseScreenState extends State<CourseScreen> {
                 const Spacer(),
 
                 ...Iterable.generate(5, (index) => ListTile(
-                  title: Text(_weekdaysNames[index]),
+                  title: Text(weekdaysNames[index]),
                   visualDensity: VisualDensity.compact,
                   contentPadding: const EdgeInsets.symmetric(horizontal: 4),
                   trailing: Row(
@@ -187,7 +187,7 @@ const _periodsExplanationText = 'Cada período corresponde a 50 minutos de '
     'aula. Se a sua aula começa, por exemplo, às 8:30 e termina às 10:10, '
     'então você tem dois períodos desta disciplina naquele dia.';
 
-const _weekdaysNames = [
+const weekdaysNames = [
   'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira'
 ];
 
