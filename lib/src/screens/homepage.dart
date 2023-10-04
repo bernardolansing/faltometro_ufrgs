@@ -134,12 +134,9 @@ class _HomepageState extends State<Homepage> {
       )
   );
 
-  // TODO: solve unecessary scroll effect
-  Widget _buildCoursesList() => SingleChildScrollView(
+  Widget _buildCoursesList() => ListView(
     padding: const EdgeInsets.all(10),
-    child: Column(
-      children: Courses.courses.map(_buildCourseCard).toList(growable: false),
-    ),
+    children: Courses.courses.map(_buildCourseCard).toList(growable: false),
   );
 
   Widget _buildCourseCard(Course course) => Card(
