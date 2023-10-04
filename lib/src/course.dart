@@ -62,9 +62,7 @@ class Courses {
 
     if (absences != null) {
       assert (course.isUniform);
-      final periodsPerClass = course.periodsPerWeekday
-          .firstWhere((periods) => periods > 0);
-      course.periodsSkipped += absences * periodsPerClass;
+      course.periodsSkipped += absences * course.periodsPerClassDay;
     }
 
     else {
@@ -75,15 +73,12 @@ class Courses {
     Storage.updateCourses();
   }
 
-  // TODO: ensure that periodsSkipped doesn't become negative
   static void discountAbsences(Course course, {int? absences, int? weekday}) {
     assert (absences != null || weekday != null);
 
     if (absences != null) {
       assert (course.isUniform);
-      final periodsPerClass = course.periodsPerWeekday
-          .firstWhere((periods) => periods > 0);
-      course.periodsSkipped -= absences * periodsPerClass;
+      course.periodsSkipped -= absences * course.periodsPerClassDay;
     }
 
     else {
@@ -104,7 +99,8 @@ class Course {
     required this.title,
     required this.periodsPerWeekday,
     required int periodsSkipped,
-  }) : _periodsSkipped = periodsSkipped;
+  }) :
+        _periodsSkipped = periodsSkipped;
 
   int get periodsSkipped => _periodsSkipped;
 
@@ -132,4 +128,38 @@ class Course {
   // have 0 (from the days that there is no class) and at least one other
   // number. If we have only one number other than 0, the course is uniform as
   // that is the amount of periods for all class days.
+  
+  /// Number of periods in a class day. Valid only for 'uniform' courses.
+  int get periodsPerClassDay {
+    assert (isUniform);
+    return periodsPerWeekday.firstWhere((periods) => periods > 0);
+  }
+
+  /// The percentage of absences that already have been consumed for this
+  /// course. It ranges between 0 and 1 (100%). If it is 100%, it means that
+  /// the student has already used all of the tolerated absences, and therefore
+  /// it should be reproved.
+  double get burnAbsencesPercentage => (_periodsSkipped / skippablePeriods)
+      .clamp(0, 1.0);
+
+  /// The amount of class periods that can be safely skipped by a student.
+  int get skippablePeriods {
+    // We are considering that courses are 15 weeks long. That is not always
+    // true, but is a good approximation.
+    final totalPeriods = 15 * periodsPerWeekday.reduce((acc, val) => acc + val);
+    return (totalPeriods * 0.25).toInt() - 1; // 75% of frequency in classes is
+    // demanded. We are discounting 1 for the reason described in the
+    // explanation screen. TODO: implement explanation screen.
+  }
+  
+  /// The total number of class days that may be skipped by the student over the
+  /// semester. Valid only for 'uniform' courses.
+  int get skippableClassDays {
+    assert (isUniform);
+    return skippablePeriods ~/ periodsPerClassDay;
+  }
+}
+
+extension PercentageFormattingExtension on double {
+  String get asPercentage => '${(this * 100).toInt()}%';
 }

@@ -134,63 +134,107 @@ class _HomepageState extends State<Homepage> {
       )
   );
 
+  // TODO: solve unecessary scroll effect
   Widget _buildCoursesList() => SingleChildScrollView(
     padding: const EdgeInsets.all(10),
     child: Column(
-      children: Courses.courses.map((course) => Card(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Flexible(
-                      child: Text(
-                          course.title,
-                          softWrap: true,
-                          style: const TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold
-                          )
-                      )
-                  ),
+      children: Courses.courses.map(_buildCourseCard).toList(growable: false),
+    ),
+  );
 
-                  Row(
-                    children: [
-                      IconButton(
-                        onPressed: () => _openEditCourseScreen(course),
-                        icon: PhosphorIcon(PhosphorIcons.regular.pencil),
-                      ),
-                      IconButton(
-                          onPressed: () => _deleteCourse(course),
-                          icon: PhosphorIcon(PhosphorIcons.regular.trash)
+  Widget _buildCourseCard(Course course) => Card(
+    child: Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        children: [
+          // Row that displays the course name and the edit and delete buttons.
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Flexible(
+                  child: Text(
+                      course.title,
+                      softWrap: true,
+                      style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold
                       )
-                    ],
                   )
-                ],
               ),
 
-              const SizedBox(height: 8),
-
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                    onPressed: () => _openRegisterAbsenceDialog(course),
-                    style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty
-                            .all(Theme.of(context).colorScheme.secondary),
-                        textStyle: MaterialStateProperty
-                            .all(const TextStyle(fontSize: 16)),
-                        shape: MaterialStateProperty.all(buttonRoundBorder)
-                    ),
-                    child: const Text('Registrar falta')
-                ),
+              Row(
+                children: [
+                  IconButton(
+                    onPressed: () => _openEditCourseScreen(course),
+                    icon: PhosphorIcon(PhosphorIcons.regular.pencil),
+                  ),
+                  IconButton(
+                      onPressed: () => _deleteCourse(course),
+                      icon: PhosphorIcon(PhosphorIcons.regular.trash)
+                  )
+                ],
               )
             ],
           ),
-        ),
-      )).toList(growable: false),
+
+          const SizedBox(height: 8),
+
+          buildNonUniformCourseStatus(course),
+
+          const SizedBox(height: 8),
+
+          // Button to open the register absence dialog.
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+                onPressed: () => _openRegisterAbsenceDialog(course),
+                style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty
+                        .all(Theme.of(context).colorScheme.secondary),
+                    textStyle: MaterialStateProperty
+                        .all(const TextStyle(fontSize: 16)),
+                    shape: MaterialStateProperty.all(buttonRoundBorder)
+                ),
+                child: const Text('Registrar falta')
+            ),
+          )
+        ],
+      ),
     ),
+  );
+
+  Widget buildNonUniformCourseStatus(Course course) => Row(
+    mainAxisAlignment: MainAxisAlignment.spaceAround,
+    children: [
+      Stack(
+        alignment: Alignment.center,
+        children: [
+          SizedBox(
+            height: 100,
+            width: 100,
+            child: CircularProgressIndicator(
+              value: course.burnAbsencesPercentage,
+            ),
+          ),
+
+          Text(
+            course.burnAbsencesPercentage.asPercentage,
+            style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 24),
+          ),
+        ],
+      ),
+
+      const SizedBox(width: 12),
+
+      Flexible(
+          child: Text(
+            'Você queimou ${course.burnAbsencesPercentage.asPercentage} das '
+                'faltas para esta disciplina. Pode faltar mais '
+                '${course.skippablePeriods - course.periodsSkipped} períodos.',
+            softWrap: true,
+            // textAlign: TextAlign.center,
+          )
+      ),
+    ],
   );
 }
