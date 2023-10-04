@@ -176,7 +176,9 @@ class _HomepageState extends State<Homepage> {
 
           const SizedBox(height: 8),
 
-          buildNonUniformCourseStatus(course),
+          course.isUniform
+              ? buildUniformCourseStatus(course)
+              : buildNonUniformCourseStatus(course),
 
           const SizedBox(height: 8),
 
@@ -206,9 +208,8 @@ class _HomepageState extends State<Homepage> {
       Stack(
         alignment: Alignment.center,
         children: [
-          SizedBox(
-            height: 100,
-            width: 100,
+          SizedBox.fromSize(
+            size: _circularProgressSize,
             child: CircularProgressIndicator(
               value: course.burnAbsencesPercentage,
             ),
@@ -216,7 +217,7 @@ class _HomepageState extends State<Homepage> {
 
           Text(
             course.burnAbsencesPercentage.asPercentage,
-            style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 24),
+            style: _circularProgressTextStyle,
           ),
         ],
       ),
@@ -234,4 +235,45 @@ class _HomepageState extends State<Homepage> {
       ),
     ],
   );
+
+  Widget buildUniformCourseStatus(Course course) => Row(
+    mainAxisAlignment: MainAxisAlignment.spaceAround,
+    children: [
+      Stack(
+        alignment: Alignment.center,
+        children: [
+          SizedBox.fromSize(
+            size: _circularProgressSize,
+            child: CircularProgressIndicator(
+              value: course.burnAbsencesPercentage,
+            ),
+          ),
+
+          Text(
+            course.burnAbsencesPercentage.asPercentage,
+            style: _circularProgressTextStyle,
+          )
+        ],
+      ),
+
+      const SizedBox(width: 12),
+
+      Flexible(
+          child: Text(
+            'Você faltou em '
+                '${course.periodsSkipped ~/ course.periodsPerClassDay} aulas '
+                'desta disciplina. A tolerância é ${course.skippableClassDays} '
+                'faltas.',
+            softWrap: true,
+            // textAlign: TextAlign.center,
+          )
+      ),
+    ]
+  );
 }
+
+const _circularProgressSize = Size(100, 100);
+const _circularProgressTextStyle = TextStyle(
+    fontWeight: FontWeight.w800,
+    fontSize: 24
+);

@@ -147,9 +147,8 @@ class Course {
     // We are considering that courses are 15 weeks long. That is not always
     // true, but is a good approximation.
     final totalPeriods = 15 * periodsPerWeekday.reduce((acc, val) => acc + val);
-    return (totalPeriods * 0.25).toInt() - 1; // 75% of frequency in classes is
-    // demanded. We are discounting 1 for the reason described in the
-    // explanation screen. TODO: implement explanation screen.
+    return (totalPeriods * 0.25).toInt(); // 75% of frequency in classes is
+    // demanded.
   }
   
   /// The total number of class days that may be skipped by the student over the
