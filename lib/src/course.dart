@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'dart:math' as math;
 import 'package:faltometro_ufrgs/src/storage.dart';
 
 class Courses {
@@ -55,28 +56,71 @@ class Courses {
     _courses.remove(courseToDelete);
     Storage.updateCourses();
   }
+
+  static void registerAbsences(Course course, {int? absences, int? weekday}) {
+    assert (absences != null || weekday != null);
+
+    if (absences != null) {
+      assert (course.isUniform);
+      final periodsPerClass = course.periodsPerWeekday
+          .firstWhere((periods) => periods > 0);
+      course.periodsSkipped += absences * periodsPerClass;
+    }
+
+    else {
+      assert (! course.isUniform);
+      course.periodsSkipped += course.periodsPerWeekday[weekday!];
+    }
+
+    Storage.updateCourses();
+  }
+
+  // TODO: ensure that periodsSkipped doesn't become negative
+  static void discountAbsences(Course course, {int? absences, int? weekday}) {
+    assert (absences != null || weekday != null);
+
+    if (absences != null) {
+      assert (course.isUniform);
+      final periodsPerClass = course.periodsPerWeekday
+          .firstWhere((periods) => periods > 0);
+      course.periodsSkipped -= absences * periodsPerClass;
+    }
+
+    else {
+      assert (! course.isUniform);
+      course.periodsSkipped -= course.periodsPerWeekday[weekday!];
+    }
+
+    Storage.updateCourses();
+  }
 }
 
 class Course {
   String title;
   List<int> periodsPerWeekday;
-  int periodsSkipped;
+  int _periodsSkipped;
 
   Course({
     required this.title,
     required this.periodsPerWeekday,
-    required this.periodsSkipped,
-  });
+    required int periodsSkipped,
+  }) : _periodsSkipped = periodsSkipped;
+
+  int get periodsSkipped => _periodsSkipped;
+
+  set periodsSkipped(int value) {
+    _periodsSkipped = math.max(value, 0);
+  }
 
   Course.fromEntry(Map<String, dynamic> entry) :
         title = entry['title'],
         periodsPerWeekday = List<int>.from(entry['periodsPerWeekday']),
-        periodsSkipped = entry['periodsSkipped'];
+        _periodsSkipped = entry['periodsSkipped'];
 
   Map<String, dynamic> get entry => {
     'title': title,
     'periodsPerWeekday': periodsPerWeekday,
-    'periodsSkipped': periodsSkipped
+    'periodsSkipped': _periodsSkipped
   };
 
   /// A course is uniform if the amount of periods is the same in all class

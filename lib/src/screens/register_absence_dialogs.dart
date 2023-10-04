@@ -24,6 +24,18 @@ class _UniformCourseRegisterAbsenceDialogState
     super.initState();
   }
 
+  void _registerAbsences() {
+    Courses.registerAbsences(widget._course, absences: _daysAbsent);
+    Navigator.of(context).pop(true); // Popping true will indicate that a
+    // refresh is needed.
+  }
+
+  void _discountAbsences() {
+    Courses.discountAbsences(widget._course, absences: _daysAbsent);
+    Navigator.of(context).pop(true); // Popping true will indicate that a
+    // refresh is needed.
+  }
+
   @override
   Widget build(BuildContext context) => AlertDialog(
     title: const Text('Registrar falta'),
@@ -60,7 +72,7 @@ class _UniformCourseRegisterAbsenceDialogState
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           ElevatedButton(
-            onPressed: () {},
+            onPressed: _registerAbsences,
             style: ButtonStyle(
               shape: MaterialStateProperty.all(buttonRoundBorder)
             ),
@@ -68,7 +80,7 @@ class _UniformCourseRegisterAbsenceDialogState
           ),
 
           TextButton(
-            onPressed: () {},
+            onPressed: _discountAbsences,
             child: Text('Descontar falta${_daysAbsent > 1 ? 's' : ''}'),
           )
         ],
@@ -114,6 +126,20 @@ class _NonUniformCourseRegisterAbsenceDialogState
         : _selectedWeekday = weekday;
   });
 
+  void _registerAbsences() {
+    assert (_selectedWeekday != null);
+    Courses.registerAbsences(widget._course, weekday: _selectedWeekday);
+    Navigator.of(context).pop(true); // Popping true will indicate that a
+    // refresh is needed.
+  }
+
+  void _discountAbsences() {
+    assert (_selectedWeekday != null);
+    Courses.discountAbsences(widget._course, weekday: _selectedWeekday);
+    Navigator.of(context).pop(true); // Popping true will indicate that a
+    // refresh is needed.
+  }
+
   @override
   Widget build(BuildContext context) => AlertDialog(
     title: const Text('Registrar faltas'),
@@ -146,7 +172,7 @@ class _NonUniformCourseRegisterAbsenceDialogState
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           ElevatedButton(
-              onPressed: _selectedWeekday != null ? () {} : null,
+              onPressed: _selectedWeekday != null ? _registerAbsences : null,
               style: ButtonStyle(
                 shape: MaterialStateProperty.all(buttonRoundBorder)
               ),
@@ -154,7 +180,7 @@ class _NonUniformCourseRegisterAbsenceDialogState
           ),
 
           TextButton(
-              onPressed: _selectedWeekday != null ? () {} : null,
+              onPressed: _selectedWeekday != null ? _discountAbsences : null,
               child: const Text('Descontar falta')
           )
         ],
