@@ -157,6 +157,12 @@ class Course {
     assert (isUniform);
     return skippablePeriods ~/ periodsPerClassDay;
   }
+
+  /// Number of class days that were skipped. Valid only for uniform courses.
+  int get skippedClasses {
+    assert (isUniform);
+    return _periodsSkipped ~/ periodsPerClassDay;
+  }
 }
 
 extension PercentageFormattingExtension on double {

@@ -224,15 +224,7 @@ class _HomepageState extends State<Homepage> {
 
       const SizedBox(width: 12),
 
-      Flexible(
-          child: Text(
-            'Você queimou ${course.burnAbsencesPercentage.asPercentage} das '
-                'faltas para esta disciplina. Pode faltar mais '
-                '${course.skippablePeriods - course.periodsSkipped} períodos.',
-            softWrap: true,
-            // textAlign: TextAlign.center,
-          )
-      ),
+      Flexible(child: _mountCardText(course)),
     ],
   );
 
@@ -258,18 +250,35 @@ class _HomepageState extends State<Homepage> {
 
       const SizedBox(width: 12),
 
-      Flexible(
-          child: Text(
-            'Você faltou em '
-                '${course.periodsSkipped ~/ course.periodsPerClassDay} aulas '
-                'desta disciplina. A tolerância é ${course.skippableClassDays} '
-                'faltas.',
-            softWrap: true,
-            // textAlign: TextAlign.center,
-          )
-      ),
+      Flexible(child: _mountCardText(course)),
     ]
   );
+
+  Text _mountCardText(Course course) {
+    if (course.periodsSkipped < 1) {
+      return const Text(
+        'Você ainda não faltou nenhuma vez nesta cadeira!',
+        textAlign: TextAlign.center,
+      );
+    }
+
+    late final String text;
+
+    if (course.isUniform) {
+      final plural = course.skippedClasses > 1 ? 's' : '';
+      text = 'Você faltou em ${course.skippedClasses} aula$plural desta '
+          'disciplina. A tolerância é ${course.skippableClassDays} faltas.';
+    }
+
+    else {
+      final remainingAbsences = course.skippablePeriods - course.periodsSkipped;
+      text = 'Você queimou ${course.burnAbsencesPercentage.asPercentage} das '
+          'faltas para esta disciplina. Pode faltar mais $remainingAbsences '
+          'períodos.';
+    }
+
+    return Text(text);
+  }
 }
 
 const _circularProgressSize = Size(100, 100);
