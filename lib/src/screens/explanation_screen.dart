@@ -22,6 +22,8 @@ class ExplanationScreen extends StatelessWidget {
             ListView.separated(
               shrinkWrap: true, // Needed as it is a child of a
               // SingleChildScrollView.
+              physics: const NeverScrollableScrollPhysics(), // Disables the
+              // scrolling effect.
               separatorBuilder: (context, index) => const SizedBox(height: 16),
               itemCount: _paragraphs.length,
               itemBuilder: (context, index) => Text(
