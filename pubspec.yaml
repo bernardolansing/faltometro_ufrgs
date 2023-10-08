@@ -1,5 +1,5 @@
 name: faltometro_ufrgs
-description: A mobile app for UFRGS students to control their frequency in classes.
+description: A mobile app for UFRGS students to control their class attendance.
 publish_to: 'none'
 version: 1.0.0+1
 

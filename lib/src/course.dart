@@ -147,7 +147,7 @@ class Course {
     // We are considering that courses are 15 weeks long. That is not always
     // true, but is a good approximation.
     final totalPeriods = 15 * periodsPerWeekday.reduce((acc, val) => acc + val);
-    return (totalPeriods * 0.25).toInt(); // 75% of frequency in classes is
+    return (totalPeriods * 0.25).toInt(); // 75% of class attendance is
     // demanded.
   }
   
