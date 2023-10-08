@@ -1,6 +1,7 @@
 import 'package:faltometro_ufrgs/src/course.dart';
 import 'package:faltometro_ufrgs/src/screens/common.dart';
 import 'package:faltometro_ufrgs/src/screens/course_screen.dart';
+import 'package:faltometro_ufrgs/src/screens/explanation_screen.dart';
 import 'package:faltometro_ufrgs/src/screens/register_absence_dialogs.dart';
 import 'package:faltometro_ufrgs/src/storage.dart';
 import 'package:flutter/material.dart';
@@ -43,6 +44,9 @@ class _HomepageState extends State<Homepage> {
     final shouldUpdate = await Navigator.of(context).push(route);
     if (shouldUpdate == true) { setState(() {}); }
   }
+
+  Future<void> _openExplanationScreen() => Navigator.of(context)
+      .push(MaterialPageRoute(builder: (context) => const ExplanationScreen()));
 
   Future<void> _openRegisterAbsenceDialog(Course course) async {
     final shouldUpdate = await showDialog<bool>(
@@ -92,8 +96,14 @@ class _HomepageState extends State<Homepage> {
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(
-        leading: PhosphorIcon(PhosphorIcons.bold.flame),
-        title: const Text('Faltômetro UFRGS')
+      leading: PhosphorIcon(PhosphorIcons.bold.flame),
+      title: const Text('Faltômetro UFRGS'),
+      actions: [
+        IconButton(
+            onPressed: _openExplanationScreen,
+            icon: PhosphorIcon(PhosphorIcons.regular.question)
+        )
+      ],
     ),
     body: SafeArea(
       child: _contentToDisplay,
@@ -128,6 +138,12 @@ class _HomepageState extends State<Homepage> {
                 'Nenhuma disciplina adicionada ainda. Adicione sua primeira!',
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 18),
+              ),
+              const SizedBox(height: 24),
+              const Text(
+                  'Esclarecimentos importantes na página de ajuda, no canto '
+                      'superior direito.',
+                textAlign: TextAlign.center,
               )
             ],
           )
@@ -229,29 +245,29 @@ class _HomepageState extends State<Homepage> {
   );
 
   Widget buildUniformCourseStatus(Course course) => Row(
-    mainAxisAlignment: MainAxisAlignment.spaceAround,
-    children: [
-      Stack(
-        alignment: Alignment.center,
-        children: [
-          SizedBox.fromSize(
-            size: _circularProgressSize,
-            child: CircularProgressIndicator(
-              value: course.burnAbsencesPercentage,
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      children: [
+        Stack(
+          alignment: Alignment.center,
+          children: [
+            SizedBox.fromSize(
+              size: _circularProgressSize,
+              child: CircularProgressIndicator(
+                value: course.burnAbsencesPercentage,
+              ),
             ),
-          ),
 
-          Text(
-            course.burnAbsencesPercentage.asPercentage,
-            style: _circularProgressTextStyle,
-          )
-        ],
-      ),
+            Text(
+              course.burnAbsencesPercentage.asPercentage,
+              style: _circularProgressTextStyle,
+            )
+          ],
+        ),
 
-      const SizedBox(width: 12),
+        const SizedBox(width: 12),
 
-      Flexible(child: _mountCardText(course)),
-    ]
+        Flexible(child: _mountCardText(course)),
+      ]
   );
 
   Text _mountCardText(Course course) {
