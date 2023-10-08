@@ -19,9 +19,9 @@ class MyApp extends StatelessWidget {
 final _theme = ThemeData(
   colorScheme: const ColorScheme(
     brightness: Brightness.light,
-    primary: Color.fromRGBO(229, 34, 21, 1.0),
+    primary: Color.fromRGBO(229, 34, 21, 1.0), // #E52215
     onPrimary: Colors.white,
-    secondary: Color.fromRGBO(0, 100, 146, 1.0),
+    secondary: Color.fromRGBO(0, 100, 146, 1.0), // #006492
     onSecondary: Colors.white,
     error: Color.fromRGBO(200, 62, 77, 1.0),
     onError: Colors.white,
@@ -29,5 +29,6 @@ final _theme = ThemeData(
     onBackground: Colors.black,
     surface: Color.fromRGBO(218, 227, 231, 1.0),
     onSurface: Colors.black
-  )
+  ),
+  scaffoldBackgroundColor: const Color.fromRGBO(242, 242, 242, 1.0)
 );
