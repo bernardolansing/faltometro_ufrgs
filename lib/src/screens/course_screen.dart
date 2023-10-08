@@ -50,7 +50,8 @@ class _CourseScreenState extends State<CourseScreen> {
     super.initState();
   }
 
-  void _increasePeriods(int index) => setState(() => _periodsPerWeekday[index]++);
+  void _increasePeriods(int index) =>
+      setState(() => _periodsPerWeekday[index]++);
 
   void _decreasePeriods(int index) => setState(() {
     _periodsPerWeekday[index] = max(_periodsPerWeekday[index] - 1, 0);
@@ -107,6 +108,10 @@ class _CourseScreenState extends State<CourseScreen> {
                   // setState is needed to update the _buttonAvailable
                   // condition:
                   onChanged: (value) => setState(() {}),
+                  autofocus: widget.courseToEdit == null, // Autofocus only
+                  // when the course is being created, not when is edited.
+                  textCapitalization: TextCapitalization.sentences, // Makes
+                  // the text start with upper case.
                   style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
