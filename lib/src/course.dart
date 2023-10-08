@@ -163,6 +163,14 @@ class Course {
     assert (isUniform);
     return _periodsSkipped ~/ periodsPerClassDay;
   }
+
+  /// A course is in critical state if the student has burnt more than 80% of
+  /// the courses absences.
+  bool get isCritical => burnAbsencesPercentage > 0.8;
+
+  /// The student has probably skipped more classes than it could, so its
+  /// reprovation is almost certain.
+  bool get isGameOver => burnAbsencesPercentage >= 1.0;
 }
 
 extension PercentageFormattingExtension on double {

@@ -192,9 +192,7 @@ class _HomepageState extends State<Homepage> {
 
           const SizedBox(height: 8),
 
-          course.isUniform
-              ? buildUniformCourseStatus(course)
-              : buildNonUniformCourseStatus(course),
+          buildCourseCardContent(course),
 
           const SizedBox(height: 8),
 
@@ -218,7 +216,7 @@ class _HomepageState extends State<Homepage> {
     ),
   );
 
-  Widget buildNonUniformCourseStatus(Course course) => Row(
+  Widget buildCourseCardContent(Course course) => Row(
     mainAxisAlignment: MainAxisAlignment.spaceAround,
     children: [
       Stack(
@@ -233,7 +231,9 @@ class _HomepageState extends State<Homepage> {
 
           Text(
             course.burnAbsencesPercentage.asPercentage,
-            style: _circularProgressTextStyle,
+            style: course.isCritical
+                ? _circularProgressTextStyleCritical
+                : _circularProgressTextStyle,
           ),
         ],
       ),
@@ -244,37 +244,28 @@ class _HomepageState extends State<Homepage> {
     ],
   );
 
-  Widget buildUniformCourseStatus(Course course) => Row(
-      mainAxisAlignment: MainAxisAlignment.spaceAround,
-      children: [
-        Stack(
-          alignment: Alignment.center,
-          children: [
-            SizedBox.fromSize(
-              size: _circularProgressSize,
-              child: CircularProgressIndicator(
-                value: course.burnAbsencesPercentage,
-              ),
-            ),
-
-            Text(
-              course.burnAbsencesPercentage.asPercentage,
-              style: _circularProgressTextStyle,
-            )
-          ],
-        ),
-
-        const SizedBox(width: 12),
-
-        Flexible(child: _mountCardText(course)),
-      ]
-  );
-
   Text _mountCardText(Course course) {
     if (course.periodsSkipped < 1) {
       return const Text(
         'Você ainda não faltou nenhuma vez nesta cadeira!',
         textAlign: TextAlign.center,
+      );
+    }
+
+    if (course.isGameOver) {
+      return const Text(
+        'Conceito FF: Fez Fiasco!!!',
+        textAlign: TextAlign.left,
+        style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16)
+      );
+    }
+
+    if (course.isCritical) {
+      return const Text(
+        'Porcentagem crítica de faltas. Sua aprovação não é garantida. Evite '
+            'ao máximo faltar novamente.',
+        textAlign: TextAlign.center,
+        style: TextStyle(fontWeight: FontWeight.w800),
       );
     }
 
@@ -301,4 +292,9 @@ const _circularProgressSize = Size(100, 100);
 const _circularProgressTextStyle = TextStyle(
     fontWeight: FontWeight.w800,
     fontSize: 24
+);
+const _circularProgressTextStyleCritical = TextStyle(
+  fontWeight: FontWeight.w900,
+  fontSize: 26,
+  color: Colors.red
 );
