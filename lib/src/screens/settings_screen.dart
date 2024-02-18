@@ -30,6 +30,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               title: Text(option.title),
               contentPadding: EdgeInsets.zero,
               visualDensity: VisualDensity.compact,
+              onTap: () => _applyNotificationFrequency(option),
               leading: Radio(
                 value: option,
                 groupValue: Settings.notificationFrequency,
