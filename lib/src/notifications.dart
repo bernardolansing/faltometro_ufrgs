@@ -7,9 +7,17 @@ import 'package:permission_handler/permission_handler.dart';
 class Notifications {
   static late final AndroidFlutterLocalNotificationsPlugin _plugin;
 
-  static Future<void> initialize(BuildContext context) async {
+  /// Initializes the Notifications plugin without worrying about permissions.
+  static Future<void> initialize() async {
     _plugin = AndroidFlutterLocalNotificationsPlugin();
     await _plugin.initialize(_initializationSettings);
+  }
+
+  /// Checks if the app is set up to send notifications. If it does, checks if
+  /// app has permission to do so. In the lack of permissions, it will spawn
+  /// a gentle dialog that asks for permissions. Shall the user deny them, it
+  /// will also change the app settings to opt out of notifications.
+  static Future<void> checkPermissions(BuildContext context) async {
     final permission = await Permission.notification.status;
     final shouldSendNotifications =
         Settings.notificationFrequency != NotificationFrequency.never;
@@ -24,7 +32,7 @@ class Notifications {
           context: context,
           builder: (context) => const NotificationRequestDialog()
       );
-      
+
       if (userWantsToGrantPermission == true) {
         final granted = await _plugin.requestNotificationsPermission();
 
@@ -62,15 +70,11 @@ class Notifications {
       Settings.setNotificationFrequency(NotificationFrequency.never);
       if (context.mounted) {
         showDialog(
-          context: context,
-          builder: (context) => const PermissionPermanentlyDeniedDialog()
+            context: context,
+            builder: (context) => const PermissionPermanentlyDeniedDialog()
         );
       }
     }
-  }
-
-  static void sendTestNotification() {
-    _plugin.show(0, 'title', 'body', notificationDetails: _notificationDetails);
   }
 }
 

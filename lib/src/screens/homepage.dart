@@ -30,9 +30,7 @@ class _HomepageState extends State<Homepage> {
     await Storage.initialize();
     Courses.load();
     Settings.load();
-    if (context.mounted) {
-      Notifications.initialize(context);
-    }
+    Notifications.initialize();
     setState(() => _loading = false);
   }
 
@@ -40,8 +38,12 @@ class _HomepageState extends State<Homepage> {
     final route = MaterialPageRoute<bool>(
         builder: (context) => const CourseScreen.newCourse()
     );
-    final shouldUpdate = await Navigator.of(context).push(route);
-    if (shouldUpdate == true) { setState(() {}); }
+    final courseAdded = await Navigator.of(context).push(route);
+    if (courseAdded == true && context.mounted) {
+      setState(() {});
+      Notifications.checkPermissions(context);  // Once a course is added, we
+      // must check if the app has permissions to send notifications.
+    }
   }
 
   Future<void> _openEditCourseScreen(Course course) async {
