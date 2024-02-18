@@ -2,6 +2,7 @@ import 'package:faltometro_ufrgs/src/course.dart';
 import 'package:faltometro_ufrgs/src/screens/common.dart';
 import 'package:faltometro_ufrgs/src/screens/course_screen.dart';
 import 'package:faltometro_ufrgs/src/screens/explanation_screen.dart';
+import 'package:faltometro_ufrgs/src/notifications.dart';
 import 'package:faltometro_ufrgs/src/screens/register_absence_dialogs.dart';
 import 'package:faltometro_ufrgs/src/screens/settings_screen.dart';
 import 'package:faltometro_ufrgs/src/settings.dart';
@@ -29,6 +30,9 @@ class _HomepageState extends State<Homepage> {
     await Storage.initialize();
     Courses.load();
     Settings.load();
+    if (context.mounted) {
+      Notifications.initialize(context);
+    }
     setState(() => _loading = false);
   }
 
