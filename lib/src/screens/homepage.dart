@@ -3,6 +3,7 @@ import 'package:faltometro_ufrgs/src/screens/common.dart';
 import 'package:faltometro_ufrgs/src/screens/course_screen.dart';
 import 'package:faltometro_ufrgs/src/screens/explanation_screen.dart';
 import 'package:faltometro_ufrgs/src/screens/register_absence_dialogs.dart';
+import 'package:faltometro_ufrgs/src/screens/settings_screen.dart';
 import 'package:faltometro_ufrgs/src/storage.dart';
 import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
@@ -47,6 +48,9 @@ class _HomepageState extends State<Homepage> {
 
   Future<void> _openExplanationScreen() => Navigator.of(context)
       .push(MaterialPageRoute(builder: (context) => const ExplanationScreen()));
+
+  void _openSettingsScreen() => Navigator.of(context)
+      .push(MaterialPageRoute(builder: (context) => const SettingsScreen()));
 
   Future<void> _openRegisterAbsenceDialog(Course course) async {
     final shouldUpdate = await showDialog<bool>(
@@ -102,7 +106,12 @@ class _HomepageState extends State<Homepage> {
         IconButton(
             onPressed: _openExplanationScreen,
             icon: PhosphorIcon(PhosphorIcons.regular.question)
-        )
+        ),
+
+        IconButton(
+          onPressed: _openSettingsScreen,
+          icon: PhosphorIcon(PhosphorIcons.regular.gear),
+        ),
       ],
     ),
     body: SafeArea(
