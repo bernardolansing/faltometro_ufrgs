@@ -13,6 +13,7 @@ dependencies:
   path_provider: ^2.1.1
   url_launcher: ^6.1.14
   flutter_local_notifications: ^16.3.2
+  permission_handler: ^11.3.0
 
 dev_dependencies:
   flutter_test:
