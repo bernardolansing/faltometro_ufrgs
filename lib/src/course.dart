@@ -3,28 +3,27 @@ import 'dart:math' as math;
 import 'package:faltometro_ufrgs/src/storage.dart';
 
 class Courses {
-  static bool _initialized = false;
-  static late final List<Course> _courses;
+  static List<Course> _courses = [];
 
-  static List<Course> get courses {
-    assert (_initialized);
-    return _courses;
-  }
+  static List<Course> get courses => _courses;
 
-  /// Load courses from the stored JSON entries.
-  static void load(List<Map<String, dynamic>> entries) {
-    assert (! _initialized);
-
-    try { _courses = entries.map(Course.fromEntry).toList(); }
+  /// Load courses from the stored JSON entries. If something fails, it will
+  /// invoke the Storage erasure.
+  static void load() {
+    try {
+      _courses = Storage.coursesEntry.map(Course.fromEntry).toList();
+    }
     on TypeError catch (error) {
       log('Error on decoding courses entries: ${error.toString()}');
-      Storage.condemnStoredCourses();
+      Storage.saveCourses(); // This will erase the courses entry from the
+      // Storage, as we are saving the default empty list of courses.
     }
-
-    _initialized = true;
   }
 
-  /// Create new course.
+  static List<Map<String, dynamic>> get storageEntry => _courses
+      .map((course) => course.entry)
+      .toList();
+
   static void newCourse({
     required String title,
     required List<int> periodsPerWeekday,
@@ -39,7 +38,7 @@ class Courses {
         periodsSkipped: 0
     );
     _courses.add(newCourse);
-    Storage.updateCourses();
+    Storage.saveCourses();
   }
 
   static void editCourse({
@@ -49,12 +48,12 @@ class Courses {
   }) {
     course.title = title ?? course.title;
     course.periodsPerWeekday = periodsPerWeekday ?? course.periodsPerWeekday;
-    Storage.updateCourses();
+    Storage.saveCourses();
   }
 
   static void deleteCourse(Course courseToDelete) {
     _courses.remove(courseToDelete);
-    Storage.updateCourses();
+    Storage.saveCourses();
   }
 
   static void registerAbsences(Course course, {int? absences, int? weekday}) {
@@ -70,7 +69,7 @@ class Courses {
       course.periodsSkipped += course.periodsPerWeekday[weekday!];
     }
 
-    Storage.updateCourses();
+    Storage.saveCourses();
   }
 
   static void discountAbsences(Course course, {int? absences, int? weekday}) {
@@ -86,7 +85,7 @@ class Courses {
       course.periodsSkipped -= course.periodsPerWeekday[weekday!];
     }
 
-    Storage.updateCourses();
+    Storage.saveCourses();
   }
 }
 

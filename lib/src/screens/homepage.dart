@@ -4,6 +4,7 @@ import 'package:faltometro_ufrgs/src/screens/course_screen.dart';
 import 'package:faltometro_ufrgs/src/screens/explanation_screen.dart';
 import 'package:faltometro_ufrgs/src/screens/register_absence_dialogs.dart';
 import 'package:faltometro_ufrgs/src/screens/settings_screen.dart';
+import 'package:faltometro_ufrgs/src/settings.dart';
 import 'package:faltometro_ufrgs/src/storage.dart';
 import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
@@ -26,7 +27,8 @@ class _HomepageState extends State<Homepage> {
 
   Future<void> _initialize() async {
     await Storage.initialize();
-    Courses.load(Storage.coursesEntry);
+    Courses.load();
+    Settings.load();
     setState(() => _loading = false);
   }
 
