@@ -43,7 +43,13 @@ class Settings {
 }
 
 enum NotificationFrequency {
-  never,
-  weekly,
-  classDays,
+  never('Nunca'),
+  weekly('Semanalmente'),
+  classDays('Nos dias em que tenho aula');
+
+  /// The pretty text that will be displayed in the screen to refer to each
+  /// variant.
+  final String title;
+
+  const NotificationFrequency(this.title);
 }
