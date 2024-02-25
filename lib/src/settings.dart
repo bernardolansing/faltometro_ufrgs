@@ -1,4 +1,6 @@
 import 'dart:developer';
+import 'package:faltometro_ufrgs/src/notifications.dart';
+
 import 'storage.dart';
 
 const _defaultNotificationFrequency = NotificationFrequency.weekly;
@@ -36,6 +38,13 @@ class Settings {
 
   static void setNotificationFrequency(NotificationFrequency frequency) {
     if (frequency != _notificationFrequency) {
+      if (frequency == NotificationFrequency.weekly) {
+        Notifications.enableWeeklyNotifications();
+      }
+      else if (frequency == NotificationFrequency.never) {
+        Notifications.disableNotifications();
+      }
+
       _notificationFrequency = frequency;
       Storage.saveSettings();
     }

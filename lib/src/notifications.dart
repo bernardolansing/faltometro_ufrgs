@@ -1,14 +1,20 @@
+import 'dart:developer';
 import 'package:faltometro_ufrgs/src/screens/notification_request_dialog.dart';
 import 'package:faltometro_ufrgs/src/settings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:timezone/data/latest_all.dart' as tz;
+import 'package:timezone/timezone.dart' as tz;
 
 class Notifications {
   static late final AndroidFlutterLocalNotificationsPlugin _plugin;
 
   /// Initializes the Notifications plugin without worrying about permissions.
   static Future<void> initialize() async {
+    log('Initalizing notification service');
+    tz.initializeTimeZones();
+    tz.setLocalLocation(tz.getLocation('America/Sao_Paulo'));
     _plugin = AndroidFlutterLocalNotificationsPlugin();
     await _plugin.initialize(_initializationSettings);
   }
@@ -74,6 +80,44 @@ class Notifications {
             builder: (context) => const PermissionPermanentlyDeniedDialog()
         );
       }
+    }
+  }
+
+  /// Registers scheduled notifications to be shown on Fridays at 8pm. This
+  /// registration will live permanently, even if the app is closed (so it
+  /// should be called only once by the registration time). The notifications
+  /// are aimed to be delivered on Fridays at 8pm.
+  static void enableWeeklyNotifications() {
+    log('Scheduling weekly notifications');
+    const title = 'Faltou essa semana?';
+    const body = 'Não esqueça de registrar suas faltas.';
+
+    // Mount the schedule. This is a DateTime-like object that represents the
+    // time and date in which the next notification will show up.
+    tz.TZDateTime schedule = tz.TZDateTime.now(tz.local);
+    // Round up to the next hour:
+    schedule = schedule.add(Duration(minutes: 60 - schedule.minute));
+    // Increment the date object until it's 8pm.
+    while (schedule.hour != 20) {
+      schedule = schedule.add(const Duration(hours: 1));
+    }
+    // Increment the date object until it's Friday.
+    while (schedule.weekday != 5) {
+      schedule = schedule.add(const Duration(days: 1));
+    }
+
+    // Effectively register the notifications.
+    _plugin.zonedSchedule(0, title, body, schedule, _notificationDetails,
+        scheduleMode: AndroidScheduleMode.inexact,
+        matchDateTimeComponents: DateTimeComponents.dayOfWeekAndTime);
+  }
+
+  /// Revoke the subscription of notifications.
+  static Future<void> disableNotifications() async {
+    log('Revoking the subscription of all notifications');
+    final registeredNotifications = await _plugin.pendingNotificationRequests();
+    for (final notification in registeredNotifications) {
+      _plugin.cancel(notification.id);
     }
   }
 }
