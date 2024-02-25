@@ -21,9 +21,20 @@ class Storage {
 
     if (fileExists) {
       final fileRawBytes = await _file.readAsBytes();
-      final fileDecodedRaw = utf8.decode(fileRawBytes.toList());
-      _content = jsonDecode(fileDecodedRaw);
+
+      if (fileRawBytes.isEmpty) {
+        // Weirdly, it seems that the file is cleared instead of deleted between
+        // app reinstalls. It may be a emulator bug also, but since the
+        // posibility exists, it doesn't hurt to check.
+        _saveAll();
+      }
+
+      else {
+        final fileDecodedRaw = utf8.decode(fileRawBytes.toList());
+        _content = jsonDecode(fileDecodedRaw);
+      }
     }
+
     else {
       // If there are no settings file created, we should load the default ones
       // and save them. Every module that uses Storage should initialize its
@@ -39,8 +50,10 @@ class Storage {
   /// Saves the state of all stored data.
   static void _saveAll() {
     log('Writing to the Storage file');
-    _content['courses'] = Courses.storageEntry;
-    _content['settings'] = Settings.storageEntry;
+    _content = {
+      'courses': Courses.storageEntry,
+      'settings': Settings.storageEntry,
+    };
     _saveToFile();
   }
 
