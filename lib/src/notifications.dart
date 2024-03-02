@@ -114,7 +114,8 @@ class Notifications {
 
     switch (Settings.notificationFrequency) {
       case NotificationFrequency.never:
-      // If that's the case, we're good.
+      // If that's the case, we're good as we've just unscheduled all
+      // notifications.
         log('[NOTIFICATIONS] notifications were disabled');
         break;
 
@@ -123,7 +124,7 @@ class Notifications {
         break;
 
       case NotificationFrequency.classDays:
-      // TODO
+        _scheduleClassDaysNotifications();
         break;
     }
   }
@@ -155,6 +156,36 @@ class Notifications {
     _plugin.zonedSchedule(0, title, body, schedule, _notificationDetails,
         scheduleMode: AndroidScheduleMode.inexact,
         matchDateTimeComponents: DateTimeComponents.dayOfWeekAndTime);
+  }
+
+  /// Registers scheduled notifications to be emitted at 8pm of every day the
+  /// student has classes.
+  static void _scheduleClassDaysNotifications() {
+    log('[NOTIFICATIONS] scheduling class days notifications');
+    const title = 'Faltou hoje?';
+    const body = 'Não esqueça de registrar.';
+
+    // Create the schedule date object:
+    tz.TZDateTime schedule = tz.TZDateTime.now(tz.local);
+    // Round up to the next hour:
+    schedule = schedule.add(Duration(minutes: 60 - schedule.minute));
+    // Increment until it's 8pm:
+    while (schedule.hour != 20) {
+      schedule = schedule.add(const Duration(hours: 1));
+    }
+
+    // Progressively update the date object until it matches every class
+    // weekday.
+    for (final weekday in Courses.weekdaysWithClass) {
+      while (schedule.weekday != weekday) {
+        schedule = schedule.add(const Duration(hours: 1));
+      }
+
+      // Invoke the scheduling:
+      _plugin.zonedSchedule(weekday, title, body, schedule,
+          _notificationDetails, scheduleMode: AndroidScheduleMode.inexact,
+          matchDateTimeComponents: DateTimeComponents.dayOfWeekAndTime);
+    }
   }
 }
 

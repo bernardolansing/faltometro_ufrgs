@@ -7,6 +7,20 @@ class Courses {
 
   static List<Course> get courses => _courses;
 
+  /// A list of weekdays indexes in which the student has classes. 0 is Monday,
+  /// 1 is Tuesday and so on.
+  static List<int> get weekdaysWithClass {
+    final List<int> wkdWithClass = [];
+
+    for (final wk in Iterable.generate(5, (index) => index)) {
+      if (_courses.any((course) => course.periodsPerWeekday[wk] != 0)) {
+        wkdWithClass.add(wk);
+      }
+    }
+
+    return wkdWithClass;
+  }
+
   /// Load courses from the stored JSON entries. If something fails, it will
   /// invoke the Storage erasure.
   static void load() {
