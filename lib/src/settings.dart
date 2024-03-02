@@ -36,17 +36,15 @@ class Settings {
     return _notificationFrequency;
   }
 
+  /// True if we should send notifications at some moment.
+  static bool get notificationsEnabled =>
+      _notificationFrequency != NotificationFrequency.never;
+
   static void setNotificationFrequency(NotificationFrequency frequency) {
     if (frequency != _notificationFrequency) {
-      if (frequency == NotificationFrequency.weekly) {
-        Notifications.enableWeeklyNotifications();
-      }
-      else if (frequency == NotificationFrequency.never) {
-        Notifications.disableNotifications();
-      }
-
       _notificationFrequency = frequency;
       Storage.saveSettings();
+      Notifications.updateSchedules();
     }
   }
 }

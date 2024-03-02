@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'package:faltometro_ufrgs/src/course.dart';
 import 'package:faltometro_ufrgs/src/screens/notification_request_dialog.dart';
 import 'package:faltometro_ufrgs/src/settings.dart';
 import 'package:flutter/material.dart';
@@ -12,39 +13,45 @@ class Notifications {
 
   /// Initializes the Notifications plugin without worrying about permissions.
   static Future<void> initialize() async {
-    log('Initalizing notification service');
+    log('[NOTIFICATIONS] initalizing notification service');
     tz.initializeTimeZones();
     tz.setLocalLocation(tz.getLocation('America/Sao_Paulo'));
     _plugin = AndroidFlutterLocalNotificationsPlugin();
     await _plugin.initialize(_initializationSettings);
   }
 
-  /// Checks if the app is set up to send notifications. If it does, checks if
-  /// app has permission to do so. In the lack of permissions, it will spawn
-  /// a gentle dialog that asks for permissions. Shall the user deny them, it
-  /// will also change the app settings to opt out of notifications.
-  static Future<void> checkPermissions(BuildContext context) async {
+  /// Checks if the app has permission to send push notifications. This function
+  /// assumes that notifications are enabled in settings. In the lack of
+  /// permissions, it will spawn a gentle dialog that asks for permissions.
+  /// Shall the user deny them, it will also change the app settings to opt out
+  /// of notifications. If permissions are enabled (or were enabled during its
+  /// course), it will return true. If permissions were denied (and therefore
+  /// disabled in Settings), it will return false.
+  static Future<bool> checkPermissions(BuildContext context) async {
+    assert (Settings.notificationsEnabled);
+    log('[NOTIFICATIONS] checking for notification permissions');
+
     final permission = await Permission.notification.status;
-    final shouldSendNotifications =
-        Settings.notificationFrequency != NotificationFrequency.never;
 
     // Notifications are enabled in settings, but we lack permissions to send
     // them. The permission is "denied" when user has never been prompted about
     // wheter they consent with the permission or not; in other words it's the
-    // default state.
-    if (permission.isDenied && shouldSendNotifications) {
-      if (! context.mounted) { return; }
+    // default state for when the app has just been installed.
+    if (permission.isDenied) {
+      if (! context.mounted) { return false; }
       final userWantsToGrantPermission = await showDialog<bool>(
           context: context,
           builder: (context) => const NotificationRequestDialog()
       );
 
+      // User has confirmed the in-app dialog. Now, show the system dialog.
       if (userWantsToGrantPermission == true) {
         final granted = await _plugin.requestNotificationsPermission();
 
         if (granted == true && context.mounted) {
           ScaffoldMessenger.of(context)
               .showSnackBar(_notificationsEnabledSnackbar);
+          return true;
         }
 
         // User ended up refusing the notifications permission, therefore we
@@ -55,6 +62,7 @@ class Notifications {
             ScaffoldMessenger.of(context)
                 .showSnackBar(_notificationsDisabledSnackbar);
           }
+          return false;
         }
       }
 
@@ -65,6 +73,7 @@ class Notifications {
           ScaffoldMessenger.of(context)
               .showSnackBar(_notificationsDisabledSnackbar);
         }
+        return false;
       }
     }
 
@@ -72,7 +81,7 @@ class Notifications {
     // "permanently denied". In this case, we can't invoke new permission
     // requests. However, user may still manually grant the permission in the
     // app settings.
-    if (permission.isPermanentlyDenied && shouldSendNotifications) {
+    if (permission.isPermanentlyDenied) {
       Settings.setNotificationFrequency(NotificationFrequency.never);
       if (context.mounted) {
         showDialog(
@@ -80,6 +89,42 @@ class Notifications {
             builder: (context) => const PermissionPermanentlyDeniedDialog()
         );
       }
+      return false;
+    }
+
+    assert (permission.isGranted);
+    return true;
+  }
+
+  /// Makes sure that the notifications are properly scheduled according to what
+  /// is configured in [Settings] module.
+  static void updateSchedules() async {
+    log('[NOTIFICATIONS] updating notification schedules');
+
+    // We start by erasing all living schedules.
+    final registeredNotifications = await _plugin.pendingNotificationRequests();
+    for (final notification in registeredNotifications) {
+      _plugin.cancel(notification.id);
+    }
+
+    if (Courses.courses.isEmpty) {
+      log('[NOTIFICATIONS] cleared schedules as no courses are registered');
+      return;
+    }
+
+    switch (Settings.notificationFrequency) {
+      case NotificationFrequency.never:
+      // If that's the case, we're good.
+        log('[NOTIFICATIONS] notifications were disabled');
+        break;
+
+      case NotificationFrequency.weekly:
+        _scheduleWeeklyNotifications();
+        break;
+
+      case NotificationFrequency.classDays:
+      // TODO
+        break;
     }
   }
 
@@ -87,8 +132,8 @@ class Notifications {
   /// registration will live permanently, even if the app is closed (so it
   /// should be called only once by the registration time). The notifications
   /// are aimed to be delivered on Fridays at 8pm.
-  static void enableWeeklyNotifications() {
-    log('Scheduling weekly notifications');
+  static void _scheduleWeeklyNotifications() {
+    log('[NOTIFICATIONS] scheduling weekly notifications');
     const title = 'Faltou essa semana?';
     const body = 'Não esqueça de registrar suas faltas.';
 
@@ -110,15 +155,6 @@ class Notifications {
     _plugin.zonedSchedule(0, title, body, schedule, _notificationDetails,
         scheduleMode: AndroidScheduleMode.inexact,
         matchDateTimeComponents: DateTimeComponents.dayOfWeekAndTime);
-  }
-
-  /// Revoke the subscription of notifications.
-  static Future<void> disableNotifications() async {
-    log('Revoking the subscription of all notifications');
-    final registeredNotifications = await _plugin.pendingNotificationRequests();
-    for (final notification in registeredNotifications) {
-      _plugin.cancel(notification.id);
-    }
   }
 }
 
