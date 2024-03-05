@@ -49,7 +49,7 @@ class Storage {
 
   /// Saves the state of all stored data.
   static void _saveAll() {
-    log('Writing to the Storage file');
+    log('Writing to Storage file');
     _content = {
       'courses': Courses.storageEntry,
       'settings': Settings.storageEntry,

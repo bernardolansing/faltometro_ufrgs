@@ -177,8 +177,10 @@ class Notifications {
     // Progressively update the date object until it matches every class
     // weekday.
     for (final weekday in Courses.weekdaysWithClass) {
-      while (schedule.weekday != weekday) {
-        schedule = schedule.add(const Duration(hours: 1));
+      // We add 1 because tz considers that the week starts by Monday and the
+      // week is 1-indexed.
+      while (schedule.weekday != weekday + 1) {
+        schedule = schedule.add(const Duration(days: 1));
       }
 
       // Invoke the scheduling:
@@ -194,7 +196,7 @@ const _initializationSettings = AndroidInitializationSettings(
 );
 
 const _notificationDetails = AndroidNotificationDetails(
-    'channelId', 'channelName'
+    'report-absences-reminder', 'Lembrete para registrar faltas'
 );
 
 const _notificationsEnabledSnackbar = SnackBar(
