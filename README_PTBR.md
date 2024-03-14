@@ -1,13 +1,16 @@
 # Faltômetro UFRGS
-Aplicativo mobile para os estudantes da UFRGS controlarem suas frequências nas aulas. Foi testado
-apenas em dispositivos Android, e há planos para publicá-lo na Play Store em breve. Por enquanto,
-se você quiser obter o app você pode compilá-lo por conta própria (ver
-[aspectos técnicos](#aspectos-técnicos)) ou pedir para eu te enviá-lo (ver [contato](#contato)).
+
+Aplicativo mobile para os estudantes da UFRGS controlarem suas frequências nas aulas. Só funciona
+no Android. Há planos para publicá-lo na Play Store em breve, e também para lançar uma versão web
+dele para que usuários de iOS ou até mesmo de PCs possam usá-lo.
 
 ### Funcionalidades
 - Você pode adicionar suas disciplinas e registrar suas faltas nela. O aplicativo calculará quantas
 faltas você já consumiu.
 - Você pode editar as cadeiras, alterando seu nome e número de períodos por dia da semana.
+- Você pode optar por receber notificações para te lembrar de registrar suas faltas. Você pode
+escolher entre receber uma notificação por semana (sextas-feiras à noite), uma para cada dia de aula
+(também à noite) ou então desativá-las.
 
 ### Funcionalidades planejadas
 - URGENTE: ter um ícone para o app :)...
@@ -16,7 +19,6 @@ você trocar de dispositivo.
 - Banco de dados de disciplinas com seus horários. Com isso, não será necessário que você preencha
 manualmente o número de períodos por dia da semana para cada disciplina, e você terá uma maneira
 prática de consultar os horários das suas aulas.
-- Notificações do aplicativo para te lembrar de registrar suas faltas.
 
 ### Contato
 Se você tiver qualquer sugestão ou crítica, ou quiser reportar um bug ou quiser contribuir com o

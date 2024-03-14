@@ -2,7 +2,10 @@ import 'package:faltometro_ufrgs/src/course.dart';
 import 'package:faltometro_ufrgs/src/screens/common.dart';
 import 'package:faltometro_ufrgs/src/screens/course_screen.dart';
 import 'package:faltometro_ufrgs/src/screens/explanation_screen.dart';
+import 'package:faltometro_ufrgs/src/notifications.dart';
 import 'package:faltometro_ufrgs/src/screens/register_absence_dialogs.dart';
+import 'package:faltometro_ufrgs/src/screens/settings_screen.dart';
+import 'package:faltometro_ufrgs/src/settings.dart';
 import 'package:faltometro_ufrgs/src/storage.dart';
 import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
@@ -25,7 +28,9 @@ class _HomepageState extends State<Homepage> {
 
   Future<void> _initialize() async {
     await Storage.initialize();
-    Courses.load(Storage.coursesEntry);
+    Courses.load();
+    Settings.load();
+    Notifications.initialize();
     setState(() => _loading = false);
   }
 
@@ -33,8 +38,22 @@ class _HomepageState extends State<Homepage> {
     final route = MaterialPageRoute<bool>(
         builder: (context) => const CourseScreen.newCourse()
     );
-    final shouldUpdate = await Navigator.of(context).push(route);
-    if (shouldUpdate == true) { setState(() {}); }
+    final courseAdded = await Navigator.of(context).push(route);
+
+    if (courseAdded == true && mounted) {
+      setState(() {}); // Refresh the screen.
+
+      if (Settings.notificationsEnabled) {
+        // If notifications are enabled, we should check if we got permissions
+        // to send them and if they're set up.
+
+        // Check if the app has permission to send notifications. This may
+        // trigger extra dialogs.
+        final permissionsAreOk = await Notifications.checkPermissions(context);
+        // If they are, make sure that they're properly scheduled.
+        if (permissionsAreOk) { Notifications.updateSchedules(); }
+      }
+    }
   }
 
   Future<void> _openEditCourseScreen(Course course) async {
@@ -47,6 +66,9 @@ class _HomepageState extends State<Homepage> {
 
   Future<void> _openExplanationScreen() => Navigator.of(context)
       .push(MaterialPageRoute(builder: (context) => const ExplanationScreen()));
+
+  void _openSettingsScreen() => Navigator.of(context)
+      .push(MaterialPageRoute(builder: (context) => const SettingsScreen()));
 
   Future<void> _openRegisterAbsenceDialog(Course course) async {
     final shouldUpdate = await showDialog<bool>(
@@ -83,6 +105,7 @@ class _HomepageState extends State<Homepage> {
 
     if (deletionConfirmed == true) {
       Courses.deleteCourse(course);
+      Notifications.updateSchedules();
       setState(() {});
     }
   }
@@ -102,7 +125,12 @@ class _HomepageState extends State<Homepage> {
         IconButton(
             onPressed: _openExplanationScreen,
             icon: PhosphorIcon(PhosphorIcons.regular.question)
-        )
+        ),
+
+        IconButton(
+          onPressed: _openSettingsScreen,
+          icon: PhosphorIcon(PhosphorIcons.regular.gear),
+        ),
       ],
     ),
     body: SafeArea(
@@ -141,8 +169,8 @@ class _HomepageState extends State<Homepage> {
               ),
               const SizedBox(height: 24),
               const Text(
-                  'Esclarecimentos importantes na página de ajuda, no canto '
-                      'superior direito.',
+                'Esclarecimentos importantes na página de ajuda, no canto '
+                    'superior direito.',
                 textAlign: TextAlign.center,
               )
             ],
@@ -254,9 +282,9 @@ class _HomepageState extends State<Homepage> {
 
     if (course.isGameOver) {
       return const Text(
-        'Conceito FF: Fez Fiasco!!!',
-        textAlign: TextAlign.left,
-        style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16)
+          'Conceito FF: Fez Fiasco!!!',
+          textAlign: TextAlign.left,
+          style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16)
       );
     }
 
@@ -294,7 +322,7 @@ const _circularProgressTextStyle = TextStyle(
     fontSize: 24
 );
 const _circularProgressTextStyleCritical = TextStyle(
-  fontWeight: FontWeight.w900,
-  fontSize: 26,
-  color: Colors.red
+    fontWeight: FontWeight.w900,
+    fontSize: 26,
+    color: Colors.red
 );
