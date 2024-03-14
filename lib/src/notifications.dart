@@ -39,6 +39,9 @@ class Notifications {
     // default state for when the app has just been installed.
     if (permission.isDenied) {
       if (! context.mounted) { return false; }
+
+      // First, we want to show an in-app dialog explaining why we want
+      // notification permissions, and what kind of notifications will be shown.
       final userWantsToGrantPermission = await showDialog<bool>(
           context: context,
           builder: (context) => const NotificationRequestDialog()
@@ -131,8 +134,8 @@ class Notifications {
 
   /// Registers scheduled notifications to be shown on Fridays at 8pm. This
   /// registration will live permanently, even if the app is closed (so it
-  /// should be called only once by the registration time). The notifications
-  /// are aimed to be delivered on Fridays at 8pm. If notification permissions
+  /// should be called only once at registration time). The notifications are
+  /// aimed to be delivered on Fridays at 8pm. If notification permissions
   /// problems are detected, throws [InvalidNotificationPermissions].
   static Future<void> _scheduleWeeklyNotifications() async {
     log('[NOTIFICATIONS] scheduling weekly notifications');
