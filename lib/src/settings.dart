@@ -40,11 +40,12 @@ class Settings {
   static bool get notificationsEnabled =>
       _notificationFrequency != NotificationFrequency.never;
 
-  static void setNotificationFrequency(NotificationFrequency frequency) {
+  static Future<void> setNotificationFrequency(
+      NotificationFrequency frequency) async {
     if (frequency != _notificationFrequency) {
       _notificationFrequency = frequency;
+      await Notifications.updateSchedules();
       Storage.saveSettings();
-      Notifications.updateSchedules();
     }
   }
 }

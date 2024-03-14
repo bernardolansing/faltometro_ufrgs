@@ -1,3 +1,4 @@
+import 'package:faltometro_ufrgs/src/notifications.dart';
 import 'package:faltometro_ufrgs/src/settings.dart';
 import 'package:flutter/material.dart';
 
@@ -9,10 +10,20 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  void _applyNotificationFrequency(NotificationFrequency? nf) {
+  void _applyNotificationFrequency(NotificationFrequency? nf) async {
     // nf is nullable in order to match the Radio's onChanged attribute type.
     // It's guaranteed to be non null though.
-    Settings.setNotificationFrequency(nf!);
+    try {
+      await Settings.setNotificationFrequency(nf!);
+    }
+    on InvalidNotificationPermissions {
+      Settings.setNotificationFrequency(NotificationFrequency.never);
+      if (! mounted) { return; }
+      showDialog(
+          context: context,
+          builder: (context) => const _InvalidNotificationPermissionsDialog()
+      );
+    }
     setState(() {});
   }
 
@@ -47,4 +58,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
     fontSize: 18,
     fontWeight: FontWeight.w600,
   );
+}
+
+class _InvalidNotificationPermissionsDialog extends StatelessWidget {
+  const _InvalidNotificationPermissionsDialog();
+
+  @override
+  Widget build(BuildContext context) => AlertDialog(
+    title: const Text('Erro ao configurar as notificações'),
+    content: const Text(_contentText, textAlign: TextAlign.justify),
+    actions: [
+      TextButton(onPressed: Navigator.of(context).pop, child: const Text('Ok'))
+    ],
+  );
+
+  static const _contentText = 'Aparentemente, o Faltômetro não tem permissão '
+      'para exibir notificações. Por favor, habilite-as nas configurações '
+      'do app antes.';
 }

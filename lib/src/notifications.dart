@@ -98,7 +98,7 @@ class Notifications {
 
   /// Makes sure that the notifications are properly scheduled according to what
   /// is configured in [Settings] module.
-  static void updateSchedules() async {
+  static Future<void> updateSchedules() async {
     log('[NOTIFICATIONS] updating notification schedules');
 
     // We start by erasing all living schedules.
@@ -120,11 +120,11 @@ class Notifications {
         break;
 
       case NotificationFrequency.weekly:
-        _scheduleWeeklyNotifications();
+        await _scheduleWeeklyNotifications();
         break;
 
       case NotificationFrequency.classDays:
-        _scheduleClassDaysNotifications();
+        await _scheduleClassDaysNotifications();
         break;
     }
   }
@@ -132,11 +132,14 @@ class Notifications {
   /// Registers scheduled notifications to be shown on Fridays at 8pm. This
   /// registration will live permanently, even if the app is closed (so it
   /// should be called only once by the registration time). The notifications
-  /// are aimed to be delivered on Fridays at 8pm.
-  static void _scheduleWeeklyNotifications() {
+  /// are aimed to be delivered on Fridays at 8pm. If notification permissions
+  /// problems are detected, throws [InvalidNotificationPermissions].
+  static Future<void> _scheduleWeeklyNotifications() async {
     log('[NOTIFICATIONS] scheduling weekly notifications');
     const title = 'Faltou essa semana?';
     const body = 'Não esqueça de registrar suas faltas.';
+    
+    await _ensurePermissions();
 
     // Mount the schedule. This is a DateTime-like object that represents the
     // time and date in which the next notification will show up.
@@ -159,11 +162,14 @@ class Notifications {
   }
 
   /// Registers scheduled notifications to be emitted at 8pm of every day the
-  /// student has classes.
-  static void _scheduleClassDaysNotifications() {
+  /// student has classes. If notification permissions problems are detected,
+  /// throws [InvalidNotificationPermissions].
+  static Future<void> _scheduleClassDaysNotifications() async {
     log('[NOTIFICATIONS] scheduling class days notifications');
     const title = 'Faltou hoje?';
     const body = 'Não esqueça de registrar.';
+
+    await _ensurePermissions();
 
     // Create the schedule date object:
     tz.TZDateTime schedule = tz.TZDateTime.now(tz.local);
@@ -189,7 +195,23 @@ class Notifications {
           matchDateTimeComponents: DateTimeComponents.dayOfWeekAndTime);
     }
   }
+  
+  /// Quietly makes sure that permissions are okay. On the contrary of
+  /// [checkPermissions()], this function is used to certify that the
+  /// permissions are okay, and throws [InvalidNotificationPermissions] if they
+  /// are not. This should only happen in the event that the user manually
+  /// revoked the notifications of the app.
+  static Future<void> _ensurePermissions() async {
+    final permission = await Permission.notification.isGranted;
+    if (! permission) {
+      log('[NOTIFICATIONS] tried to schedule notifications, but the app '
+          'permission seems to have been manually revoked.');
+      throw InvalidNotificationPermissions();
+    }
+  }
 }
+
+class InvalidNotificationPermissions implements Exception {}
 
 const _initializationSettings = AndroidInitializationSettings(
     'notification_icon'
