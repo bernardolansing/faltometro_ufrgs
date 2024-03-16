@@ -119,7 +119,7 @@ class _HomepageState extends State<Homepage> {
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(
-      leading: PhosphorIcon(PhosphorIcons.bold.flame),
+      leading: Image.asset('assets/white-logo.png'),
       title: const Text('Faltômetro UFRGS'),
       actions: [
         IconButton(
@@ -197,12 +197,12 @@ class _HomepageState extends State<Homepage> {
                       course.title,
                       softWrap: true,
                       style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          decoration: TextDecoration.underline,
-                          decorationColor: Theme.of(context)
-                              .colorScheme.secondary,
-                          decorationThickness: 2,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        decoration: TextDecoration.underline,
+                        decorationColor: Theme.of(context)
+                            .colorScheme.secondary,
+                        decorationThickness: 2,
                       )
                   )
               ),
