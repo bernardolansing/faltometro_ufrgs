@@ -31,8 +31,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   void _openRemoveAllCoursesConfirmationDialog() async {
     final answer = await showDialog<bool>(
-      context: context,
-      builder: (context) => const _RemoveAllCoursesConfirmationDialog()
+        context: context,
+        builder: (context) => const _RemoveAllCoursesConfirmationDialog()
     );
 
     // If user has confirmed the deletion of all courses, we may exit the
@@ -79,6 +79,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               title: const Text('Remover todas as disciplinas'),
               visualDensity: VisualDensity.compact,
               contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+              enabled: Courses.courses.isNotEmpty,
               onTap: _openRemoveAllCoursesConfirmationDialog,
             ),
           ]
