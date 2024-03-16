@@ -70,6 +70,12 @@ class Courses {
     Storage.saveCourses();
   }
 
+  static void deleteAllCourses() {
+    log('[COURSES] cleared all courses');
+    _courses.clear();
+    Storage.saveCourses();
+  }
+
   static void registerAbsences(Course course, {int? absences, int? weekday}) {
     assert (absences != null || weekday != null);
 

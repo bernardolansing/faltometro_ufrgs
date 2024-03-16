@@ -67,8 +67,13 @@ class _HomepageState extends State<Homepage> {
   Future<void> _openExplanationScreen() => Navigator.of(context)
       .push(MaterialPageRoute(builder: (context) => const ExplanationScreen()));
 
-  void _openSettingsScreen() => Navigator.of(context)
-      .push(MaterialPageRoute(builder: (context) => const SettingsScreen()));
+  void _openSettingsScreen() async {
+    final route = MaterialPageRoute<bool>(
+        builder: (context) => const SettingsScreen()
+    );
+    final shouldRefresh = await Navigator.of(context).push(route);
+    if (shouldRefresh == true) { setState(() {}); }
+  }
 
   Future<void> _openRegisterAbsenceDialog(Course course) async {
     final shouldUpdate = await showDialog<bool>(

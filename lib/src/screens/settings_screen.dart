@@ -1,6 +1,8 @@
+import 'package:faltometro_ufrgs/src/course.dart';
 import 'package:faltometro_ufrgs/src/notifications.dart';
 import 'package:faltometro_ufrgs/src/settings.dart';
 import 'package:flutter/material.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -27,6 +29,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
     setState(() {});
   }
 
+  void _openRemoveAllCoursesConfirmationDialog() async {
+    final answer = await showDialog<bool>(
+      context: context,
+      builder: (context) => const _RemoveAllCoursesConfirmationDialog()
+    );
+
+    // If user has confirmed the deletion of all courses, we may exit the
+    // settings screen and wish them some nice vacations:
+    if (answer == true && mounted) {
+      const deletionConfirmedSnackbar = SnackBar(
+          content: Text('Aproveite as férias :)')
+      );
+      ScaffoldMessenger.of(context).showSnackBar(deletionConfirmedSnackbar);
+      Navigator.of(context).pop(true); // Pop true to indicate that Homepage
+      // needs to be refreshed.
+    }
+  }
+
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(title: const Text('Configurações')),
@@ -47,7 +67,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 groupValue: Settings.notificationFrequency,
                 onChanged: _applyNotificationFrequency,
               ),
-            ))
+            )),
+            const SizedBox(height: 8),
+
+            Text('Fim de semestre', style: _sectionTitleTextStyle),
+            ListTile(
+              leading: Padding(
+                padding: const EdgeInsets.only(right: 12),
+                child: PhosphorIcon(PhosphorIcons.regular.trash),
+              ),
+              title: const Text('Remover todas as disciplinas'),
+              visualDensity: VisualDensity.compact,
+              contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+              onTap: _openRemoveAllCoursesConfirmationDialog,
+            ),
           ]
       ),
     ),
@@ -75,4 +108,27 @@ class _InvalidNotificationPermissionsDialog extends StatelessWidget {
   static const _contentText = 'Aparentemente, o Faltômetro não tem permissão '
       'para exibir notificações. Por favor, habilite-as nas configurações '
       'do app antes.';
+}
+
+class _RemoveAllCoursesConfirmationDialog extends StatelessWidget {
+  const _RemoveAllCoursesConfirmationDialog();
+
+  @override
+  Widget build(BuildContext context) => AlertDialog(
+    title: const Text('Remover todas as disciplinas?'),
+    actions: [
+      TextButton(
+        onPressed: Navigator.of(context).pop,
+        child: const Text('Cancelar'),
+      ),
+
+      ElevatedButton(
+        onPressed: () {
+          Courses.deleteAllCourses();
+          Navigator.of(context).pop(true);
+        },
+        child: const Text('Confirmar'),
+      ),
+    ],
+  );
 }
