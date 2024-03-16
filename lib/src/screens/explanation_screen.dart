@@ -35,52 +35,73 @@ class ExplanationScreen extends StatelessWidget {
 
             const Divider(thickness: 2, height: 48),
 
-            const Text('Contribuidores:', style: TextStyle(fontSize: 18),),
+            const Text('Contribuidores:', style: TextStyle(fontSize: 18)),
             const SizedBox(height: 12),
 
-            ...contributors
-                .map((contributor) => _buildContributor(context, contributor))
-                .toList(growable: false),
+            Wrap(
+                direction: Axis.vertical,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                spacing: 12,
+                children: contributors
+                    .map((contributor) => _ContributorWidget(contributor))
+                    .toList(growable: false)
+            ),
 
             const SizedBox(height: 24),
 
-            const Text(_contributionIsWelcomeText, textAlign: TextAlign.center)
+            const Text(_bottomText, textAlign: TextAlign.center),
+            TextButton(
+              onPressed: () => launchUrl(_repositoryUrl),
+              child: const Text(
+                'Faltômetro UFRGS no GitHub',
+                style: TextStyle(
+                  color: Colors.black,
+                  decoration: TextDecoration.underline,
+                ),
+              ),
+            )
           ],
         ),
       )
   );
+}
 
-  Widget _buildContributor(BuildContext context, Contributor contributor) =>
-      Column(
+class _ContributorWidget extends StatelessWidget {
+  final Contributor _contributor;
+
+  const _ContributorWidget(this._contributor);
+
+  @override
+  Widget build(BuildContext context) => Column(
+    children: [
+      Text(
+          _contributor.name,
+          style: const TextStyle(fontWeight: FontWeight.bold)
+      ),
+      Text(_contributor.bond),
+      Text(_contributor.role),
+      Row(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text(
-              contributor.name,
-              style: const TextStyle(fontWeight: FontWeight.bold)
-          ),
-          Text(contributor.bond),
-          Text(contributor.role),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              if (contributor.instagramAvailable)
-                IconButton.outlined(
-                    onPressed: () => launchUrl(contributor.instagramUri),
-                    icon: PhosphorIcon(PhosphorIcons.light.instagramLogo)
-                )
-              else
-                Container(),
+          if (_contributor.instagramAvailable)
+            IconButton.outlined(
+                onPressed: () => launchUrl(_contributor.instagramUri),
+                icon: PhosphorIcon(PhosphorIcons.light.instagramLogo)
+            )
+          else
+            Container(),
 
-              if (contributor.telegramAvailable)
-                IconButton.outlined(
-                    onPressed: () => launchUrl(contributor.telegramUri),
-                    icon: PhosphorIcon(PhosphorIcons.light.telegramLogo)
-                )
-              else
-                Container()
-            ],
-          )
+          if (_contributor.telegramAvailable)
+            IconButton.outlined(
+                onPressed: () => launchUrl(_contributor.telegramUri),
+                icon: PhosphorIcon(PhosphorIcons.light.telegramLogo)
+            )
+          else
+            Container()
         ],
-      );
+      )
+    ],
+  );
 }
 
 const _paragraphs = [
@@ -102,8 +123,9 @@ const _paragraphs = [
       'você já não tenha obtido o conceito FF.'
 ];
 
-const _contributionIsWelcomeText = 'Você é bem-vindo para contribuir! '
-    'Atualmente o projeto poderia se valer de um designer para elaborar '
-    'algumas decorações para o app. Desenvolvedores que desejarem melhorar '
-    'as funcionalidades também podem fazê-lo. Sugestões, críticas e '
-    'relatórios de bugs são muito valorizados; basta mandar uma mensagem.';
+const _bottomText = 'Bugs? Sugestões? Dúvidas? Todas bem-vindas, basta enviar '
+    'uma mensagem. O Faltômetro UFRGS é um projeto de código-livre, então '
+    'você pode consultar seu código e lhe propor melhorias no repositório:';
+
+final _repositoryUrl = Uri
+    .https('github.com', 'bernardolansing/faltometro_ufrgs');

@@ -47,4 +47,11 @@ const contributors = [
       instagramNickname: 'bernardolansing',
       telegramNickname: 'bernardolansing'
   ),
+
+  Contributor(
+    name: 'Faísca Design Júnior',
+    bond: 'Empresa júnior do curso de design da UFRGS',
+    role: 'Criação do ícone e demais artes do projeto',
+    instagramNickname: 'faiscadesignjr',
+  ),
 ];
