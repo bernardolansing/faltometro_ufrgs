@@ -119,7 +119,7 @@ class _HomepageState extends State<Homepage> {
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(
-      leading: PhosphorIcon(PhosphorIcons.bold.flame),
+      leading: Image.asset('assets/white-logo.png'),
       title: const Text('Faltômetro UFRGS'),
       actions: [
         IconButton(
@@ -196,9 +196,13 @@ class _HomepageState extends State<Homepage> {
                   child: Text(
                       course.title,
                       softWrap: true,
-                      style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        decoration: TextDecoration.underline,
+                        decorationColor: Theme.of(context)
+                            .colorScheme.secondary,
+                        decorationThickness: 2,
                       )
                   )
               ),
@@ -230,11 +234,7 @@ class _HomepageState extends State<Homepage> {
             child: ElevatedButton(
                 onPressed: () => _openRegisterAbsenceDialog(course),
                 style: ButtonStyle(
-                    backgroundColor: MaterialStateProperty
-                        .all(Theme.of(context).colorScheme.secondary),
-                    textStyle: MaterialStateProperty
-                        .all(const TextStyle(fontSize: 16)),
-                    shape: MaterialStateProperty.all(buttonRoundBorder)
+                    shape: MaterialStatePropertyAll(buttonRoundBorder)
                 ),
                 child: const Text('Registrar falta')
             ),
@@ -254,6 +254,8 @@ class _HomepageState extends State<Homepage> {
             size: _circularProgressSize,
             child: CircularProgressIndicator(
               value: course.burnAbsencesPercentage,
+              color: Theme.of(context).colorScheme.secondary,
+              backgroundColor: Theme.of(context).colorScheme.background,
             ),
           ),
 

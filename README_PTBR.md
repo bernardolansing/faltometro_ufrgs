@@ -13,7 +13,7 @@ escolher entre receber uma notificação por semana (sextas-feiras à noite), um
 (também à noite) ou então desativá-las.
 
 ### Funcionalidades planejadas
-- URGENTE: ter um ícone para o app :)...
+- Tema escuro.
 - Backup em nuvem em contas de usuário para evitar perda de dados quando o app for reinstalado ou
 você trocar de dispositivo.
 - Banco de dados de disciplinas com seus horários. Com isso, não será necessário que você preencha

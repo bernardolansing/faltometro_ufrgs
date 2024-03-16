@@ -15,7 +15,7 @@ choose between receiving one notification a week (on Fridays nights), every day 
 (at night as well) or not receiving them at all.
 
 ### Planned features
-- URGENT: to have an app icon :)...
+- Dark theme.
 - Cloud backup in user accounts in order to avoid data deletion when the app is reinstalled or you
 switch your device.
 - Database of courses with their schedules. With this, it won't be necessary for you to manually
