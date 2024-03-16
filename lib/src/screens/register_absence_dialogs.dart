@@ -50,7 +50,11 @@ class _UniformCourseRegisterAbsenceDialogState
                     onPressed: _daysAbsent > 1
                         ? () => setState(() => _daysAbsent--)
                         : null,
-
+                    style: IconButton.styleFrom(
+                      backgroundColor: _daysAbsent > 1
+                          ? Theme.of(context).colorScheme.secondary
+                          : Theme.of(context).colorScheme.background,
+                    ),
                     icon: PhosphorIcon(PhosphorIcons.bold.minus)
                 ),
 
@@ -61,6 +65,11 @@ class _UniformCourseRegisterAbsenceDialogState
 
                 IconButton.filled(
                   onPressed: () => setState(() => _daysAbsent++),
+                  style: ButtonStyle(
+                    backgroundColor: MaterialStatePropertyAll(
+                        Theme.of(context).colorScheme.secondary
+                    ),
+                  ),
                   icon: PhosphorIcon(PhosphorIcons.bold.plus),
                 ),
               ]
@@ -74,7 +83,7 @@ class _UniformCourseRegisterAbsenceDialogState
           ElevatedButton(
             onPressed: _registerAbsences,
             style: ButtonStyle(
-              shape: MaterialStateProperty.all(buttonRoundBorder)
+                shape: MaterialStateProperty.all(buttonRoundBorder)
             ),
             child: Text('Registrar falta${_daysAbsent > 1 ? 's' : ''}'),
           ),
@@ -153,14 +162,20 @@ class _NonUniformCourseRegisterAbsenceDialogState
 
           ListBody(
             children: _weekdaysWithClass.map((weekday) => ListTile(
-              title: Text(weekdaysNames[weekday]),
+              title: Text(
+                weekdaysNames[weekday],
+                style: weekday == _selectedWeekday
+                    ? _selectedWeekdayTextStyle
+                    : null,
+              ),
               selected: weekday == _selectedWeekday,
-              selectedColor: Theme.of(context).colorScheme.secondary,
+              selectedColor: Colors.black,
               visualDensity: VisualDensity.compact,
               onTap: () => _tileTapAction(weekday),
               trailing: Radio(
                 groupValue: _selectedWeekday,
                 value: weekday,
+                activeColor: Theme.of(context).colorScheme.secondary,
                 onChanged: (value) => _tileTapAction(weekday),
               ),
             )).toList(growable: false),
@@ -174,7 +189,7 @@ class _NonUniformCourseRegisterAbsenceDialogState
           ElevatedButton(
               onPressed: _selectedWeekday != null ? _registerAbsences : null,
               style: ButtonStyle(
-                shape: MaterialStateProperty.all(buttonRoundBorder)
+                  shape: MaterialStateProperty.all(buttonRoundBorder)
               ),
               child: const Text('Registrar falta')
           ),
@@ -187,6 +202,12 @@ class _NonUniformCourseRegisterAbsenceDialogState
       )
     ],
     actionsPadding: _actionsPadding,
+  );
+
+  TextStyle get _selectedWeekdayTextStyle => TextStyle(
+    decoration: TextDecoration.underline,
+    decorationColor: Theme.of(context).colorScheme.secondary.withAlpha(150),
+    decorationThickness: 2,
   );
 }
 
