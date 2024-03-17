@@ -166,9 +166,6 @@ class _CourseScreenState extends State<CourseScreen> {
                     width: 200,
                     child: ElevatedButton(
                       onPressed: _buttonAvailable ? _buttonAction : null,
-                      style: ButtonStyle(
-                          shape: MaterialStateProperty.all(buttonRoundBorder)
-                      ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [

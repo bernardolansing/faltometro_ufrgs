@@ -82,9 +82,6 @@ class _UniformCourseRegisterAbsenceDialogState
         children: [
           ElevatedButton(
             onPressed: _registerAbsences,
-            style: ButtonStyle(
-                shape: MaterialStateProperty.all(buttonRoundBorder)
-            ),
             child: Text('Registrar falta${_daysAbsent > 1 ? 's' : ''}'),
           ),
 
@@ -188,9 +185,6 @@ class _NonUniformCourseRegisterAbsenceDialogState
         children: [
           ElevatedButton(
               onPressed: _selectedWeekday != null ? _registerAbsences : null,
-              style: ButtonStyle(
-                  shape: MaterialStateProperty.all(buttonRoundBorder)
-              ),
               child: const Text('Registrar falta')
           ),
 

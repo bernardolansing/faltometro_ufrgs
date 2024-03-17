@@ -29,11 +29,14 @@ final theme = ThemeData(
     color: Colors.white,
     surfaceTintColor: Colors.transparent,
   ),
-  elevatedButtonTheme: const ElevatedButtonThemeData(
+  elevatedButtonTheme: ElevatedButtonThemeData(
     style: ButtonStyle(
-      backgroundColor: MaterialStatePropertyAll(_primaryColor),
-      surfaceTintColor: MaterialStatePropertyAll(Colors.transparent),
-      foregroundColor: MaterialStatePropertyAll(Colors.white)
+      backgroundColor: const MaterialStatePropertyAll(_primaryColor),
+      surfaceTintColor: const MaterialStatePropertyAll(Colors.transparent),
+      foregroundColor: const MaterialStatePropertyAll(Colors.white),
+      shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16)
+      ))
     )
   ),
   dialogTheme: const DialogTheme(

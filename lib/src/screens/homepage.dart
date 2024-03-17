@@ -1,5 +1,4 @@
 import 'package:faltometro_ufrgs/src/course.dart';
-import 'package:faltometro_ufrgs/src/screens/common.dart';
 import 'package:faltometro_ufrgs/src/screens/course_screen.dart';
 import 'package:faltometro_ufrgs/src/screens/explanation_screen.dart';
 import 'package:faltometro_ufrgs/src/notifications.dart';
@@ -238,9 +237,6 @@ class _HomepageState extends State<Homepage> {
             width: double.infinity,
             child: ElevatedButton(
                 onPressed: () => _openRegisterAbsenceDialog(course),
-                style: ButtonStyle(
-                    shape: MaterialStatePropertyAll(buttonRoundBorder)
-                ),
                 child: const Text('Registrar falta')
             ),
           )
