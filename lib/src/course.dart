@@ -25,10 +25,11 @@ class Courses {
   /// invoke the Storage erasure.
   static void load() {
     try {
+      log('[COURSES] loading courses from settings');
       _courses = Storage.coursesEntry.map(Course.fromEntry).toList();
     }
     on TypeError catch (error) {
-      log('Error on decoding courses entries: ${error.toString()}');
+      log('[COURSES] error on decoding courses entries: ${error.toString()}');
       Storage.saveCourses(); // This will erase the courses entry from the
       // Storage, as we are saving the default empty list of courses.
     }
@@ -46,6 +47,7 @@ class Courses {
     assert (periodsPerWeekday.any((element) => element > 0));
     assert (title.isNotEmpty);
 
+    log('[COURSES] creating new course now');
     final newCourse = Course(
         title: title,
         periodsPerWeekday: periodsPerWeekday,
@@ -60,24 +62,27 @@ class Courses {
     String? title,
     List<int>? periodsPerWeekday
   }) {
+    log('[COURSE] editing course "${course.title}" now');
     course.title = title ?? course.title;
     course.periodsPerWeekday = periodsPerWeekday ?? course.periodsPerWeekday;
     Storage.saveCourses();
   }
 
   static void deleteCourse(Course courseToDelete) {
+    log('[COURSES] deleting course "${courseToDelete.title}" now');
     _courses.remove(courseToDelete);
     Storage.saveCourses();
   }
 
   static void deleteAllCourses() {
-    log('[COURSES] cleared all courses');
+    log('[COURSES] deleting all courses now');
     _courses.clear();
     Storage.saveCourses();
   }
 
   static void registerAbsences(Course course, {int? absences, int? weekday}) {
     assert (absences != null || weekday != null);
+    log('[COURSES] registering absences for course "${course.title}"');
 
     if (absences != null) {
       assert (course.isUniform);
@@ -94,6 +99,7 @@ class Courses {
 
   static void discountAbsences(Course course, {int? absences, int? weekday}) {
     assert (absences != null || weekday != null);
+    log('[COURSES] discounting absences for course "${course.title}"');
 
     if (absences != null) {
       assert (course.isUniform);
