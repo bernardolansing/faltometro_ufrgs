@@ -1,6 +1,5 @@
 import 'dart:math';
 import 'package:faltometro_ufrgs/src/course.dart';
-import 'package:faltometro_ufrgs/src/screens/common.dart';
 import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 

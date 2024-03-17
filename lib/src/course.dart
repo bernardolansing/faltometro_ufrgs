@@ -201,3 +201,7 @@ class Course {
 extension PercentageFormattingExtension on double {
   String get asPercentage => '${(this * 100).toInt()}%';
 }
+
+const weekdaysNames = [
+  'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira'
+];
