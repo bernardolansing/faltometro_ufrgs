@@ -87,24 +87,8 @@ class _HomepageState extends State<Homepage> {
 
   Future<void> _deleteCourse(Course course) async {
     final deletionConfirmed = await showDialog<bool>(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Confirmar exclusão'),
-          content: Text(
-              'Você tem certeza de que quer excluir a disciplina '
-                  '${course.title}?'
-          ),
-          actions: [
-            TextButton(
-                onPressed: Navigator.of(context).pop,
-                child: const Text('Cancelar')
-            ),
-            ElevatedButton(
-                onPressed: () => Navigator.of(context).pop(true),
-                child: const Text('Confirmar')
-            )
-          ],
-        )
+      context: context,
+      builder: (context) => _ConfirmCourseDeletionDialog(course),
     );
 
     if (deletionConfirmed == true) {
@@ -184,10 +168,30 @@ class _HomepageState extends State<Homepage> {
 
   Widget _buildCoursesList() => ListView(
     padding: const EdgeInsets.all(10),
-    children: Courses.courses.map(_buildCourseCard).toList(growable: false),
+    children: Courses.courses.map((c) => _CourseCard(
+        course: c,
+        onAbsence: () => _openRegisterAbsenceDialog(c),
+        onEdit: () => _openEditCourseScreen(c),
+        onDelete: () => _deleteCourse(c)
+    )).toList(growable: false),
   );
+}
 
-  Widget _buildCourseCard(Course course) => Card(
+class _CourseCard extends StatelessWidget {
+  final Course course;
+  final void Function() onAbsence;
+  final void Function() onEdit;
+  final void Function() onDelete;
+
+  const _CourseCard({
+    required this.course,
+    required this.onAbsence,
+    required this.onEdit,
+    required this.onDelete,
+  });
+
+  @override
+  Widget build(BuildContext context) => Card(
     child: Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -214,11 +218,11 @@ class _HomepageState extends State<Homepage> {
               Row(
                 children: [
                   IconButton(
-                    onPressed: () => _openEditCourseScreen(course),
+                    onPressed: onEdit,
                     icon: PhosphorIcon(PhosphorIcons.regular.pencil),
                   ),
                   IconButton(
-                      onPressed: () => _deleteCourse(course),
+                      onPressed: onDelete,
                       icon: PhosphorIcon(PhosphorIcons.regular.trash)
                   )
                 ],
@@ -228,7 +232,35 @@ class _HomepageState extends State<Homepage> {
 
           const SizedBox(height: 8),
 
-          buildCourseCardContent(course),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              Stack(
+                alignment: Alignment.center,
+                children: [
+                  SizedBox.fromSize(
+                    size: _circularProgressSize,
+                    child: CircularProgressIndicator(
+                      value: course.burnAbsencesPercentage,
+                      color: Theme.of(context).colorScheme.secondary,
+                      backgroundColor: Theme.of(context).colorScheme.background,
+                    ),
+                  ),
+
+                  Text(
+                    course.burnAbsencesPercentage.asPercentage,
+                    style: course.isCritical
+                        ? _circularProgressTextStyleCritical
+                        : _circularProgressTextStyle,
+                  ),
+                ],
+              ),
+
+              const SizedBox(width: 12),
+
+              Flexible(child: _cardText),
+            ],
+          ),
 
           const SizedBox(height: 8),
 
@@ -236,7 +268,7 @@ class _HomepageState extends State<Homepage> {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-                onPressed: () => _openRegisterAbsenceDialog(course),
+                onPressed: onAbsence,
                 child: const Text('Registrar falta')
             ),
           )
@@ -245,37 +277,7 @@ class _HomepageState extends State<Homepage> {
     ),
   );
 
-  Widget buildCourseCardContent(Course course) => Row(
-    mainAxisAlignment: MainAxisAlignment.spaceAround,
-    children: [
-      Stack(
-        alignment: Alignment.center,
-        children: [
-          SizedBox.fromSize(
-            size: _circularProgressSize,
-            child: CircularProgressIndicator(
-              value: course.burnAbsencesPercentage,
-              color: Theme.of(context).colorScheme.secondary,
-              backgroundColor: Theme.of(context).colorScheme.background,
-            ),
-          ),
-
-          Text(
-            course.burnAbsencesPercentage.asPercentage,
-            style: course.isCritical
-                ? _circularProgressTextStyleCritical
-                : _circularProgressTextStyle,
-          ),
-        ],
-      ),
-
-      const SizedBox(width: 12),
-
-      Flexible(child: _mountCardText(course)),
-    ],
-  );
-
-  Text _mountCardText(Course course) {
+  Text get _cardText {
     if (course.periodsSkipped < 1) {
       return const Text(
         'Você ainda não faltou nenhuma vez nesta cadeira!',
@@ -317,6 +319,31 @@ class _HomepageState extends State<Homepage> {
 
     return Text(text);
   }
+}
+
+class _ConfirmCourseDeletionDialog extends StatelessWidget {
+  final Course _course;
+
+  const _ConfirmCourseDeletionDialog(this._course);
+
+  @override
+  Widget build(BuildContext context) => AlertDialog(
+    title: const Text('Confirmar exclusão'),
+    content: Text(
+        'Você tem certeza de que quer excluir a disciplina '
+            '${_course.title}?'
+    ),
+    actions: [
+      TextButton(
+          onPressed: Navigator.of(context).pop,
+          child: const Text('Cancelar')
+      ),
+      ElevatedButton(
+          onPressed: () => Navigator.of(context).pop(true),
+          child: const Text('Confirmar')
+      )
+    ],
+  );
 }
 
 const _circularProgressSize = Size(100, 100);
