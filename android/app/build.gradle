@@ -22,6 +22,13 @@ if (flutterVersionName == null) {
     flutterVersionName = '1.0'
 }
 
+// Load signing information for publishing in Play Store.
+def keystoreProperties = new Properties()
+def keystorePropertiesFile = rootProject.file('key.properties')
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+
 android {
     namespace "com.bernardolansing.faltometro_ufrgs"
     compileSdkVersion 33 // Required by flutter_local_notifications.
@@ -35,8 +42,6 @@ android {
 
     defaultConfig {
         applicationId "com.bernardolansing.faltometro_ufrgs"
-        // You can update the following values to match your application needs.
-        // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
         minSdkVersion flutter.minSdkVersion
         targetSdkVersion flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
@@ -44,11 +49,18 @@ android {
         multiDexEnabled true // Required by flutter_local_notifications.
     }
 
+    signingConfigs {
+        release {
+            keyAlias keystoreProperties['keyAlias']
+            keyPassword keystoreProperties['keyPassword']
+            storeFile keystoreProperties['storeFile'] ? file(keystoreProperties['storeFile']) : null
+            storePassword keystoreProperties['storePassword']
+        }
+    }
+
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig signingConfigs.debug
+            signingConfig signingConfigs.release
         }
     }
 }
