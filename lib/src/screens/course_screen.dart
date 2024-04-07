@@ -1,19 +1,20 @@
 import 'dart:math';
+
 import 'package:faltometro_ufrgs/src/course.dart';
 import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 /// Screen for creating or editing course. If you want to create a new course,
-/// use CourseScreen.newCourse() constructor. If you want to edit a course, use
-/// CourseScreen.edit.
+/// use [CourseScreen.newCourse] constructor. If you want to edit a course, use
+/// [CourseScreen.edit].
 class CourseScreen extends StatefulWidget {
-  final Course? courseToEdit;  // null if creating new course
+  final Course? _courseToEdit;  // null if creating new course
 
   const CourseScreen.newCourse({super.key}) :
-        courseToEdit = null;
+        _courseToEdit = null;
 
   const CourseScreen.edit({super.key, required Course course}) :
-        courseToEdit = course;
+        _courseToEdit = course;
 
   @override
   State<CourseScreen> createState() => _CourseScreenState();
@@ -22,29 +23,22 @@ class CourseScreen extends StatefulWidget {
 class _CourseScreenState extends State<CourseScreen> {
   late final TextEditingController _titleController;
   late final List<int> _periodsPerWeekday;
-  late final AppBar _appBar;
+
+  /// [true] if this screen is creating a new course, rather than editing a
+  /// pre-existing one.
+  bool get _isCreatingCourse => widget._courseToEdit == null;
 
   @override
   void initState() {
-    if (widget.courseToEdit == null) {
-      // Creating new course.
+    if (_isCreatingCourse) {
       _titleController = TextEditingController();
       _periodsPerWeekday = [0, 0, 0, 0, 0, 0];
-      _appBar = AppBar(
-        leading: PhosphorIcon(PhosphorIcons.bold.plus),
-        title: const Text('Adicionar disciplina'),
-      );
     }
 
     else {
-      // Editing course
-      final course = widget.courseToEdit!;
+      final course = widget._courseToEdit!;
       _titleController = TextEditingController(text: course.title);
       _periodsPerWeekday = course.periodsPerWeekday;
-      _appBar = AppBar(
-        leading: PhosphorIcon(PhosphorIcons.bold.pencil),
-        title: const Text('Editar disciplina'),
-      );
     }
     super.initState();
   }
@@ -60,20 +54,18 @@ class _CourseScreenState extends State<CourseScreen> {
       && _titleController.text.isNotEmpty;
 
   void _buttonAction() {
-    // Creating new course
-    if (widget.courseToEdit == null) {
+    if (_isCreatingCourse) {
       Courses.newCourse(
-          title: _titleController.text,
-          periodsPerWeekday: _periodsPerWeekday
+        title: _titleController.text,
+        periodsPerWeekday: _periodsPerWeekday,
       );
     }
 
-    // Editing course
     else {
       Courses.editCourse(
-          course: widget.courseToEdit!,
-          title: _titleController.text,
-          periodsPerWeekday: _periodsPerWeekday
+        course: widget._courseToEdit!,
+        title: _titleController.text,
+        periodsPerWeekday: _periodsPerWeekday,
       );
     }
 
@@ -83,7 +75,7 @@ class _CourseScreenState extends State<CourseScreen> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-      appBar: _appBar,
+      appBar: AppBar(leading: _appBarIcon, title: _appBarTitle),
       // A builder is necessary for us to know the height of the AppBar. We need
       // to know this so we can avoid overflow when the keyboard pops up.
       body: Builder(
@@ -107,7 +99,7 @@ class _CourseScreenState extends State<CourseScreen> {
                   // setState is needed to update the _buttonAvailable
                   // condition:
                   onChanged: (value) => setState(() {}),
-                  autofocus: widget.courseToEdit == null, // Autofocus only
+                  autofocus: _isCreatingCourse, // Autofocus only
                   // when the course is being created, not when is edited.
                   textCapitalization: TextCapitalization.sentences, // Makes
                   // the text start with upper case.
@@ -131,8 +123,8 @@ class _CourseScreenState extends State<CourseScreen> {
                 ),
                 const SizedBox(height: 4),
                 const Text(
-                    _periodsExplanationText,
-                    textAlign: TextAlign.center
+                  _periodsExplanationText,
+                  textAlign: TextAlign.center,
                 ),
 
                 const Spacer(),
@@ -162,18 +154,18 @@ class _CourseScreenState extends State<CourseScreen> {
                 const Spacer(flex: 3),
 
                 SizedBox(
-                    width: 200,
-                    child: ElevatedButton(
-                      onPressed: _buttonAvailable ? _buttonAction : null,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          PhosphorIcon(PhosphorIcons.regular.floppyDisk),
-                          const Text('Salvar'),
-                          const Icon(Icons.save, color: Colors.transparent),
-                        ],
-                      ),
-                    )
+                  width: 200,
+                  child: ElevatedButton(
+                    onPressed: _buttonAvailable ? _buttonAction : null,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        PhosphorIcon(PhosphorIcons.regular.floppyDisk),
+                        const Text('Salvar'),
+                        const Icon(Icons.save, color: Colors.transparent),
+                      ],
+                    ),
+                  ),
                 )
               ],
             ),
@@ -181,6 +173,14 @@ class _CourseScreenState extends State<CourseScreen> {
         ),
       )
   );
+
+  Widget get _appBarIcon => _isCreatingCourse
+      ? PhosphorIcon(PhosphorIcons.bold.plus)
+      : PhosphorIcon(PhosphorIcons.bold.pencil);
+
+  Widget get _appBarTitle => _isCreatingCourse
+      ? const Text('Adicionar disciplina')
+      : const Text('Editar disciplina');
 }
 
 const _screenPadding = 16.0;
