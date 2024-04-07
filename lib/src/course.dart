@@ -43,7 +43,7 @@ class Courses {
     required String title,
     required List<int> periodsPerWeekday,
   }) {
-    assert (periodsPerWeekday.length == 5);
+    assert (periodsPerWeekday.length == 6);
     assert (periodsPerWeekday.any((element) => element > 0));
     assert (title.isNotEmpty);
 
@@ -202,6 +202,5 @@ extension PercentageFormattingExtension on double {
   String get asPercentage => '${(this * 100).toInt()}%';
 }
 
-const weekdaysNames = [
-  'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira'
-];
+const weekdaysNames = ['Segunda-feira', 'Terça-feira', 'Quarta-feira',
+  'Quinta-feira', 'Sexta-feira', 'Sábado'];

@@ -26,18 +26,18 @@ class _CourseScreenState extends State<CourseScreen> {
 
   @override
   void initState() {
-    // Creating new course
     if (widget.courseToEdit == null) {
+      // Creating new course.
       _titleController = TextEditingController();
-      _periodsPerWeekday = [0, 0, 0, 0, 0];
+      _periodsPerWeekday = [0, 0, 0, 0, 0, 0];
       _appBar = AppBar(
-          leading: PhosphorIcon(PhosphorIcons.bold.plus),
-          title: const Text('Adicionar disciplina')
+        leading: PhosphorIcon(PhosphorIcons.bold.plus),
+        title: const Text('Adicionar disciplina'),
       );
     }
 
-    // Editing course
     else {
+      // Editing course
       final course = widget.courseToEdit!;
       _titleController = TextEditingController(text: course.title);
       _periodsPerWeekday = course.periodsPerWeekday;
@@ -112,13 +112,13 @@ class _CourseScreenState extends State<CourseScreen> {
                   textCapitalization: TextCapitalization.sentences, // Makes
                   // the text start with upper case.
                   style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).colorScheme.onSurface
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                   decoration: const InputDecoration(
-                      labelText: 'Nome da disciplina',
-                      labelStyle: TextStyle(color: Colors.grey)
+                    labelText: 'Nome da disciplina',
+                    labelStyle: TextStyle(color: Colors.grey),
                   ),
                 ),
 
@@ -137,7 +137,7 @@ class _CourseScreenState extends State<CourseScreen> {
 
                 const Spacer(),
 
-                ...Iterable.generate(5, (index) => ListTile(
+                ...Iterable.generate(6, (index) => ListTile(
                   title: Text(weekdaysNames[index]),
                   visualDensity: VisualDensity.compact,
                   contentPadding: const EdgeInsets.symmetric(horizontal: 4),
@@ -170,7 +170,7 @@ class _CourseScreenState extends State<CourseScreen> {
                         children: [
                           PhosphorIcon(PhosphorIcons.regular.floppyDisk),
                           const Text('Salvar'),
-                          const Icon(Icons.save, color: Colors.transparent)
+                          const Icon(Icons.save, color: Colors.transparent),
                         ],
                       ),
                     )
@@ -188,7 +188,3 @@ const _screenPadding = 16.0;
 const _periodsExplanationText = 'Cada período corresponde a 50 minutos de '
     'aula. Se a sua aula começa, por exemplo, às 8:30 e termina às 10:10, '
     'então você tem dois períodos desta disciplina naquele dia.';
-
-
-
-
