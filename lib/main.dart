@@ -1,6 +1,7 @@
-import 'package:faltometro_ufrgs/src/screens/homepage.dart';
-import 'package:faltometro_ufrgs/src/theme.dart';
 import 'package:flutter/material.dart';
+
+import 'src/theme.dart';
+import 'src/screens/homepage.dart';
 
 void main() {
   runApp(const MyApp());
@@ -12,7 +13,8 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) => MaterialApp(
     title: 'Faltômetro UFRGS',
-    theme: theme,
+    theme: darkTheme,
+    // darkTheme: darkTheme,
     home: const Homepage(),
   );
 }
