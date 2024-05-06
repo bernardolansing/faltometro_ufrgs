@@ -1,9 +1,12 @@
 import 'dart:developer';
-import 'package:faltometro_ufrgs/src/notifications.dart';
 
+import 'package:flutter/material.dart';
+
+import 'notifications.dart';
 import 'storage.dart';
 
 const _defaultNotificationFrequency = NotificationFrequency.weekly;
+const _defaultThemeMode = ThemeMode.system;
 
 class Settings {
   static bool _initialized = false;
@@ -12,6 +15,8 @@ class Settings {
   // stored settings, but that might fail, so we need a backdoor.
   static NotificationFrequency _notificationFrequency =
       _defaultNotificationFrequency;
+  static ThemeMode _themeMode = _defaultThemeMode;
+
 
   /// Loads the stored settings from the local storage.
   static void load() {
@@ -19,6 +24,8 @@ class Settings {
     try {
       _notificationFrequency = NotificationFrequency.values
           .byName(Storage.settingsEntry['notificationFrequency'] as String);
+      _themeMode = ThemeMode.values
+          .byName(Storage.settingsEntry['themeMode'] as String);
     }
     catch (error) {
       log('Error while loading settings from local storage: $error');
@@ -29,6 +36,7 @@ class Settings {
 
   static Map<String, String> get storageEntry => {
     'notificationFrequency': _notificationFrequency.name,
+    'themeMode': _themeMode.name,
   };
 
   static NotificationFrequency get notificationFrequency {
@@ -40,11 +48,25 @@ class Settings {
   static bool get notificationsEnabled =>
       _notificationFrequency != NotificationFrequency.never;
 
+  static ThemeMode get themeMode {
+    assert (_initialized);
+    return _themeMode;
+  }
+
   static Future<void> setNotificationFrequency(
       NotificationFrequency frequency) async {
     if (frequency != _notificationFrequency) {
       _notificationFrequency = frequency;
       await Notifications.updateSchedules();
+      Storage.saveSettings();
+    }
+  }
+
+  static void setThemeMode(ThemeMode mode) {
+    if (_themeMode != mode) {
+      log('[SETTINGS] setting theme mode to $mode');
+      // TODO: effectively change the theme.
+      _themeMode = mode;
       Storage.saveSettings();
     }
   }

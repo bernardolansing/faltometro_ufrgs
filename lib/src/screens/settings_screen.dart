@@ -1,8 +1,9 @@
-import 'package:faltometro_ufrgs/src/course.dart';
-import 'package:faltometro_ufrgs/src/notifications.dart';
-import 'package:faltometro_ufrgs/src/settings.dart';
 import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
+
+import '../course.dart';
+import '../notifications.dart';
+import '../settings.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -22,17 +23,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
       Settings.setNotificationFrequency(NotificationFrequency.never);
       if (! mounted) { return; }
       showDialog(
-          context: context,
-          builder: (context) => const _InvalidNotificationPermissionsDialog()
+        context: context,
+        builder: (context) => const _InvalidNotificationPermissionsDialog(),
       );
     }
     setState(() {});
   }
 
+  void _applyThemeMode(ThemeMode mode) {
+    setState(() {
+      Settings.setThemeMode(mode);
+    });
+  }
+
   void _openRemoveAllCoursesConfirmationDialog() async {
     final answer = await showDialog<bool>(
-        context: context,
-        builder: (context) => const _RemoveAllCoursesConfirmationDialog()
+      context: context,
+      builder: (context) => const _RemoveAllCoursesConfirmationDialog(),
     );
 
     // If user has confirmed the deletion of all courses, we may exit the
@@ -70,6 +77,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
             )),
             const SizedBox(height: 8),
 
+            Text('Tema', style: _sectionTitleTextStyle),
+            ...ThemeMode.values.map((mode) => ListTile(
+              title: Text(_themeModeLabels[mode]!),
+              contentPadding: EdgeInsets.zero,
+              visualDensity: VisualDensity.compact,
+              onTap: () => _applyThemeMode(mode),
+              leading: Radio(
+                value: mode,
+                groupValue: Settings.themeMode,
+                onChanged: (_) => _applyThemeMode(mode),
+              )
+            )),
+            const SizedBox(height: 8),
+
             Text('Fim de semestre', style: _sectionTitleTextStyle),
             ListTile(
               leading: Padding(
@@ -92,6 +113,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
     fontSize: 18,
     fontWeight: FontWeight.w600,
   );
+
+  static const _themeModeLabels = {
+    ThemeMode.system: 'Padrão do sistema',
+    ThemeMode.light: 'Claro',
+    ThemeMode.dark: 'Escuro',
+  };
 }
 
 class _InvalidNotificationPermissionsDialog extends StatelessWidget {
