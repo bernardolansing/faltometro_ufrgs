@@ -5,7 +5,6 @@ import 'package:faltometro_ufrgs/src/notifications.dart';
 import 'package:faltometro_ufrgs/src/screens/register_absence_dialogs.dart';
 import 'package:faltometro_ufrgs/src/screens/settings_screen.dart';
 import 'package:faltometro_ufrgs/src/settings.dart';
-import 'package:faltometro_ufrgs/src/storage.dart';
 import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
@@ -17,22 +16,6 @@ class Homepage extends StatefulWidget {
 }
 
 class _HomepageState extends State<Homepage> {
-  bool _loading = true;
-
-  @override
-  void initState() {
-    _initialize();
-    super.initState();
-  }
-
-  Future<void> _initialize() async {
-    await Storage.initialize();
-    Courses.load();
-    Settings.load();
-    Notifications.initialize();
-    setState(() => _loading = false);
-  }
-
   Future<void> _openNewCourseScreen() async {
     final route = MaterialPageRoute<bool>(
         builder: (context) => const CourseScreen.newCourse()
@@ -98,12 +81,6 @@ class _HomepageState extends State<Homepage> {
     }
   }
 
-  Widget get _contentToDisplay {
-    if (_loading) { return _buildLoading(); }
-    if (Courses.courses.isNotEmpty) { return _buildCoursesList(); }
-    return _buildEmptyList();
-  }
-
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(
@@ -122,23 +99,14 @@ class _HomepageState extends State<Homepage> {
       ],
     ),
     body: SafeArea(
-      child: _contentToDisplay,
+      child: Courses.courses.isNotEmpty
+          ? _buildCoursesList()
+          : _buildEmptyList(),
     ),
     floatingActionButton: FloatingActionButton(
       onPressed: _openNewCourseScreen,
       backgroundColor: Theme.of(context).colorScheme.primary,
       child: PhosphorIcon(PhosphorIcons.bold.plus, size: 28),
-    ),
-  );
-
-  Widget _buildLoading() => const Center(
-    child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          SizedBox(height: 32, width: 32, child: CircularProgressIndicator()),
-          SizedBox(height: 12),
-          Text('Carregando...', style: TextStyle(fontSize: 16))
-        ]
     ),
   );
 
