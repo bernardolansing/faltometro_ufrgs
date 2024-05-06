@@ -32,7 +32,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   void _applyThemeMode(ThemeMode mode) {
     setState(() {
-      Settings.setThemeMode(mode);
+      Settings.setThemeMode(context, mode);
     });
   }
 

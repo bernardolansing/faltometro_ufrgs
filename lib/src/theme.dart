@@ -89,3 +89,6 @@ final darkTheme = ThemeData(
     backgroundColor: Color(0xFF4C4C4C),
   ),
 );
+
+/// Dispatched when user changes the theme mode.
+class ThemeModeChangedNotification extends Notification {}

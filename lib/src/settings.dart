@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:faltometro_ufrgs/src/theme.dart';
 import 'package:flutter/material.dart';
 
 import 'notifications.dart';
@@ -62,10 +63,10 @@ class Settings {
     }
   }
 
-  static void setThemeMode(ThemeMode mode) {
+  static void setThemeMode(BuildContext context, ThemeMode mode) {
     if (_themeMode != mode) {
       log('[SETTINGS] setting theme mode to $mode');
-      // TODO: effectively change the theme.
+      ThemeModeChangedNotification().dispatch(context);
       _themeMode = mode;
       Storage.saveSettings();
     }

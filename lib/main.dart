@@ -13,18 +13,33 @@ void main() async {
   Courses.load();
   Settings.load();
   Notifications.initialize();
-  runApp(const MyApp());
+  runApp(const Faltometro());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class Faltometro extends StatefulWidget {
+  const Faltometro({super.key});
 
   @override
-  Widget build(BuildContext context) => MaterialApp(
-    title: 'Faltômetro UFRGS',
-    theme: lightTheme,
-    darkTheme: darkTheme,
-    themeMode: Settings.themeMode,
-    home: const Homepage(),
-  );
+  State<Faltometro> createState() => FaltometroState();
+}
+
+class FaltometroState extends State<Faltometro> {
+  @override
+  Widget build(BuildContext context) {
+
+    return NotificationListener<ThemeModeChangedNotification>(
+        onNotification: (_) {
+          // App's theme has changed, so we have to refresh it.
+          setState(() {});
+          return false;
+        },
+        child: MaterialApp(
+          title: 'Faltômetro UFRGS',
+          theme: lightTheme,
+          darkTheme: darkTheme,
+          themeMode: Settings.themeMode,
+          home: const Homepage(),
+        )
+    );
+  }
 }
