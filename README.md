@@ -3,8 +3,9 @@
 _Você pode ler este texto em português [clicando aqui](README_PTBR.md)._
 
 Mobile app for UFRGS students to control their classes' attendances. It'll only work on Android.
-There are plans to publish it on Play Store soon, as well as releasing a web version so that iOS or
-even PC users can use it too. It is unlikely that an iOS native port will ever be offered.
+It's currently under closed alpha distribution; it'll be open to download via Play Store within the
+next weeks. There are plans for releasing a web version so that iOS or even PC users can use it too.
+It is unlikely that an iOS native port will ever be offered, though.
 
 ### Features
 - You can add your courses and register absences. The app will calculate how much of the absences
@@ -40,6 +41,3 @@ in `lib/src` folder.
 The app is supposed to work on any 5.0+ (Lollipop or newer) Android device. If you are having
 trouble running it on your Android device, please text me as instructed in [contact](#contact)
 session.
-
-In order to build the application for Android, you have to run `flutter build apk --release
---no-tree-shake-icons`.
