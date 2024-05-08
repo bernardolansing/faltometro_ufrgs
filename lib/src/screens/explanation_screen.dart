@@ -1,7 +1,8 @@
-import 'package:faltometro_ufrgs/src/contributors.dart';
 import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
+
+import '../contributors.dart';
 
 class ExplanationScreen extends StatelessWidget {
   const ExplanationScreen({super.key});
@@ -12,7 +13,7 @@ class ExplanationScreen extends StatelessWidget {
         title: const Text('Sobre o Faltômetro'),
         leading: IconButton(
             onPressed: Navigator.of(context).pop,
-            icon: PhosphorIcon(PhosphorIcons.bold.arrowLeft)
+            icon: PhosphorIcon(PhosphorIcons.bold.arrowLeft),
         ),
       ),
       body: SingleChildScrollView(
@@ -54,10 +55,7 @@ class ExplanationScreen extends StatelessWidget {
               onPressed: () => launchUrl(_repositoryUrl),
               child: const Text(
                 'Faltômetro UFRGS no GitHub',
-                style: TextStyle(
-                  color: Colors.black,
-                  decoration: TextDecoration.underline,
-                ),
+                style: TextStyle(decoration: TextDecoration.underline),
               ),
             )
           ],

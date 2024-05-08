@@ -57,7 +57,7 @@ final darkTheme = ThemeData(
     surface: Color(0xFF6C6C6C),
     onSurface: Color(0xFFC5C5C5),
   ),
-  scaffoldBackgroundColor: const Color(0xFF3D3D3D),
+  scaffoldBackgroundColor: const Color(0xFF2F2F2F),
   appBarTheme: const AppBarTheme(
     color: Colors.black87,
     foregroundColor: Color(0xFFCBCBCB),
@@ -77,13 +77,7 @@ final darkTheme = ThemeData(
     ),
   ),
   textButtonTheme: const TextButtonThemeData(
-    style: ButtonStyle(
-      textStyle: MaterialStatePropertyAll(TextStyle(
-        shadows: [
-          Shadow(blurRadius: 18.0, color: Colors.white),
-        ],
-      )),
-    ),
+    style: ButtonStyle(foregroundColor: MaterialStatePropertyAll(Colors.white)),
   ),
   dialogTheme: const DialogTheme(
     backgroundColor: Color(0xFF4C4C4C),

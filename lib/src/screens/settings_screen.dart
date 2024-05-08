@@ -55,64 +55,72 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: const Text('Configurações')),
-    body: SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Notificações', style: _sectionTitleTextStyle),
-            const Text('Lembrar-me de registrar minhas faltas:'),
-            ...NotificationFrequency.values.map((option) => ListTile(
-              title: Text(option.title),
-              contentPadding: EdgeInsets.zero,
-              visualDensity: VisualDensity.compact,
-              onTap: () => _applyNotificationFrequency(option),
-              leading: Radio(
-                value: option,
-                groupValue: Settings.notificationFrequency,
-                onChanged: _applyNotificationFrequency,
-              ),
-            )),
-            const SizedBox(height: 8),
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final highlightColor = theme.brightness == Brightness.light
+        ? theme.colorScheme.primary
+        : theme.colorScheme.secondary;
+    final sectionTitleTextStyle = TextStyle(
+      color: highlightColor,
+      fontSize: 18,
+      fontWeight: FontWeight.w600,
+    );
 
-            Text('Tema', style: _sectionTitleTextStyle),
-            ...ThemeMode.values.map((mode) => ListTile(
-              title: Text(_themeModeLabels[mode]!),
-              contentPadding: EdgeInsets.zero,
-              visualDensity: VisualDensity.compact,
-              onTap: () => _applyThemeMode(mode),
-              leading: Radio(
-                value: mode,
-                groupValue: Settings.themeMode,
-                onChanged: (_) => _applyThemeMode(mode),
-              )
-            )),
-            const SizedBox(height: 8),
+    return Scaffold(
+      appBar: AppBar(title: const Text('Configurações')),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Notificações', style: sectionTitleTextStyle),
+              const Text('Lembrar-me de registrar minhas faltas:'),
+              ...NotificationFrequency.values.map((option) => ListTile(
+                title: Text(option.title),
+                contentPadding: EdgeInsets.zero,
+                visualDensity: VisualDensity.compact,
+                onTap: () => _applyNotificationFrequency(option),
+                leading: Radio(
+                  value: option,
+                  groupValue: Settings.notificationFrequency,
+                  onChanged: _applyNotificationFrequency,
+                  activeColor: highlightColor,
+                ),
+              )),
+              const SizedBox(height: 8),
 
-            Text('Fim de semestre', style: _sectionTitleTextStyle),
-            ListTile(
-              leading: Padding(
-                padding: const EdgeInsets.only(right: 12),
-                child: PhosphorIcon(PhosphorIcons.regular.trash),
+              Text('Tema', style: sectionTitleTextStyle),
+              ...ThemeMode.values.map((mode) => ListTile(
+                  title: Text(_themeModeLabels[mode]!),
+                  contentPadding: EdgeInsets.zero,
+                  visualDensity: VisualDensity.compact,
+                  onTap: () => _applyThemeMode(mode),
+                  leading: Radio(
+                    value: mode,
+                    groupValue: Settings.themeMode,
+                    onChanged: (_) => _applyThemeMode(mode),
+                    activeColor: highlightColor,
+                  )
+              )),
+              const SizedBox(height: 8),
+
+              Text('Fim de semestre', style: sectionTitleTextStyle),
+              ListTile(
+                leading: Padding(
+                  padding: const EdgeInsets.only(right: 12),
+                  child: PhosphorIcon(PhosphorIcons.regular.trash),
+                ),
+                title: const Text('Remover todas as disciplinas'),
+                visualDensity: VisualDensity.compact,
+                contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+                enabled: Courses.courses.isNotEmpty,
+                onTap: _openRemoveAllCoursesConfirmationDialog,
               ),
-              title: const Text('Remover todas as disciplinas'),
-              visualDensity: VisualDensity.compact,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 12),
-              enabled: Courses.courses.isNotEmpty,
-              onTap: _openRemoveAllCoursesConfirmationDialog,
-            ),
-          ]
+            ]
+        ),
       ),
-    ),
-  );
-
-  TextStyle get _sectionTitleTextStyle => TextStyle(
-    color: Theme.of(context).colorScheme.primary,
-    fontSize: 18,
-    fontWeight: FontWeight.w600,
-  );
+    );
+  }
 
   static const _themeModeLabels = {
     ThemeMode.system: 'Padrão do sistema',
