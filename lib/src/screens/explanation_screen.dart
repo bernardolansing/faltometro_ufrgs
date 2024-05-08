@@ -12,8 +12,8 @@ class ExplanationScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Sobre o Faltômetro'),
         leading: IconButton(
-            onPressed: Navigator.of(context).pop,
-            icon: PhosphorIcon(PhosphorIcons.bold.arrowLeft),
+          onPressed: Navigator.of(context).pop,
+          icon: PhosphorIcon(PhosphorIcons.bold.arrowLeft),
         ),
       ),
       body: SingleChildScrollView(
@@ -51,9 +51,13 @@ class ExplanationScreen extends StatelessWidget {
             const SizedBox(height: 24),
 
             const Text(_bottomText, textAlign: TextAlign.center),
-            TextButton(
-              onPressed: () => launchUrl(_repositoryUrl),
-              child: const Text(
+            TextButton.icon(
+              onPressed: () => launchUrl(
+                _repositoryUrl,
+                mode: LaunchMode.externalApplication,
+              ),
+              icon: PhosphorIcon(PhosphorIcons.regular.githubLogo),
+              label: const Text(
                 'Faltômetro UFRGS no GitHub',
                 style: TextStyle(decoration: TextDecoration.underline),
               ),
