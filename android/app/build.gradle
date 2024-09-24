@@ -31,8 +31,9 @@ if (keystorePropertiesFile.exists()) {
 
 android {
     namespace "com.bernardolansing.faltometro_ufrgs"
-    compileSdkVersion 33 // Required by flutter_local_notifications.
-    ndkVersion flutter.ndkVersion
+    compileSdkVersion 35
+    ndkVersion "26.1.10909125" // Not sure why this is needed, but without this some warnings are
+    // triggered.
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
