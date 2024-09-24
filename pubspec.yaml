@@ -25,4 +25,4 @@ flutter:
   uses-material-design: true
   assets:
     - assets/white-logo.png
-#    - assets/black-logo.png  # Enable it when a dark mode is implemented.
+    - assets/front.png

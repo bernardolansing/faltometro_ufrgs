@@ -101,37 +101,13 @@ class _HomepageState extends State<Homepage> {
     body: SafeArea(
       child: Courses.courses.isNotEmpty
           ? _buildCoursesList()
-          : _buildEmptyList(),
+          : const _EmptyListVariant(),
     ),
     floatingActionButton: FloatingActionButton(
       onPressed: _openNewCourseScreen,
       backgroundColor: Theme.of(context).colorScheme.primary,
       child: PhosphorIcon(PhosphorIcons.bold.plus, size: 28),
     ),
-  );
-
-  Widget _buildEmptyList() => Center(
-      child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              PhosphorIcon(PhosphorIcons.regular.listPlus),
-              const SizedBox(height: 16),
-              const Text(
-                'Nenhuma disciplina adicionada ainda. Adicione sua primeira!',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 18),
-              ),
-              const SizedBox(height: 24),
-              const Text(
-                'Esclarecimentos importantes na página de ajuda, no canto '
-                    'superior direito.',
-                textAlign: TextAlign.center,
-              )
-            ],
-          )
-      )
   );
 
   Widget _buildCoursesList() => ListView(
@@ -142,6 +118,38 @@ class _HomepageState extends State<Homepage> {
         onEdit: () => _openEditCourseScreen(c),
         onDelete: () => _deleteCourse(c)
     )).toList(growable: false),
+  );
+}
+
+class _EmptyListVariant extends StatelessWidget {
+  const _EmptyListVariant();
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.all(16),
+    child: Column(
+      children: [
+        const Spacer(flex: 1),
+
+        Image.asset('assets/front.png'),
+        const SizedBox(height: 16),
+
+        const Text(
+          'Nenhuma disciplina adicionada ainda. Adicione sua primeira!',
+          textAlign: TextAlign.center,
+          style: TextStyle(fontSize: 18),
+        ),
+        const SizedBox(height: 24),
+
+        const Text(
+          'Esclarecimentos importantes na página de ajuda, no canto '
+              'superior direito.',
+          textAlign: TextAlign.center,
+        ),
+
+        const Spacer(flex: 2),
+      ],
+    ),
   );
 }
 
