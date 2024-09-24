@@ -45,8 +45,9 @@ android {
         applicationId "com.bernardolansing.faltometro_ufrgs"
         minSdkVersion flutter.minSdkVersion
         targetSdkVersion flutter.targetSdkVersion
-        versionCode flutterVersionCode.toInteger()
-        versionName flutterVersionName
+        // Remember to update these two below when releasing a new version.
+        versionCode 2
+        versionName "1.1.0"
         multiDexEnabled true // Required by flutter_local_notifications.
     }
 
