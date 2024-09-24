@@ -49,7 +49,7 @@ class _HomepageState extends State<Homepage> {
   }
 
   Future<void> _openExplanationScreen() => Navigator.of(context)
-      .push(MaterialPageRoute(builder: (context) => const ExplanationScreen()));
+      .push(MaterialPageRoute(builder: (context) => ExplanationScreen()));
 
   void _openSettingsScreen() async {
     final route = MaterialPageRoute<bool>(

@@ -5,19 +5,27 @@ import 'package:url_launcher/url_launcher.dart';
 import '../contributors.dart';
 
 class ExplanationScreen extends StatelessWidget {
-  const ExplanationScreen({super.key});
+  final ScrollController _scrollController;
+
+  ExplanationScreen({super.key}) :
+        _scrollController = ScrollController();
 
   @override
   Widget build(BuildContext context) => Scaffold(
-      appBar: AppBar(
-        title: const Text('Sobre o Faltômetro'),
-        leading: IconButton(
-          onPressed: Navigator.of(context).pop,
-          icon: PhosphorIcon(PhosphorIcons.bold.arrowLeft),
-        ),
+    appBar: AppBar(
+      title: const Text('Sobre o Faltômetro'),
+      leading: IconButton(
+        onPressed: Navigator.of(context).pop,
+        icon: PhosphorIcon(PhosphorIcons.bold.arrowLeft),
       ),
-      body: SingleChildScrollView(
+    ),
+    body: Scrollbar(
+      controller: _scrollController,
+      thumbVisibility: true, // Makes the scrollbar always visible (making sure
+      // the user realizes that this screen is scrollable).
+      child: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
+        controller: _scrollController,
         child: Column(
           children: [
             ListView.separated(
@@ -40,12 +48,12 @@ class ExplanationScreen extends StatelessWidget {
             const SizedBox(height: 12),
 
             Wrap(
-                direction: Axis.vertical,
-                crossAxisAlignment: WrapCrossAlignment.center,
-                spacing: 12,
-                children: contributors
-                    .map((contributor) => _ContributorWidget(contributor))
-                    .toList(growable: false)
+              direction: Axis.vertical,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              spacing: 12,
+              children: contributors
+                  .map((contributor) => _ContributorWidget(contributor))
+                  .toList(growable: false),
             ),
 
             const SizedBox(height: 24),
@@ -64,7 +72,8 @@ class ExplanationScreen extends StatelessWidget {
             )
           ],
         ),
-      )
+      ),
+    ),
   );
 }
 
@@ -77,8 +86,8 @@ class _ContributorWidget extends StatelessWidget {
   Widget build(BuildContext context) => Column(
     children: [
       Text(
-          _contributor.name,
-          style: const TextStyle(fontWeight: FontWeight.bold)
+        _contributor.name,
+        style: const TextStyle(fontWeight: FontWeight.bold),
       ),
       Text(_contributor.bond),
       Text(_contributor.role),
@@ -87,16 +96,16 @@ class _ContributorWidget extends StatelessWidget {
         children: [
           if (_contributor.instagramAvailable)
             IconButton.outlined(
-                onPressed: () => launchUrl(_contributor.instagramUri),
-                icon: PhosphorIcon(PhosphorIcons.light.instagramLogo)
+              onPressed: () => launchUrl(_contributor.instagramUri),
+              icon: PhosphorIcon(PhosphorIcons.light.instagramLogo),
             )
           else
             Container(),
 
           if (_contributor.telegramAvailable)
             IconButton.outlined(
-                onPressed: () => launchUrl(_contributor.telegramUri),
-                icon: PhosphorIcon(PhosphorIcons.light.telegramLogo)
+              onPressed: () => launchUrl(_contributor.telegramUri),
+              icon: PhosphorIcon(PhosphorIcons.light.telegramLogo),
             )
           else
             Container()
