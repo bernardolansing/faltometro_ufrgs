@@ -5,42 +5,48 @@ const _secondaryColor = Color(0xFF43F4B5);
 const _errorColor = Color(0xFFC83E4D);
 
 final lightTheme = ThemeData(
-    colorScheme: const ColorScheme(
-      brightness: Brightness.light,
-      primary: _primaryColor,
-      onPrimary: Colors.white,
-      secondary: _secondaryColor,
-      onSecondary: Colors.white,
-      error: _errorColor,
-      onError: Colors.white,
-      background: Color(0xFFE0E1E8),
-      onBackground: Colors.black,
-      surface: Color(0xFFDAE3E7),
-      onSurface: Colors.black,
+  colorScheme: const ColorScheme(
+    brightness: Brightness.light,
+    primary: _primaryColor,
+    onPrimary: Colors.white,
+    secondary: _secondaryColor,
+    onSecondary: Colors.white,
+    error: _errorColor,
+    onError: Colors.white,
+    background: Color(0xFFE0E1E8),
+    onBackground: Colors.black,
+    surface: Color(0xFFDAE3E7),
+    onSurface: Colors.black,
+  ),
+  scaffoldBackgroundColor: const Color.fromRGBO(238, 238, 238, 1.0),
+  appBarTheme: const AppBarTheme(
+    color: _primaryColor,
+    foregroundColor: Colors.white,
+  ),
+  cardTheme: const CardTheme(
+    color: Colors.white,
+    surfaceTintColor: Colors.transparent,
+  ),
+  elevatedButtonTheme: ElevatedButtonThemeData(
+    style: ButtonStyle(
+      backgroundColor: const MaterialStatePropertyAll(_primaryColor),
+      surfaceTintColor: const MaterialStatePropertyAll(Colors.transparent),
+      foregroundColor: const MaterialStatePropertyAll(Colors.white),
+      shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      )),
     ),
-    scaffoldBackgroundColor: const Color.fromRGBO(238, 238, 238, 1.0),
-    appBarTheme: const AppBarTheme(
-      color: _primaryColor,
-      foregroundColor: Colors.white,
-    ),
-    cardTheme: const CardTheme(
-      color: Colors.white,
-      surfaceTintColor: Colors.transparent,
-    ),
-    elevatedButtonTheme: ElevatedButtonThemeData(
-      style: ButtonStyle(
-        backgroundColor: const MaterialStatePropertyAll(_primaryColor),
-        surfaceTintColor: const MaterialStatePropertyAll(Colors.transparent),
-        foregroundColor: const MaterialStatePropertyAll(Colors.white),
-        shape: MaterialStatePropertyAll(RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        )),
-      ),
-    ),
-    dialogTheme: const DialogTheme(
-      backgroundColor: Colors.white,
-      surfaceTintColor: Colors.transparent,
-    )
+  ),
+  dialogTheme: const DialogTheme(
+    backgroundColor: Colors.white,
+    surfaceTintColor: Colors.transparent,
+  ),
+  scrollbarTheme: const ScrollbarThemeData(
+    crossAxisMargin: 2,
+    thickness: MaterialStatePropertyAll(4),
+    radius: Radius.circular(4),
+    thumbColor: MaterialStatePropertyAll(_primaryColor),
+  ),
 );
 
 final darkTheme = ThemeData(
