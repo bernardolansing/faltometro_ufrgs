@@ -1,10 +1,12 @@
 # Faltômetro UFRGS
 
-Aplicativo mobile para os estudantes da UFRGS controlarem suas frequências nas aulas. Só funciona
-no Android. Atualmente, se encontra sob teste alpha fechado; será aberto publicamente para download
-via Play Store nas próximas semanas. Há planos para lançar uma versão web para que usuários iOS ou
-até mesmo de PCs possam usá-lo. É improvável que o Faltômetro seja portado para iOS nativamente no
-futuro, contudo.
+Aplicativo mobile para os estudantes da UFRGS controlarem sua assiduidade nas aulas. É destinado
+somente para dispositivos Android e está disponível na Play Store. Há planos para lançar uma versão
+web para que usuários iOS ou até mesmo de PCs possam usá-lo. Devido aos altos custos para publicar
+apps na App Store, é improvável que o Faltômetro seja portado para o iOS algum dia.
+
+[Baixe na Play Store](
+https://play.google.com/store/apps/details?id=com.bernardolansing.faltometro_ufrgs)
 
 ### Funcionalidades
 - Você pode adicionar suas disciplinas e registrar suas faltas nela. O aplicativo calculará quantas

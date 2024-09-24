@@ -2,10 +2,13 @@
 
 _Você pode ler este texto em português [clicando aqui](README_PTBR.md)._
 
-Mobile app for UFRGS students to control their classes' attendances. It'll only work on Android.
-It's currently under closed alpha distribution; it'll be open to download via Play Store within the
-next weeks. There are plans for releasing a web version so that iOS or even PC users can use it too.
-It is unlikely that an iOS native port will ever be offered, though.
+Mobile app for UFRGS students to control their attendance in classes. The app is only targeted for
+Android devices and is available at Play Store. There are plans for releasing a web version so that
+iOS or even PC users can use it too. Due to the high costs for publishing in the AppStore, it is
+unlikely that an iOS native port will ever be offered.
+
+[Download it at Play Store](
+https://play.google.com/store/apps/details?id=com.bernardolansing.faltometro_ufrgs)
 
 ### Features
 - You can add your courses and register absences. The app will calculate how much of the absences
@@ -26,7 +29,7 @@ class schedules.
 you won't be confused about having registering your absence yet or not.
 
 ### Contact
-If you have any suggestion or critic, want to report a bug or if you wish to contribute with the
+If you have any suggestion or complaint, want to report a bug or if you wish to contribute with the
 project, feel free to send me a message in my [Telegram](https://t.me/bernardolansing) or 
 [Instagram](https://instagram.com/bernardolansing), or 
 [post an issue](https://github.com/bernardolansing/faltometro_ufrgs/issues) in the GitHub
