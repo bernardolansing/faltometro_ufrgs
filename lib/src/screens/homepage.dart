@@ -1,12 +1,14 @@
-import 'package:faltometro_ufrgs/src/course.dart';
-import 'package:faltometro_ufrgs/src/screens/course_screen.dart';
-import 'package:faltometro_ufrgs/src/screens/explanation_screen.dart';
-import 'package:faltometro_ufrgs/src/notifications.dart';
-import 'package:faltometro_ufrgs/src/screens/register_absence_dialogs.dart';
-import 'package:faltometro_ufrgs/src/screens/settings_screen.dart';
-import 'package:faltometro_ufrgs/src/settings.dart';
 import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
+
+import '../course.dart';
+import '../notifications.dart';
+import '../settings.dart';
+import 'course_screen.dart';
+import 'explanation_screen.dart';
+import 'register_absence_dialogs.dart';
+import 'settings_screen.dart';
+
 
 class Homepage extends StatefulWidget {
   const Homepage({super.key});
@@ -18,7 +20,7 @@ class Homepage extends StatefulWidget {
 class _HomepageState extends State<Homepage> {
   Future<void> _openNewCourseScreen() async {
     final route = MaterialPageRoute<bool>(
-        builder: (context) => const CourseScreen.newCourse()
+      builder: (context) => const CourseScreen.newCourse(),
     );
     final courseAdded = await Navigator.of(context).push(route);
 
@@ -40,7 +42,7 @@ class _HomepageState extends State<Homepage> {
 
   Future<void> _openEditCourseScreen(Course course) async {
     final route = MaterialPageRoute<bool>(
-        builder: (context) => CourseScreen.edit(course: course)
+      builder: (context) => CourseScreen.edit(course: course),
     );
     final shouldUpdate = await Navigator.of(context).push(route);
     if (shouldUpdate == true) { setState(() {}); }
@@ -51,7 +53,7 @@ class _HomepageState extends State<Homepage> {
 
   void _openSettingsScreen() async {
     final route = MaterialPageRoute<bool>(
-        builder: (context) => const SettingsScreen()
+      builder: (context) => const SettingsScreen(),
     );
     final shouldRefresh = await Navigator.of(context).push(route);
     if (shouldRefresh == true) { setState(() {}); }
@@ -59,10 +61,10 @@ class _HomepageState extends State<Homepage> {
 
   Future<void> _openRegisterAbsenceDialog(Course course) async {
     final shouldUpdate = await showDialog<bool>(
-        context: context,
-        builder: (context) => course.isUniform
-            ? UniformCourseRegisterAbsenceDialog(course)
-            : NonUniformCourseRegisterAbsenceDialog(course)
+      context: context,
+      builder: (context) => course.isUniform
+          ? UniformCourseRegisterAbsenceDialog(course)
+          : NonUniformCourseRegisterAbsenceDialog(course),
     );
 
     if (shouldUpdate == true) { setState(() {}); }
@@ -113,10 +115,10 @@ class _HomepageState extends State<Homepage> {
   Widget _buildCoursesList() => ListView(
     padding: const EdgeInsets.all(10),
     children: Courses.courses.map((c) => _CourseCard(
-        course: c,
-        onAbsence: () => _openRegisterAbsenceDialog(c),
-        onEdit: () => _openEditCourseScreen(c),
-        onDelete: () => _deleteCourse(c)
+      course: c,
+      onAbsence: () => _openRegisterAbsenceDialog(c),
+      onEdit: () => _openEditCourseScreen(c),
+      onDelete: () => _deleteCourse(c),
     )).toList(growable: false),
   );
 }
@@ -177,18 +179,18 @@ class _CourseCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Flexible(
-                  child: Text(
-                      course.title,
-                      softWrap: true,
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        decoration: TextDecoration.underline,
-                        decorationColor: Theme.of(context)
-                            .colorScheme.secondary,
-                        decorationThickness: 2,
-                      )
-                  )
+                child: Text(
+                  course.title,
+                  softWrap: true,
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    decoration: TextDecoration.underline,
+                    decorationColor: Theme.of(context)
+                        .colorScheme.secondary,
+                    decorationThickness: 2,
+                  ),
+                ),
               ),
 
               Row(
@@ -198,9 +200,9 @@ class _CourseCard extends StatelessWidget {
                     icon: PhosphorIcon(PhosphorIcons.regular.pencil),
                   ),
                   IconButton(
-                      onPressed: onDelete,
-                      icon: PhosphorIcon(PhosphorIcons.regular.trash)
-                  )
+                    onPressed: onDelete,
+                    icon: PhosphorIcon(PhosphorIcons.regular.trash),
+                  ),
                 ],
               )
             ],
@@ -244,8 +246,8 @@ class _CourseCard extends StatelessWidget {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-                onPressed: onAbsence,
-                child: const Text('Registrar falta')
+              onPressed: onAbsence,
+              child: const Text('Registrar falta'),
             ),
           )
         ],
@@ -263,9 +265,9 @@ class _CourseCard extends StatelessWidget {
 
     if (course.isGameOver) {
       return const Text(
-          'Conceito FF: Fez Fiasco!!!',
-          textAlign: TextAlign.left,
-          style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16)
+        'Conceito FF: Fez Fiasco!!!',
+        textAlign: TextAlign.left,
+        style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16),
       );
     }
 
@@ -302,21 +304,21 @@ class _ConfirmCourseDeletionDialog extends StatelessWidget {
 
   const _ConfirmCourseDeletionDialog(this._course);
 
+  String get _dialogText => 'Você tem certeza de que quer excluir a disciplina '
+      '${_course.title}';
+
   @override
   Widget build(BuildContext context) => AlertDialog(
     title: const Text('Confirmar exclusão'),
-    content: Text(
-        'Você tem certeza de que quer excluir a disciplina '
-            '${_course.title}?'
-    ),
+    content: Text(_dialogText),
     actions: [
       TextButton(
-          onPressed: Navigator.of(context).pop,
-          child: const Text('Cancelar')
+        onPressed: Navigator.of(context).pop,
+        child: const Text('Cancelar'),
       ),
       ElevatedButton(
-          onPressed: () => Navigator.of(context).pop(true),
-          child: const Text('Confirmar')
+        onPressed: () => Navigator.of(context).pop(true),
+        child: const Text('Confirmar'),
       )
     ],
   );
@@ -324,11 +326,11 @@ class _ConfirmCourseDeletionDialog extends StatelessWidget {
 
 const _circularProgressSize = Size(100, 100);
 const _circularProgressTextStyle = TextStyle(
-    fontWeight: FontWeight.w800,
-    fontSize: 24
+  fontWeight: FontWeight.w800,
+  fontSize: 24,
 );
 const _circularProgressTextStyleCritical = TextStyle(
-    fontWeight: FontWeight.w900,
-    fontSize: 26,
-    color: Colors.red
+  fontWeight: FontWeight.w900,
+  fontSize: 26,
+  color: Colors.red,
 );
