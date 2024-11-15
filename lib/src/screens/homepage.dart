@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 import '../course.dart';
@@ -9,7 +10,6 @@ import 'explanation_screen.dart';
 import 'register_absence_dialogs.dart';
 import 'settings_screen.dart';
 
-
 class Homepage extends StatefulWidget {
   const Homepage({super.key});
 
@@ -18,6 +18,8 @@ class Homepage extends StatefulWidget {
 }
 
 class _HomepageState extends State<Homepage> {
+  bool _fabVisible = true;
+
   Future<void> _openNewCourseScreen() async {
     final route = MaterialPageRoute<bool>(
       builder: (context) => const CourseScreen.newCourse(),
@@ -90,10 +92,9 @@ class _HomepageState extends State<Homepage> {
       title: const Text('Faltômetro UFRGS'),
       actions: [
         IconButton(
-            onPressed: _openExplanationScreen,
-            icon: PhosphorIcon(PhosphorIcons.regular.question)
+          onPressed: _openExplanationScreen,
+          icon: PhosphorIcon(PhosphorIcons.regular.question),
         ),
-
         IconButton(
           onPressed: _openSettingsScreen,
           icon: PhosphorIcon(PhosphorIcons.regular.gear),
@@ -105,21 +106,37 @@ class _HomepageState extends State<Homepage> {
           ? _buildCoursesList()
           : const _EmptyListVariant(),
     ),
-    floatingActionButton: FloatingActionButton(
-      onPressed: _openNewCourseScreen,
-      backgroundColor: Theme.of(context).colorScheme.primary,
-      child: PhosphorIcon(PhosphorIcons.bold.plus, size: 28),
+    floatingActionButton: AnimatedSlide(
+      offset: _fabVisible ? Offset.zero : const Offset(0, 3),
+      duration: const Duration(milliseconds: 300),
+      child: FloatingActionButton(
+        onPressed: _openNewCourseScreen,
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        child: PhosphorIcon(PhosphorIcons.bold.plus, size: 28),
+      ),
     ),
   );
 
-  Widget _buildCoursesList() => ListView(
-    padding: const EdgeInsets.all(10),
-    children: Courses.courses.map((c) => _CourseCard(
-      course: c,
-      onAbsence: () => _openRegisterAbsenceDialog(c),
-      onEdit: () => _openEditCourseScreen(c),
-      onDelete: () => _deleteCourse(c),
-    )).toList(growable: false),
+  Widget _buildCoursesList() => NotificationListener<UserScrollNotification>(
+    onNotification: (scroll) {
+      setState(() {
+        if (scroll.direction == ScrollDirection.forward) {
+          _fabVisible = true;
+        } else if (scroll.direction == ScrollDirection.reverse) {
+          _fabVisible = false;
+        }
+      });
+      return false; // Return false to stop the notification bubbling.
+    },
+    child: ListView(
+      padding: const EdgeInsets.all(10),
+      children: Courses.courses.map((c) => _CourseCard(
+        course: c,
+        onAbsence: () => _openRegisterAbsenceDialog(c),
+        onEdit: () => _openEditCourseScreen(c),
+        onDelete: () => _deleteCourse(c),
+      )).toList(growable: false),
+    ),
   );
 }
 
@@ -305,7 +322,7 @@ class _ConfirmCourseDeletionDialog extends StatelessWidget {
   const _ConfirmCourseDeletionDialog(this._course);
 
   String get _dialogText => 'Você tem certeza de que quer excluir a disciplina '
-      '${_course.title}';
+      '${_course.title}?';
 
   @override
   Widget build(BuildContext context) => AlertDialog(
