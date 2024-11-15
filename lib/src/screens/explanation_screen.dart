@@ -19,58 +19,61 @@ class ExplanationScreen extends StatelessWidget {
         icon: PhosphorIcon(PhosphorIcons.bold.arrowLeft),
       ),
     ),
-    body: Scrollbar(
-      controller: _scrollController,
-      thumbVisibility: true, // Makes the scrollbar always visible (making sure
-      // the user realizes that this screen is scrollable).
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+    body: SafeArea(
+      child: Scrollbar(
         controller: _scrollController,
-        child: Column(
-          children: [
-            ListView.separated(
-              shrinkWrap: true, // Needed as it is a child of a
-              // SingleChildScrollView.
-              physics: const NeverScrollableScrollPhysics(), // Disables the
-              // scrolling effect.
-              separatorBuilder: (context, index) => const SizedBox(height: 16),
-              itemCount: _paragraphs.length,
-              itemBuilder: (context, index) => Text(
-                _paragraphs[index],
-                style: const TextStyle(fontSize: 16),
-                textAlign: TextAlign.justify,
+        thumbVisibility: true, // Makes the scrollbar always visible (making
+        // sure the user realizes that this screen is scrollable).
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          controller: _scrollController,
+          child: Column(
+            children: [
+              ListView.separated(
+                shrinkWrap: true, // Needed as it is a child of a
+                // SingleChildScrollView.
+                physics: const NeverScrollableScrollPhysics(), // Disables the
+                // scrolling effect.
+                separatorBuilder:
+                    (context, index) => const SizedBox(height: 16),
+                itemCount: _paragraphs.length,
+                itemBuilder: (context, index) => Text(
+                  _paragraphs[index],
+                  style: const TextStyle(fontSize: 16),
+                  textAlign: TextAlign.justify,
+                ),
               ),
-            ),
 
-            const Divider(thickness: 2, height: 48),
+              const Divider(thickness: 2, height: 48),
 
-            const Text('Contribuidores:', style: TextStyle(fontSize: 18)),
-            const SizedBox(height: 12),
+              const Text('Contribuidores:', style: TextStyle(fontSize: 18)),
+              const SizedBox(height: 12),
 
-            Wrap(
-              direction: Axis.vertical,
-              crossAxisAlignment: WrapCrossAlignment.center,
-              spacing: 12,
-              children: contributors
-                  .map((contributor) => _ContributorWidget(contributor))
-                  .toList(growable: false),
-            ),
-
-            const SizedBox(height: 24),
-
-            const Text(_bottomText, textAlign: TextAlign.center),
-            TextButton.icon(
-              onPressed: () => launchUrl(
-                _repositoryUrl,
-                mode: LaunchMode.externalApplication,
+              Wrap(
+                direction: Axis.vertical,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                spacing: 12,
+                children: contributors
+                    .map((contributor) => _ContributorWidget(contributor))
+                    .toList(growable: false),
               ),
-              icon: PhosphorIcon(PhosphorIcons.regular.githubLogo),
-              label: const Text(
-                'Faltômetro UFRGS no GitHub',
-                style: TextStyle(decoration: TextDecoration.underline),
+
+              const SizedBox(height: 24),
+
+              const Text(_bottomText, textAlign: TextAlign.center),
+              TextButton.icon(
+                onPressed: () => launchUrl(
+                  _repositoryUrl,
+                  mode: LaunchMode.externalApplication,
+                ),
+                icon: PhosphorIcon(PhosphorIcons.regular.githubLogo),
+                label: const Text(
+                  'Faltômetro UFRGS no GitHub',
+                  style: TextStyle(decoration: TextDecoration.underline),
+                ),
               ),
-            )
-          ],
+            ],
+          ),
         ),
       ),
     ),

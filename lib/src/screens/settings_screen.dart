@@ -68,9 +68,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     return Scaffold(
       appBar: AppBar(title: const Text('Configurações')),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text('Notificações', style: sectionTitleTextStyle),
@@ -91,16 +92,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
               Text('Tema', style: sectionTitleTextStyle),
               ...ThemeMode.values.map((mode) => ListTile(
-                  title: Text(_themeModeLabels[mode]!),
-                  contentPadding: EdgeInsets.zero,
-                  visualDensity: VisualDensity.compact,
-                  onTap: () => _applyThemeMode(mode),
-                  leading: Radio(
-                    value: mode,
-                    groupValue: Settings.themeMode,
-                    onChanged: (_) => _applyThemeMode(mode),
-                    activeColor: highlightColor,
-                  )
+                title: Text(_themeModeLabels[mode]!),
+                contentPadding: EdgeInsets.zero,
+                visualDensity: VisualDensity.compact,
+                onTap: () => _applyThemeMode(mode),
+                leading: Radio(
+                  value: mode,
+                  groupValue: Settings.themeMode,
+                  onChanged: (_) => _applyThemeMode(mode),
+                  activeColor: highlightColor,
+                ),
               )),
               const SizedBox(height: 8),
 
@@ -116,7 +117,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 enabled: Courses.courses.isNotEmpty,
                 onTap: _openRemoveAllCoursesConfirmationDialog,
               ),
-            ]
+            ],
+          ),
         ),
       ),
     );
