@@ -1,6 +1,7 @@
-import 'package:faltometro_ufrgs/src/course.dart';
 import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
+
+import '../course.dart';
 
 /// Dialog for courses that have the same amout of periods in all class days.
 class UniformCourseRegisterAbsenceDialog extends StatefulWidget {
@@ -52,7 +53,7 @@ class _UniformCourseRegisterAbsenceDialogState
                     style: IconButton.styleFrom(
                       backgroundColor: _daysAbsent > 1
                           ? Theme.of(context).colorScheme.secondary
-                          : Theme.of(context).colorScheme.background,
+                          : Theme.of(context).colorScheme.surface,
                     ),
                     icon: PhosphorIcon(PhosphorIcons.bold.minus)
                 ),
@@ -65,8 +66,8 @@ class _UniformCourseRegisterAbsenceDialogState
                 IconButton.filled(
                   onPressed: () => setState(() => _daysAbsent++),
                   style: ButtonStyle(
-                    backgroundColor: MaterialStatePropertyAll(
-                        Theme.of(context).colorScheme.secondary
+                    backgroundColor: WidgetStatePropertyAll(
+                      Theme.of(context).colorScheme.secondary,
                     ),
                   ),
                   icon: PhosphorIcon(PhosphorIcons.bold.plus),
@@ -149,50 +150,50 @@ class _NonUniformCourseRegisterAbsenceDialogState
   Widget build(BuildContext context) => AlertDialog(
     title: const Text('Registrar faltas'),
     content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Text(
-              'Marque o dia da semana em que você faltou:',
-              textAlign: TextAlign.center
-          ),
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        const Text(
+            'Marque o dia da semana em que você faltou:',
+            textAlign: TextAlign.center
+        ),
 
-          ListBody(
-            children: _weekdaysWithClass.map((weekday) => ListTile(
-              title: Text(
-                weekdaysNames[weekday],
-                style: weekday == _selectedWeekday
-                    ? _selectedWeekdayTextStyle
-                    : null,
-              ),
-              selected: weekday == _selectedWeekday,
-              selectedColor: Colors.black,
-              visualDensity: VisualDensity.compact,
-              onTap: () => _tileTapAction(weekday),
-              trailing: Radio(
-                groupValue: _selectedWeekday,
-                value: weekday,
-                activeColor: Theme.of(context).colorScheme.secondary,
-                onChanged: (value) => _tileTapAction(weekday),
-              ),
-            )).toList(growable: false),
-          ),
-        ]
+        ListBody(
+          children: _weekdaysWithClass.map((weekday) => ListTile(
+            title: Text(
+              weekdaysNames[weekday],
+              style: weekday == _selectedWeekday
+                  ? _selectedWeekdayTextStyle
+                  : null,
+            ),
+            selected: weekday == _selectedWeekday,
+            selectedColor: Colors.black,
+            visualDensity: VisualDensity.compact,
+            onTap: () => _tileTapAction(weekday),
+            trailing: Radio(
+              groupValue: _selectedWeekday,
+              value: weekday,
+              activeColor: Theme.of(context).colorScheme.secondary,
+              onChanged: (value) => _tileTapAction(weekday),
+            ),
+          )).toList(growable: false),
+        ),
+      ],
     ),
     actions: [
       Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           ElevatedButton(
-              onPressed: _selectedWeekday != null ? _registerAbsences : null,
-              child: const Text('Registrar falta')
+            onPressed: _selectedWeekday != null ? _registerAbsences : null,
+            child: const Text('Registrar falta'),
           ),
 
           TextButton(
-              onPressed: _selectedWeekday != null ? _discountAbsences : null,
-              child: const Text('Descontar falta')
-          )
+            onPressed: _selectedWeekday != null ? _discountAbsences : null,
+            child: const Text('Descontar falta'),
+          ),
         ],
-      )
+      ),
     ],
     actionsPadding: _actionsPadding,
   );

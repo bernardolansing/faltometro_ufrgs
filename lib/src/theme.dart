@@ -13,8 +13,6 @@ final lightTheme = ThemeData(
     onSecondary: Colors.white,
     error: _errorColor,
     onError: Colors.white,
-    background: Color(0xFFE0E1E8),
-    onBackground: Colors.black,
     surface: Color(0xFFDAE3E7),
     onSurface: Colors.black,
   ),
@@ -29,10 +27,10 @@ final lightTheme = ThemeData(
   ),
   elevatedButtonTheme: ElevatedButtonThemeData(
     style: ButtonStyle(
-      backgroundColor: const MaterialStatePropertyAll(_primaryColor),
-      surfaceTintColor: const MaterialStatePropertyAll(Colors.transparent),
-      foregroundColor: const MaterialStatePropertyAll(Colors.white),
-      shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+      backgroundColor: const WidgetStatePropertyAll(_primaryColor),
+      surfaceTintColor: const WidgetStatePropertyAll(Colors.transparent),
+      foregroundColor: const WidgetStatePropertyAll(Colors.white),
+      shape: WidgetStatePropertyAll(RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
       )),
     ),
@@ -43,9 +41,9 @@ final lightTheme = ThemeData(
   ),
   scrollbarTheme: const ScrollbarThemeData(
     crossAxisMargin: 2,
-    thickness: MaterialStatePropertyAll(4),
+    thickness: WidgetStatePropertyAll(4),
     radius: Radius.circular(4),
-    thumbColor: MaterialStatePropertyAll(_primaryColor),
+    thumbColor: WidgetStatePropertyAll(_primaryColor),
   ),
 );
 
@@ -58,8 +56,6 @@ final darkTheme = ThemeData(
     onSecondary: Colors.white,
     error: _errorColor,
     onError: Colors.white,
-    background: Color(0xFF5F5E5E),
-    onBackground: Color(0xFFC5C5C5),
     surface: Color(0xFF6C6C6C),
     onSurface: Color(0xFFC5C5C5),
   ),
@@ -74,16 +70,16 @@ final darkTheme = ThemeData(
   ),
   elevatedButtonTheme: ElevatedButtonThemeData(
     style: ButtonStyle(
-      backgroundColor: const MaterialStatePropertyAll(_primaryColor),
-      surfaceTintColor: const MaterialStatePropertyAll(Colors.transparent),
-      foregroundColor: const MaterialStatePropertyAll(Colors.white),
-      shape: MaterialStatePropertyAll(RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      )),
+      backgroundColor: const WidgetStatePropertyAll(_primaryColor),
+      surfaceTintColor: const WidgetStatePropertyAll(Colors.transparent),
+      foregroundColor: const WidgetStatePropertyAll(Colors.white),
+      shape: WidgetStatePropertyAll(
+        RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      ),
     ),
   ),
   textButtonTheme: const TextButtonThemeData(
-    style: ButtonStyle(foregroundColor: MaterialStatePropertyAll(Colors.white)),
+    style: ButtonStyle(foregroundColor: WidgetStatePropertyAll(Colors.white)),
   ),
   dialogTheme: const DialogTheme(
     backgroundColor: Color(0xFF4C4C4C),

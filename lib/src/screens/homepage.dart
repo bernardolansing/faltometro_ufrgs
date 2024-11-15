@@ -221,7 +221,7 @@ class _CourseCard extends StatelessWidget {
                     child: CircularProgressIndicator(
                       value: course.burnAbsencesPercentage,
                       color: Theme.of(context).colorScheme.secondary,
-                      backgroundColor: Theme.of(context).colorScheme.background,
+                      backgroundColor: Theme.of(context).colorScheme.surface,
                     ),
                   ),
 
