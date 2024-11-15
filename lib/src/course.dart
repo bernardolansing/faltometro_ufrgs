@@ -63,8 +63,9 @@ class Courses {
     List<int>? periodsPerWeekday
   }) {
     log('[COURSE] editing course "${course.title}" now');
-    course.title = title ?? course.title;
-    course.periodsPerWeekday = periodsPerWeekday ?? course.periodsPerWeekday;
+    course
+      ..title = title ?? course.title
+      ..periodsPerWeekday = periodsPerWeekday ?? course.periodsPerWeekday;
     Storage.saveCourses();
   }
 
@@ -153,7 +154,7 @@ class Course {
   // have 0 (from the days that there is no class) and at least one other
   // number. If we have only one number other than 0, the course is uniform as
   // that is the amount of periods for all class days.
-  
+
   /// Number of periods in a class day. Valid only for 'uniform' courses.
   int get periodsPerClassDay {
     assert (isUniform);
@@ -175,7 +176,7 @@ class Course {
     return (totalPeriods * 0.25).toInt(); // 75% of class attendance is
     // demanded.
   }
-  
+
   /// The total number of class days that may be skipped by the student over the
   /// semester. Valid only for 'uniform' courses.
   int get skippableClassDays {
