@@ -61,12 +61,12 @@ final darkTheme = ThemeData(
     error: _errorColor,
     onError: Colors.white,
     surface: Color(0xFF6C6C6C),
-    onSurface: Color(0xFFC5C5C5),
+    onSurface: Color(0xFFE1DEDE),
   ),
   scaffoldBackgroundColor: const Color(0xFF2F2F2F),
   appBarTheme: const AppBarTheme(
     color: Colors.black87,
-    foregroundColor: Color(0xFFCBCBCB),
+    foregroundColor: Colors.white,
   ),
   cardTheme: const CardTheme(
     color: Colors.black54,
@@ -90,6 +90,7 @@ final darkTheme = ThemeData(
     style: ButtonStyle(foregroundColor: WidgetStatePropertyAll(Colors.white)),
   ),
   dialogTheme: const DialogTheme(
+    titleTextStyle: TextStyle(color: Colors.white, fontSize: 22),
     backgroundColor: Color(0xFF4C4C4C),
   ),
 );
