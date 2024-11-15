@@ -27,7 +27,11 @@ final lightTheme = ThemeData(
   ),
   elevatedButtonTheme: ElevatedButtonThemeData(
     style: ButtonStyle(
-      backgroundColor: const WidgetStatePropertyAll(_primaryColor),
+      backgroundColor: WidgetStateProperty.resolveWith((states) {
+        return states.contains(WidgetState.disabled)
+            ? const Color(0xFFBDC2C2)
+            : _primaryColor;
+      }),
       surfaceTintColor: const WidgetStatePropertyAll(Colors.transparent),
       foregroundColor: const WidgetStatePropertyAll(Colors.white),
       shape: WidgetStatePropertyAll(RoundedRectangleBorder(
@@ -70,7 +74,11 @@ final darkTheme = ThemeData(
   ),
   elevatedButtonTheme: ElevatedButtonThemeData(
     style: ButtonStyle(
-      backgroundColor: const WidgetStatePropertyAll(_primaryColor),
+      backgroundColor: WidgetStateProperty.resolveWith((states) {
+        return states.contains(WidgetState.disabled)
+            ? const Color(0xFF888A8A)
+            : _primaryColor;
+      }),
       surfaceTintColor: const WidgetStatePropertyAll(Colors.transparent),
       foregroundColor: const WidgetStatePropertyAll(Colors.white),
       shape: WidgetStatePropertyAll(
