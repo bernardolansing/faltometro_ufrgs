@@ -1,12 +1,15 @@
 import 'dart:developer';
-import 'package:faltometro_ufrgs/src/course.dart';
-import 'package:faltometro_ufrgs/src/screens/notification_request_dialog.dart';
-import 'package:faltometro_ufrgs/src/settings.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
+
+import 'course.dart';
+import 'settings.dart';
+import 'screens/notification_request_dialog.dart';
+
 
 class Notifications {
   static late final AndroidFlutterLocalNotificationsPlugin _plugin;

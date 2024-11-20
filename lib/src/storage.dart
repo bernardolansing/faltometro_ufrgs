@@ -1,9 +1,11 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
-import 'package:faltometro_ufrgs/src/settings.dart';
+
 import 'package:path_provider/path_provider.dart';
+
 import 'course.dart';
+import 'settings.dart';
 
 /// Settings file manager module. You must initialize it before being able
 /// to interact with it.

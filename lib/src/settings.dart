@@ -1,10 +1,10 @@
 import 'dart:developer';
 
-import 'package:faltometro_ufrgs/src/theme.dart';
 import 'package:flutter/material.dart';
 
 import 'notifications.dart';
 import 'storage.dart';
+import 'theme.dart';
 
 const _defaultNotificationFrequency = NotificationFrequency.weekly;
 const _defaultThemeMode = ThemeMode.system;
