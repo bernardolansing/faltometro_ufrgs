@@ -128,18 +128,18 @@ const _paragraphs = [
   'A UFRGS exige uma frequência mínima de 75% nas suas aulas, para qualquer '
       'disciplina. No entanto, cada disciplina tem uma quantidade diferente '
       'de aulas, mesmo entre disciplinas com o mesmo número de créditos. O '
-      'Faltômetro calculará sua frequência baseando-se no palpite de que a '
-      'disciplina terá exatamente 15 semanas de duração. Algumas costumam ter '
-      'menos.',
+      'Faltômetro calculará sua frequência baseando-se na duração em semanas '
+      'especificada para cada disciplina. Geralmente, as elas têm 15 semanas '
+      'de aula. Esteja ciente de que a porcentagem de faltas queimadas é uma '
+      'ESTIMATIVA (precisa, mas não exata).',
 
-  'Por essa razão, é deixada a recomendação de não ultrapassar os 80% sob '
-      'nenhuma hipótese. Acima deste limite, não há garantia nenhuma de que '
-      'você já não tenha obtido o conceito FF.'
+  'É deixada a recomendação de não ultrapassar os 80% da cota de faltas. Para '
+      'além desse valor, você já não está mais garantido.'
 ];
 
 const _bottomText = 'Bugs? Sugestões? Dúvidas? Todas bem-vindas, basta enviar '
-    'uma mensagem. O Faltômetro UFRGS é um projeto de código-livre, então '
-    'você pode consultar seu código e lhe propor melhorias no repositório:';
+    'uma mensagem. O Faltômetro UFRGS é um projeto de código-livre, consulte '
+    'o repositório:';
 
 final _repositoryUrl = Uri
     .https('github.com', 'bernardolansing/faltometro_ufrgs');
