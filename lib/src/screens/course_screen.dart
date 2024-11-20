@@ -60,6 +60,7 @@ class _CourseScreenState extends State<CourseScreen> {
       Courses.newCourse(
         title: _titleController.text,
         periodsPerWeekday: _periodsPerWeekday,
+        durationInWeeks: _durationInWeeks,
       );
     }
 
@@ -68,6 +69,7 @@ class _CourseScreenState extends State<CourseScreen> {
         course: widget._courseToEdit!,
         title: _titleController.text,
         periodsPerWeekday: _periodsPerWeekday,
+        durationInWeeks: _durationInWeeks,
       );
     }
 

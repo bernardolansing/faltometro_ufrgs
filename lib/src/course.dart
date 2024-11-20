@@ -43,16 +43,21 @@ class Courses {
   static void newCourse({
     required String title,
     required List<int> periodsPerWeekday,
+    int? durationInWeeks,
   }) {
     assert (periodsPerWeekday.length == 6);
     assert (periodsPerWeekday.any((element) => element > 0));
     assert (title.isNotEmpty);
+    if (durationInWeeks != null) {
+      assert (durationInWeeks >= 14 && durationInWeeks <= 17);
+    }
 
     log('[COURSES] creating new course now');
     final newCourse = Course(
-        title: title,
-        periodsPerWeekday: periodsPerWeekday,
-        periodsSkipped: 0
+      title: title,
+      periodsPerWeekday: periodsPerWeekday,
+      periodsSkipped: 0,
+      durationInWeeks: durationInWeeks ?? Course.defaultSemesterLength,
     );
     _courses.add(newCourse);
     Storage.saveCourses();
@@ -61,12 +66,14 @@ class Courses {
   static void editCourse({
     required Course course,
     String? title,
-    List<int>? periodsPerWeekday
+    List<int>? periodsPerWeekday,
+    int? durationInWeeks,
   }) {
     log('[COURSE] editing course "${course.title}" now');
     course
       ..title = title ?? course.title
-      ..periodsPerWeekday = periodsPerWeekday ?? course.periodsPerWeekday;
+      ..periodsPerWeekday = periodsPerWeekday ?? course.periodsPerWeekday
+      ..durationInWeeks = durationInWeeks ?? course.durationInWeeks;
     Storage.saveCourses();
   }
 
@@ -130,7 +137,7 @@ class Course {
     required this.title,
     required this.periodsPerWeekday,
     required int periodsSkipped,
-    int durationInWeeks = defaultSemesterLength,
+    required this.durationInWeeks,
   }) :
         _periodsSkipped = periodsSkipped;
 
@@ -144,14 +151,15 @@ class Course {
         title = entry['title'],
         periodsPerWeekday = List<int>.from(entry['periodsPerWeekday']),
         _periodsSkipped = entry['periodsSkipped'],
-        // TODO: the '??' is for backwards compatibility. Once a breaking change
-        // is made, we can cut it out.
+  // TODO: the '??' is for backwards compatibility. Once a breaking change
+  // is made, we can cut it out.
         durationInWeeks = entry['durationInWeeks'] ?? defaultSemesterLength;
 
   Map<String, dynamic> get entry => {
     'title': title,
     'periodsPerWeekday': periodsPerWeekday,
-    'periodsSkipped': _periodsSkipped
+    'periodsSkipped': _periodsSkipped,
+    'durationInWeeks': durationInWeeks,
   };
 
   /// A course is uniform if the amount of periods is the same in all class
@@ -179,9 +187,8 @@ class Course {
 
   /// The amount of class periods that can be safely skipped by a student.
   int get skippablePeriods {
-    // We are considering that courses are 15 weeks long. That is not always
-    // true, but is a good approximation.
-    final totalPeriods = 15 * periodsPerWeekday.reduce((acc, val) => acc + val);
+    final periodsPerWeek = periodsPerWeekday.reduce((acc, val) => acc + val);
+    final totalPeriods = durationInWeeks * periodsPerWeek;
     return (totalPeriods * 0.25).toInt(); // 75% of class attendance is
     // demanded.
   }
