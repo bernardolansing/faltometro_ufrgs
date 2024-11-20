@@ -49,6 +49,13 @@ final lightTheme = ThemeData(
     radius: Radius.circular(4),
     thumbColor: WidgetStatePropertyAll(_primaryColor),
   ),
+  segmentedButtonTheme: SegmentedButtonThemeData(
+    style: ButtonStyle(
+      backgroundColor: WidgetStateProperty.resolveWith((states) {
+        return states.contains(WidgetState.selected) ? _primaryColor : null;
+      })
+    )
+  )
 );
 
 final darkTheme = ThemeData(

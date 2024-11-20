@@ -24,6 +24,7 @@ class CourseScreen extends StatefulWidget {
 class _CourseScreenState extends State<CourseScreen> {
   late final TextEditingController _titleController;
   late final List<int> _periodsPerWeekday;
+  late int _durationInWeeks;
 
   /// [true] if this screen is creating a new course, rather than editing a
   /// pre-existing one.
@@ -34,12 +35,12 @@ class _CourseScreenState extends State<CourseScreen> {
     if (_isCreatingCourse) {
       _titleController = TextEditingController();
       _periodsPerWeekday = [0, 0, 0, 0, 0, 0];
-    }
-
-    else {
+      _durationInWeeks = Course.defaultSemesterLength;
+    } else {
       final course = widget._courseToEdit!;
       _titleController = TextEditingController(text: course.title);
       _periodsPerWeekday = course.periodsPerWeekday;
+      _durationInWeeks = course.durationInWeeks;
     }
     super.initState();
   }
@@ -151,6 +152,29 @@ class _CourseScreenState extends State<CourseScreen> {
                   ],
                 ),
               )),
+              const Spacer(),
+
+              const Text(
+                'Selecione a duração do semestre em semanas',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                textAlign: TextAlign.center,
+              ),
+              const Text(
+                _semesterLengthExplanationText,
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 4),
+              SegmentedButton(
+                selected: {_durationInWeeks},
+                onSelectionChanged: (selected) => setState(() {
+                  selected.remove(_durationInWeeks);
+                  _durationInWeeks = selected.first;
+                }),
+                segments: List.generate(4, (index) => ButtonSegment(
+                  value: index + 14,
+                  label: Text('${index + 14}'),
+                )),
+              ),
 
               const Spacer(flex: 3),
 
@@ -187,3 +211,7 @@ class _CourseScreenState extends State<CourseScreen> {
 const _periodsExplanationText = 'Cada período corresponde a 50 minutos de '
     'aula. Se a sua aula começa, por exemplo, às 8:30 e termina às 10:10, '
     'então você tem dois períodos desta disciplina naquele dia.';
+
+const _semesterLengthExplanationText = 'Selecione quantas semanas de aula '
+    'esta disciplina terá. Geralmente, são 15. Desconsidere semana acadêmica '
+    'e de recuperações/exames.';

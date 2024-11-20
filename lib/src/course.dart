@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'dart:math' as math;
-import 'package:faltometro_ufrgs/src/storage.dart';
+
+import 'storage.dart';
 
 class Courses {
   static List<Course> _courses = [];
@@ -117,14 +118,19 @@ class Courses {
 }
 
 class Course {
+  static const defaultSemesterLength = 15; // Semesters usually have 15 weeks
+  // of classes.
+
   String title;
   List<int> periodsPerWeekday;
   int _periodsSkipped;
+  late int durationInWeeks;
 
   Course({
     required this.title,
     required this.periodsPerWeekday,
     required int periodsSkipped,
+    int durationInWeeks = defaultSemesterLength,
   }) :
         _periodsSkipped = periodsSkipped;
 
@@ -137,7 +143,10 @@ class Course {
   Course.fromEntry(Map<String, dynamic> entry) :
         title = entry['title'],
         periodsPerWeekday = List<int>.from(entry['periodsPerWeekday']),
-        _periodsSkipped = entry['periodsSkipped'];
+        _periodsSkipped = entry['periodsSkipped'],
+        // TODO: the '??' is for backwards compatibility. Once a breaking change
+        // is made, we can cut it out.
+        durationInWeeks = entry['durationInWeeks'] ?? defaultSemesterLength;
 
   Map<String, dynamic> get entry => {
     'title': title,
