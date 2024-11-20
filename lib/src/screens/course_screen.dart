@@ -130,6 +130,7 @@ class _CourseScreenState extends State<CourseScreen> {
               ...Iterable.generate(6, (index) => ListTile(
                 title: Text(weekdaysNames[index]),
                 visualDensity: VisualDensity.compact,
+                dense: true,
                 contentPadding: const EdgeInsets.symmetric(horizontal: 4),
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -140,6 +141,9 @@ class _CourseScreenState extends State<CourseScreen> {
                         _decreasePeriods(index);
                       },
                       icon: PhosphorIcon(PhosphorIcons.bold.minus),
+                      color: Theme.of(context).brightness == Brightness.light
+                          ? Theme.of(context).colorScheme.primary
+                          : Theme.of(context).colorScheme.secondary,
                       splashRadius: 28,
                     ),
                     Text(_periodsPerWeekday[index].toString()),
@@ -148,6 +152,9 @@ class _CourseScreenState extends State<CourseScreen> {
                         _closeKeyboard();
                         _increasePeriods(index);
                       },
+                      color: Theme.of(context).brightness == Brightness.light
+                          ? Theme.of(context).colorScheme.primary
+                          : Theme.of(context).colorScheme.secondary,
                       icon: PhosphorIcon(PhosphorIcons.bold.plus),
                       splashRadius: 28,
                     ),
