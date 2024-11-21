@@ -27,6 +27,7 @@ fill how many periods each course has per weekday, and you will have a practical
 class schedules.
 - Instead of registering absences by amount, you pick the date of the class you missed. This way,
 you won't be confused about having registering your absence yet or not.
+- Registering exams dates.
 
 ### Contact
 If you have any suggestion or complaint, want to report a bug or if you wish to contribute with the

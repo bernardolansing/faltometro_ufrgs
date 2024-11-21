@@ -44,13 +44,11 @@ android {
     defaultConfig {
         applicationId "com.bernardolansing.faltometro_ufrgs"
         minSdkVersion flutter.minSdkVersion
-        targetSdkVersion 35 // TODO: maybe switch back to "flutter.targetSdkVersion"? I think this
-        // is a constant that depends on the installed Flutter toolchain version (but I was having
-        // problems updating it).
+        targetSdkVersion 35
 
         // Remember to update these two below when releasing a new version.
-        versionCode 2
-        versionName "1.1.0"
+        versionCode 3
+        versionName "1.2.0"
         multiDexEnabled true // Required by flutter_local_notifications.
     }
 

@@ -25,6 +25,7 @@ manualmente o número de períodos por dia da semana para cada disciplina, e voc
 prática de consultar os horários das suas aulas.
 - Ao invés de registrar suas faltas por quantidade, você pode escolher a data em que faltou. Dessa
 maneira, você não ficaria confuso sobre se já registrou uma falta ou não.
+- Cadastrar datas de provas.
 
 ### Contato
 Se você tiver qualquer sugestão ou crítica, ou quiser reportar um bug ou quiser contribuir com o
