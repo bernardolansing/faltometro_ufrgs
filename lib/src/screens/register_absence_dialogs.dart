@@ -1,7 +1,26 @@
+import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 import '../course.dart';
+
+void showRegisterAbsenceDialog(BuildContext context, Course course) {
+  showCalendarDatePicker2Dialog(
+    context: context,
+    config: CalendarDatePicker2WithActionButtonsConfig(
+      calendarType: CalendarDatePicker2Type.multi,
+      okButton: ElevatedButton(
+        onPressed: () {},
+        child: const Text('Confirmar'),
+      ),
+      cancelButton: TextButton(
+        onPressed: Navigator.of(context).pop,
+        child: const Text('Cancelar'),
+      ),
+    ),
+    dialogSize: const Size(370, 424),
+  );
+}
 
 /// Dialog for courses that have the same amout of periods in all class days.
 class UniformCourseRegisterAbsenceDialog extends StatefulWidget {

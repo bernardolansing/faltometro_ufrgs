@@ -62,12 +62,14 @@ class _HomepageState extends State<Homepage> {
   }
 
   Future<void> _openRegisterAbsenceDialog(Course course) async {
-    final shouldUpdate = await showDialog<bool>(
-      context: context,
-      builder: (context) => course.isUniform
-          ? UniformCourseRegisterAbsenceDialog(course)
-          : NonUniformCourseRegisterAbsenceDialog(course),
-    );
+    // final shouldUpdate = await showDialog<bool>(
+    //   context: context,
+    //   builder: (context) => course.isUniform
+    //       ? UniformCourseRegisterAbsenceDialog(course)
+    //       : NonUniformCourseRegisterAbsenceDialog(course),
+    // );
+    showRegisterAbsenceDialog(context, course);
+    final shouldUpdate = true;
 
     if (shouldUpdate == true) { setState(() {}); }
   }
