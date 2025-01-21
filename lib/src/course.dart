@@ -213,6 +213,18 @@ class Course {
   /// The student has probably skipped more classes than it could, so its
   /// reprovation is almost certain.
   bool get isGameOver => burnAbsencesPercentage >= 1.0;
+
+  /// Returns a list of weekdays in which this course has classes. 1 == monday,
+  /// 6 == saturday.
+  List<int> getWeekdaysWithClass() {
+    final List<int> list = [];
+    for (final (index, periods) in periodsPerWeekday.indexed) {
+      if (periods != 0) {
+        list.add(index + 1);
+      }
+    }
+    return list;
+  }
 }
 
 extension PercentageFormattingExtension on double {

@@ -5,10 +5,15 @@ import 'package:phosphor_flutter/phosphor_flutter.dart';
 import '../course.dart';
 
 void showRegisterAbsenceDialog(BuildContext context, Course course) {
+  final weekdaysWithClass = course.getWeekdaysWithClass();
+
   showCalendarDatePicker2Dialog(
     context: context,
     config: CalendarDatePicker2WithActionButtonsConfig(
       calendarType: CalendarDatePicker2Type.multi,
+      lastDate: DateTime.now(),
+      selectableDayPredicate: (date) => weekdaysWithClass
+          .contains(date.weekday),
       okButton: ElevatedButton(
         onPressed: () {},
         child: const Text('Confirmar'),
