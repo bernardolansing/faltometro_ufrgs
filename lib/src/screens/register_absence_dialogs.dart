@@ -6,6 +6,9 @@ import '../course.dart';
 
 void showRegisterAbsenceDialog(BuildContext context, Course course) {
   final weekdaysWithClass = course.getWeekdaysWithClass();
+  final theme = Theme.of(context);
+  final themeIsDark = theme.brightness == Brightness.dark;
+  final textStyle = themeIsDark ? const TextStyle(color: Colors.white) : null;
 
   showCalendarDatePicker2Dialog(
     context: context,
@@ -14,6 +17,13 @@ void showRegisterAbsenceDialog(BuildContext context, Course course) {
       lastDate: DateTime.now(),
       selectableDayPredicate: (date) => weekdaysWithClass
           .contains(date.weekday),
+      selectedDayHighlightColor: themeIsDark
+          ? theme.colorScheme.secondary.withAlpha(175)
+          : null,
+      controlsTextStyle: textStyle,
+      dayTextStyle: textStyle,
+      monthTextStyle: textStyle,
+      yearTextStyle: textStyle,
       okButton: ElevatedButton(
         onPressed: () {},
         child: const Text('Confirmar'),
