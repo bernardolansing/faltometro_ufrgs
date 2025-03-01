@@ -133,12 +133,15 @@ class Course {
   /// days. So for example if a course has two periods on Monday, Wednesday and
   /// Friday, it will be uniform. In contrast, if a course has two periods on
   /// Monday and three periods on Wednesday, it will NOT me uniform.
-  // TODO: FIX BUG!!!
-  bool get isUniform => periodsPerWeekday.toSet().length < 3;
+  bool get isUniform => periodsPerWeekday.toSet().length < 3
+      && periodsPerWeekday.contains(0);
   // With .toSet(), we remove the duplicates in periodsPerWeekday. We expect to
   // have 0 (from the days that there is no class) and at least one other
   // number. If we have only one number other than 0, the course is uniform as
-  // that is the amount of periods for all class days.
+  // that is the amount of periods for all class days. It's probably never
+  // going to be the case, but if a course has classes from Monday to Saturday,
+  // a false positive would be returned unless we checked if periodsPerWeekday
+  // contained 0.
 
   /// Number of periods in a class day. Valid only for 'uniform' courses.
   int get periodsPerClassDay {

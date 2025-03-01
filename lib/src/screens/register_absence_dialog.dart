@@ -14,9 +14,6 @@ Future<void> showRegisterAbsenceDialog(BuildContext context,
   final themeIsDark = theme.brightness == Brightness.dark;
   final textStyle = themeIsDark ? const TextStyle(color: Colors.white) : null;
 
-  print('course is uniform: ${course.isUniform}');
-  print('periods per weekday: ${course.periodsPerWeekday}');
-
   final selectedDates = await showCalendarDatePicker2Dialog(
     context: context,
     value: course.datesSkipped,
