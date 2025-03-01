@@ -3,13 +3,14 @@ include: package:flutter_lints/flutter.yaml # Includes recommended rules.
 linter:
   rules:
     prefer_single_quotes: true
-    lines_longer_than_80_chars: false
+    lines_longer_than_80_chars: true
     avoid_multiple_declarations_per_line: true
     avoid_unnecessary_containers: true
-    cascade_invocations: true
     prefer_relative_imports: true
     prefer_final_locals: true
     sort_pub_dependencies: true
     unnecessary_null_checks: true
     unnecessary_statements: true
     use_is_even_rather_than_modulo: true
+    prefer_const_constructors: true
+    prefer_const_declarations: true
