@@ -1,12 +1,9 @@
 import 'dart:developer';
-import 'dart:math' as math;
 
 import 'storage.dart';
 
 class Courses {
-  static List<Course> _courses = [];
-
-  static List<Course> get courses => _courses;
+  static List<Course> courses = [];
 
   /// A list of weekdays indexes in which the student has classes. 0 is Monday,
   /// 1 is Tuesday and so on.
@@ -14,7 +11,7 @@ class Courses {
     final List<int> wkdWithClass = [];
 
     for (final wk in Iterable.generate(5, (index) => index)) {
-      if (_courses.any((course) => course.periodsPerWeekday[wk] != 0)) {
+      if (courses.any((course) => course.periodsPerWeekday[wk] != 0)) {
         wkdWithClass.add(wk);
       }
     }
@@ -27,7 +24,7 @@ class Courses {
   static void load() {
     try {
       log('[COURSES] loading courses from settings');
-      _courses = Storage.coursesEntry.map(Course.fromEntry).toList();
+      courses = Storage.coursesEntry.map(Course.fromEntry).toList();
     }
     on TypeError catch (error) {
       log('[COURSES] error on decoding courses entries: ${error.toString()}');
@@ -36,7 +33,7 @@ class Courses {
     }
   }
 
-  static List<Map<String, dynamic>> get storageEntry => _courses
+  static List<Map<String, dynamic>> get storageEntry => courses
       .map((course) => course.entry)
       .toList();
 
@@ -56,10 +53,10 @@ class Courses {
     final newCourse = Course(
       title: title,
       periodsPerWeekday: periodsPerWeekday,
-      periodsSkipped: 0,
+      datesSkipped: [],
       durationInWeeks: durationInWeeks ?? Course.defaultSemesterLength,
     );
-    _courses.add(newCourse);
+    courses.add(newCourse);
     Storage.saveCourses();
   }
 
@@ -79,48 +76,48 @@ class Courses {
 
   static void deleteCourse(Course courseToDelete) {
     log('[COURSES] deleting course "${courseToDelete.title}" now');
-    _courses.remove(courseToDelete);
+    courses.remove(courseToDelete);
     Storage.saveCourses();
   }
 
   static void deleteAllCourses() {
     log('[COURSES] deleting all courses now');
-    _courses.clear();
+    courses.clear();
     Storage.saveCourses();
   }
 
   static void registerAbsences(Course course, {int? absences, int? weekday}) {
-    assert (absences != null || weekday != null);
-    log('[COURSES] registering absences for course "${course.title}"');
-
-    if (absences != null) {
-      assert (course.isUniform);
-      course.periodsSkipped += absences * course.periodsPerClassDay;
-    }
-
-    else {
-      assert (! course.isUniform);
-      course.periodsSkipped += course.periodsPerWeekday[weekday!];
-    }
-
-    Storage.saveCourses();
+    // assert (absences != null || weekday != null);
+    // log('[COURSES] registering absences for course "${course.title}"');
+    //
+    // if (absences != null) {
+    //   assert (course.isUniform);
+    //   course.periodsSkipped += absences * course.periodsPerClassDay;
+    // }
+    //
+    // else {
+    //   assert (! course.isUniform);
+    //   course.periodsSkipped += course.periodsPerWeekday[weekday!];
+    // }
+    //
+    // Storage.saveCourses();
   }
 
   static void discountAbsences(Course course, {int? absences, int? weekday}) {
-    assert (absences != null || weekday != null);
-    log('[COURSES] discounting absences for course "${course.title}"');
-
-    if (absences != null) {
-      assert (course.isUniform);
-      course.periodsSkipped -= absences * course.periodsPerClassDay;
-    }
-
-    else {
-      assert (! course.isUniform);
-      course.periodsSkipped -= course.periodsPerWeekday[weekday!];
-    }
-
-    Storage.saveCourses();
+    // assert (absences != null || weekday != null);
+    // log('[COURSES] discounting absences for course "${course.title}"');
+    //
+    // if (absences != null) {
+    //   assert (course.isUniform);
+    //   course.periodsSkipped -= absences * course.periodsPerClassDay;
+    // }
+    //
+    // else {
+    //   assert (! course.isUniform);
+    //   course.periodsSkipped -= course.periodsPerWeekday[weekday!];
+    // }
+    //
+    // Storage.saveCourses();
   }
 }
 
@@ -129,36 +126,38 @@ class Course {
   // of classes.
 
   String title;
+  /// List with six integers, each integer counting the amount of periods for
+  /// a weeday. The first item accounts for Monday and the last item accounts
+  /// for Saturday.
   List<int> periodsPerWeekday;
-  int _periodsSkipped;
-  late int durationInWeeks;
+  List<DateTime> datesSkipped;
+  int durationInWeeks;
 
   Course({
     required this.title,
     required this.periodsPerWeekday,
-    required int periodsSkipped,
+    required this.datesSkipped,
     required this.durationInWeeks,
-  }) :
-        _periodsSkipped = periodsSkipped;
-
-  int get periodsSkipped => _periodsSkipped;
-
-  set periodsSkipped(int value) {
-    _periodsSkipped = math.max(value, 0);
-  }
+  });
 
   Course.fromEntry(Map<String, dynamic> entry) :
         title = entry['title'],
         periodsPerWeekday = List<int>.from(entry['periodsPerWeekday']),
-        _periodsSkipped = entry['periodsSkipped'],
-  // TODO: the '??' is for backwards compatibility. Once a breaking change
-  // is made, we can cut it out.
-        durationInWeeks = entry['durationInWeeks'] ?? defaultSemesterLength;
+        datesSkipped = List<String>.from(entry['datesSkipped'] ?? [])
+            .map(DateTime.parse)
+            .toList(),
+        durationInWeeks = entry['durationInWeeks'];
+
+  void setDatesSkipped(List<DateTime> newDatesSkipped) {
+    datesSkipped = newDatesSkipped;
+  }
 
   Map<String, dynamic> get entry => {
     'title': title,
     'periodsPerWeekday': periodsPerWeekday,
-    'periodsSkipped': _periodsSkipped,
+    'datesSkipped': datesSkipped
+        .map((date) => '${date.year}-${date.month}-${date.day}')
+        .toList(),
     'durationInWeeks': durationInWeeks,
   };
 
@@ -178,11 +177,21 @@ class Course {
     return periodsPerWeekday.firstWhere((periods) => periods > 0);
   }
 
+  int get periodsSkipped {
+    int n = 0;
+    for (final skippedDay in datesSkipped) {
+      n += periodsPerWeekday[skippedDay.weekday - 1]; // DateTime weekday is 1
+      // for Monday and 6 to Saturday, so we have to discount 1 for it to serve
+      // as an index.
+    }
+    return n;
+  }
+
   /// The percentage of absences that already have been consumed for this
   /// course. It ranges between 0 and 1 (100%). If it is 100%, it means that
   /// the student has already used all of the tolerated absences, and therefore
   /// it should be reproved.
-  double get burnAbsencesPercentage => (_periodsSkipped / skippablePeriods)
+  double get burnAbsencesPercentage => (periodsSkipped / skippablePeriods)
       .clamp(0, 1.0);
 
   /// The amount of class periods that can be safely skipped by a student.
@@ -203,7 +212,7 @@ class Course {
   /// Number of class days that were skipped. Valid only for uniform courses.
   int get skippedClasses {
     assert (isUniform);
-    return _periodsSkipped ~/ periodsPerClassDay;
+    return periodsSkipped ~/ periodsPerClassDay;
   }
 
   /// A course is in critical state if the student has burnt more than 80% of
