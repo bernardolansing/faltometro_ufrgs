@@ -7,7 +7,7 @@ import '../notifications.dart';
 import '../settings.dart';
 import 'course_screen.dart';
 import 'explanation_screen.dart';
-import 'register_absence_dialogs.dart';
+import 'register_absence_dialog.dart';
 import 'settings_screen.dart';
 
 class Homepage extends StatefulWidget {
@@ -62,16 +62,8 @@ class _HomepageState extends State<Homepage> {
   }
 
   Future<void> _openRegisterAbsenceDialog(Course course) async {
-    // final shouldUpdate = await showDialog<bool>(
-    //   context: context,
-    //   builder: (context) => course.isUniform
-    //       ? UniformCourseRegisterAbsenceDialog(course)
-    //       : NonUniformCourseRegisterAbsenceDialog(course),
-    // );
-    showRegisterAbsenceDialog(context, course);
-    final shouldUpdate = true;
-
-    if (shouldUpdate == true) { setState(() {}); }
+    await showRegisterAbsenceDialog(context, course);
+    setState(() {});
   }
 
   Future<void> _deleteCourse(Course course) async {

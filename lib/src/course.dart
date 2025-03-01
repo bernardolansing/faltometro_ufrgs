@@ -85,40 +85,6 @@ class Courses {
     courses.clear();
     Storage.saveCourses();
   }
-
-  static void registerAbsences(Course course, {int? absences, int? weekday}) {
-    // assert (absences != null || weekday != null);
-    // log('[COURSES] registering absences for course "${course.title}"');
-    //
-    // if (absences != null) {
-    //   assert (course.isUniform);
-    //   course.periodsSkipped += absences * course.periodsPerClassDay;
-    // }
-    //
-    // else {
-    //   assert (! course.isUniform);
-    //   course.periodsSkipped += course.periodsPerWeekday[weekday!];
-    // }
-    //
-    // Storage.saveCourses();
-  }
-
-  static void discountAbsences(Course course, {int? absences, int? weekday}) {
-    // assert (absences != null || weekday != null);
-    // log('[COURSES] discounting absences for course "${course.title}"');
-    //
-    // if (absences != null) {
-    //   assert (course.isUniform);
-    //   course.periodsSkipped -= absences * course.periodsPerClassDay;
-    // }
-    //
-    // else {
-    //   assert (! course.isUniform);
-    //   course.periodsSkipped -= course.periodsPerWeekday[weekday!];
-    // }
-    //
-    // Storage.saveCourses();
-  }
 }
 
 class Course {
@@ -149,14 +115,16 @@ class Course {
         durationInWeeks = entry['durationInWeeks'];
 
   void setDatesSkipped(List<DateTime> newDatesSkipped) {
+    log('[COURSES] updating list of skipped dates');
     datesSkipped = newDatesSkipped;
+    Storage.saveCourses();
   }
 
   Map<String, dynamic> get entry => {
     'title': title,
     'periodsPerWeekday': periodsPerWeekday,
     'datesSkipped': datesSkipped
-        .map((date) => '${date.year}-${date.month}-${date.day}')
+        .map((date) => date.toString())
         .toList(),
     'durationInWeeks': durationInWeeks,
   };
@@ -165,6 +133,7 @@ class Course {
   /// days. So for example if a course has two periods on Monday, Wednesday and
   /// Friday, it will be uniform. In contrast, if a course has two periods on
   /// Monday and three periods on Wednesday, it will NOT me uniform.
+  // TODO: FIX BUG!!!
   bool get isUniform => periodsPerWeekday.toSet().length < 3;
   // With .toSet(), we remove the duplicates in periodsPerWeekday. We expect to
   // have 0 (from the days that there is no class) and at least one other
