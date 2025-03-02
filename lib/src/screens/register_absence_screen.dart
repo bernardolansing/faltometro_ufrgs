@@ -62,6 +62,11 @@ class _RegisterAbsenceScreenState extends State<RegisterAbsenceScreen> {
               child: CalendarDatePicker2(
                 value: _dates,
                 onValueChanged: (newDates) => setState(() => _dates = newDates),
+                // Without this, the current month would appear on the top of
+                // the screen and a huge blank space be shown below. So we must
+                // select the previews month to be the "month on focus".
+                displayedMonthDate: DateTime.now()
+                    .subtract(Duration(days: DateTime.now().day)),
                 config: _calendarConfig,
               ),
             ),
