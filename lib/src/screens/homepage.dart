@@ -233,14 +233,14 @@ class _CourseCard extends StatelessWidget {
                   SizedBox.fromSize(
                     size: _circularProgressSize,
                     child: CircularProgressIndicator(
-                      value: course.burnAbsencesPercentage,
+                      value: course.burntAbsencesPercentage,
                       color: Theme.of(context).colorScheme.secondary,
                       backgroundColor: Theme.of(context).colorScheme.surface,
                     ),
                   ),
 
                   Text(
-                    course.burnAbsencesPercentage.asPercentage,
+                    course.burntAbsencesPercentage.asPercentage,
                     style: course.isCritical
                         ? _circularProgressTextStyleCritical
                         : _circularProgressTextStyle,
@@ -304,7 +304,7 @@ class _CourseCard extends StatelessWidget {
 
     else {
       final remainingAbsences = course.skippablePeriods - course.skippedPeriods;
-      text = 'Você queimou ${course.burnAbsencesPercentage.asPercentage} das '
+      text = 'Você queimou ${course.burntAbsencesPercentage.asPercentage} das '
           'faltas para esta disciplina. Pode faltar mais $remainingAbsences '
           'períodos.';
     }

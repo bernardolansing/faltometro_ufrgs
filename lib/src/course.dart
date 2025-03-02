@@ -162,11 +162,9 @@ class Course {
 
   int get skippedPeriods => _skippedPeriods;
 
-  /// The percentage of absences that already have been consumed for this
-  /// course. It ranges between 0 and 1 (100%). If it is 100%, it means that
-  /// the student has already used all of the tolerated absences, and therefore
-  /// it should be reproved.
-  double get burnAbsencesPercentage => _burntAbsencesPercentage;
+  /// The percentage of absences that have already been consumed for this
+  /// course. It ranges between 0 and 1 (100%).
+  double get burntAbsencesPercentage => _burntAbsencesPercentage;
 
   /// The amount of class periods that can be safely skipped by a student.
   int get skippablePeriods => _skippablePeriods;
@@ -192,7 +190,7 @@ class Course {
   /// the courses absences.
   bool get isCritical => _critical;
 
-  /// The student has probably skipped more classes than it could, so their
+  /// The student has probably skipped more classes than they could, so their
   /// reprovation is almost certain.
   bool get isGameOver => _gameOver;
 
