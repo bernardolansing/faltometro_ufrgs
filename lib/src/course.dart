@@ -53,7 +53,7 @@ class Courses {
     final newCourse = Course(
       title: title,
       periodsPerWeekday: periodsPerWeekday,
-      datesSkipped: [],
+      skippedDates: [],
       durationInWeeks: durationInWeeks ?? Course.defaultSemesterLength,
     );
     newCourse._makeCalculations();
@@ -97,7 +97,7 @@ class Course {
   /// a weeday. The first item accounts for Monday and the last item accounts
   /// for Saturday.
   List<int> periodsPerWeekday;
-  List<DateTime> datesSkipped;
+  List<DateTime> skippedDates;
   int durationInWeeks;
 
   // Cached calculations:
@@ -115,7 +115,7 @@ class Course {
   Course({
     required this.title,
     required this.periodsPerWeekday,
-    required this.datesSkipped,
+    required this.skippedDates,
     required this.durationInWeeks,
   });
 
@@ -123,7 +123,7 @@ class Course {
     final course = Course(
       title: entry['title'],
       periodsPerWeekday: List<int>.from(entry['periodsPerWeekday']),
-      datesSkipped: List<String>.from(entry['datesSkipped'] ?? [])
+      skippedDates: List<String>.from(entry['skippedDates'] ?? [])
           .map(DateTime.parse)
           .toList(),
       durationInWeeks: entry['durationInWeeks'],
@@ -135,7 +135,7 @@ class Course {
   Map<String, dynamic> toEntry() => {
     'title': title,
     'periodsPerWeekday': periodsPerWeekday,
-    'datesSkipped': datesSkipped
+    'skippedDates': skippedDates
         .map((date) => date.toString())
         .toList(),
     'durationInWeeks': durationInWeeks,
@@ -143,7 +143,7 @@ class Course {
 
   void setDatesSkipped(List<DateTime> newDatesSkipped) {
     log('[COURSES] updating list of skipped dates');
-    datesSkipped = newDatesSkipped;
+    skippedDates = newDatesSkipped;
     _makeCalculations();
     Storage.saveCourses();
   }
@@ -160,7 +160,7 @@ class Course {
     return _periodsPerClassDay;
   }
 
-  int get periodsSkipped => _skippedPeriods;
+  int get skippedPeriods => _skippedPeriods;
 
   /// The percentage of absences that already have been consumed for this
   /// course. It ranges between 0 and 1 (100%). If it is 100%, it means that
@@ -212,12 +212,12 @@ class Course {
     if (_uniform) {
       _periodsPerClassDay = periodsPerWeekday
           .firstWhere((periods) => periods != 0);
-      _skippedClasses = datesSkipped.length;
+      _skippedClasses = skippedDates.length;
       _skippedPeriods = _skippedClasses * _periodsPerClassDay;
       _skippableClassDays = _skippablePeriods ~/ _periodsPerClassDay;
     } else {
       _skippedPeriods = 0;
-      for (final skippedDay in datesSkipped) {
+      for (final skippedDay in skippedDates) {
         // DateTime weekday is 1 for Monday and 6 to Saturday, so we have to
         // discount 1 for it to serve as an index.
         _skippedPeriods += periodsPerWeekday[skippedDay.weekday - 1];

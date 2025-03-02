@@ -15,7 +15,7 @@ Future<void> showRegisterAbsenceDialog(BuildContext context,
 
   final selectedDates = await showCalendarDatePicker2Dialog(
     context: context,
-    value: course.datesSkipped,
+    value: course.skippedDates,
     config: CalendarDatePicker2WithActionButtonsConfig(
       calendarType: CalendarDatePicker2Type.multi,
       lastDate: DateTime.now(),

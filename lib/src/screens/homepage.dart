@@ -267,7 +267,7 @@ class _CourseCard extends StatelessWidget {
   );
 
   Text get _cardText {
-    if (course.periodsSkipped < 1) {
+    if (course.skippedPeriods < 1) {
       return const Text(
         'Você ainda não faltou nenhuma vez nesta cadeira!',
         textAlign: TextAlign.center,
@@ -300,7 +300,7 @@ class _CourseCard extends StatelessWidget {
     }
 
     else {
-      final remainingAbsences = course.skippablePeriods - course.periodsSkipped;
+      final remainingAbsences = course.skippablePeriods - course.skippedPeriods;
       text = 'Você queimou ${course.burnAbsencesPercentage.asPercentage} das '
           'faltas para esta disciplina. Pode faltar mais $remainingAbsences '
           'períodos.';
