@@ -9,7 +9,6 @@ import '../course.dart';
 /// the UI should be refreshed.
 Future<void> showRegisterAbsenceDialog(BuildContext context,
     Course course) async {
-  final weekdaysWithClass = course.getWeekdaysWithClass();
   final theme = Theme.of(context);
   final themeIsDark = theme.brightness == Brightness.dark;
   final textStyle = themeIsDark ? const TextStyle(color: Colors.white) : null;
@@ -20,8 +19,11 @@ Future<void> showRegisterAbsenceDialog(BuildContext context,
     config: CalendarDatePicker2WithActionButtonsConfig(
       calendarType: CalendarDatePicker2Type.multi,
       lastDate: DateTime.now(),
-      selectableDayPredicate: (date) => weekdaysWithClass
-          .contains(date.weekday),
+      // For DateTime weekdays, Monday has index 1. For course.weekdaysWithClass
+      // it has index 0, so it's required to decrement date.weekday in order
+      // to match them.
+      selectableDayPredicate: (date) => course.weekdaysWithClass
+          .contains(date.weekday - 1),
       selectedDayHighlightColor: themeIsDark
           ? theme.colorScheme.secondary.withAlpha(175)
           : null,
