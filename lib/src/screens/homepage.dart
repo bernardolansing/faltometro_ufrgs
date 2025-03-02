@@ -7,7 +7,7 @@ import '../notifications.dart';
 import '../settings.dart';
 import 'course_screen.dart';
 import 'explanation_screen.dart';
-import 'register_absence_dialog.dart';
+import 'register_absence_screen.dart';
 import 'settings_screen.dart';
 
 class Homepage extends StatefulWidget {
@@ -61,8 +61,11 @@ class _HomepageState extends State<Homepage> {
     if (shouldRefresh == true) { setState(() {}); }
   }
 
-  Future<void> _openRegisterAbsenceDialog(Course course) async {
-    await showRegisterAbsenceDialog(context, course);
+  Future<void> _openRegisterAbsenceScreen(Course course) async {
+    final route = MaterialPageRoute(
+      builder: (context) => RegisterAbsenceScreen(course),
+    );
+    await Navigator.of(context).push(route);
     setState(() {});
   }
 
@@ -126,7 +129,7 @@ class _HomepageState extends State<Homepage> {
       padding: const EdgeInsets.all(10),
       children: Courses.courses.map((c) => _CourseCard(
         course: c,
-        onAbsence: () => _openRegisterAbsenceDialog(c),
+        onAbsence: () => _openRegisterAbsenceScreen(c),
         onEdit: () => _openEditCourseScreen(c),
         onDelete: () => _deleteCourse(c),
       )).toList(growable: false),
