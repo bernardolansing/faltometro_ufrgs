@@ -25,8 +25,6 @@ switch your device.
 - Database of courses with their schedules. With this, it won't be necessary for you to manually
 fill how many periods each course has per weekday, and you will have a practical way to check your 
 class schedules.
-- Instead of registering absences by amount, you pick the date of the class you missed. This way,
-you won't be confused about having registering your absence yet or not.
 - Registering exams dates.
 
 ### Contact

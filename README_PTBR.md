@@ -23,8 +23,6 @@ você trocar de dispositivo.
 - Banco de dados de disciplinas com seus horários. Com isso, não será necessário que você preencha
 manualmente o número de períodos por dia da semana para cada disciplina, e você terá uma maneira
 prática de consultar os horários das suas aulas.
-- Ao invés de registrar suas faltas por quantidade, você pode escolher a data em que faltou. Dessa
-maneira, você não ficaria confuso sobre se já registrou uma falta ou não.
 - Cadastrar datas de provas.
 
 ### Contato
