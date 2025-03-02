@@ -27,6 +27,7 @@ final lightTheme = ThemeData(
   ),
   elevatedButtonTheme: ElevatedButtonThemeData(
     style: ButtonStyle(
+      elevation: const WidgetStatePropertyAll(4),
       backgroundColor: WidgetStateProperty.resolveWith((states) {
         return states.contains(WidgetState.disabled)
             ? const Color(0xFFBDC2C2)

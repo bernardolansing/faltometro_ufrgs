@@ -40,6 +40,7 @@ class _RegisterAbsenceScreenState extends State<RegisterAbsenceScreen> {
       selectedDayHighlightColor: themeIsDark
           ? theme.colorScheme.secondary.withAlpha(175)
           : null,
+      daySplashColor: theme.colorScheme.secondary,
       controlsTextStyle: textStyle,
       dayTextStyle: textStyle,
       monthTextStyle: textStyle,
