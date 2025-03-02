@@ -7,7 +7,7 @@ import '../notifications.dart';
 import '../settings.dart';
 import 'course_screen.dart';
 import 'explanation_screen.dart';
-import 'register_absence_dialogs.dart';
+import 'register_absence_screen.dart';
 import 'settings_screen.dart';
 
 class Homepage extends StatefulWidget {
@@ -61,15 +61,12 @@ class _HomepageState extends State<Homepage> {
     if (shouldRefresh == true) { setState(() {}); }
   }
 
-  Future<void> _openRegisterAbsenceDialog(Course course) async {
-    final shouldUpdate = await showDialog<bool>(
-      context: context,
-      builder: (context) => course.isUniform
-          ? UniformCourseRegisterAbsenceDialog(course)
-          : NonUniformCourseRegisterAbsenceDialog(course),
+  Future<void> _openRegisterAbsenceScreen(Course course) async {
+    final route = MaterialPageRoute(
+      builder: (context) => RegisterAbsenceScreen(course),
     );
-
-    if (shouldUpdate == true) { setState(() {}); }
+    await Navigator.of(context).push(route);
+    setState(() {});
   }
 
   Future<void> _deleteCourse(Course course) async {
@@ -132,7 +129,7 @@ class _HomepageState extends State<Homepage> {
       padding: const EdgeInsets.all(10),
       children: Courses.courses.map((c) => _CourseCard(
         course: c,
-        onAbsence: () => _openRegisterAbsenceDialog(c),
+        onAbsence: () => _openRegisterAbsenceScreen(c),
         onEdit: () => _openEditCourseScreen(c),
         onDelete: () => _deleteCourse(c),
       )).toList(growable: false),
@@ -236,14 +233,14 @@ class _CourseCard extends StatelessWidget {
                   SizedBox.fromSize(
                     size: _circularProgressSize,
                     child: CircularProgressIndicator(
-                      value: course.burnAbsencesPercentage,
+                      value: course.burntAbsencesPercentage,
                       color: Theme.of(context).colorScheme.secondary,
                       backgroundColor: Theme.of(context).colorScheme.surface,
                     ),
                   ),
 
                   Text(
-                    course.burnAbsencesPercentage.asPercentage,
+                    course.burntAbsencesPercentage.asPercentage,
                     style: course.isCritical
                         ? _circularProgressTextStyleCritical
                         : _circularProgressTextStyle,
@@ -273,7 +270,7 @@ class _CourseCard extends StatelessWidget {
   );
 
   Text get _cardText {
-    if (course.periodsSkipped < 1) {
+    if (course.skippedPeriods < 1) {
       return const Text(
         'Você ainda não faltou nenhuma vez nesta cadeira!',
         textAlign: TextAlign.center,
@@ -306,8 +303,8 @@ class _CourseCard extends StatelessWidget {
     }
 
     else {
-      final remainingAbsences = course.skippablePeriods - course.periodsSkipped;
-      text = 'Você queimou ${course.burnAbsencesPercentage.asPercentage} das '
+      final remainingAbsences = course.skippablePeriods - course.skippedPeriods;
+      text = 'Você queimou ${course.burntAbsencesPercentage.asPercentage} das '
           'faltas para esta disciplina. Pode faltar mais $remainingAbsences '
           'períodos.';
     }

@@ -34,6 +34,7 @@ final lightTheme = ThemeData(
       }),
       surfaceTintColor: const WidgetStatePropertyAll(Colors.transparent),
       foregroundColor: const WidgetStatePropertyAll(Colors.white),
+      iconColor: const WidgetStatePropertyAll(Colors.white),
       shape: WidgetStatePropertyAll(RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
       )),
@@ -53,9 +54,10 @@ final lightTheme = ThemeData(
     style: ButtonStyle(
       backgroundColor: WidgetStateProperty.resolveWith((states) {
         return states.contains(WidgetState.selected) ? _primaryColor : null;
-      })
-    )
-  )
+      }),
+      iconColor: const WidgetStatePropertyAll(Colors.white),
+    ),
+  ),
 );
 
 final darkTheme = ThemeData(
@@ -88,6 +90,7 @@ final darkTheme = ThemeData(
       }),
       surfaceTintColor: const WidgetStatePropertyAll(Colors.transparent),
       foregroundColor: const WidgetStatePropertyAll(Colors.white),
+      iconColor: const WidgetStatePropertyAll(Colors.white),
       shape: WidgetStatePropertyAll(
         RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       ),
@@ -99,6 +102,11 @@ final darkTheme = ThemeData(
   dialogTheme: const DialogTheme(
     titleTextStyle: TextStyle(color: Colors.white, fontSize: 22),
     backgroundColor: Color(0xFF4C4C4C),
+  ),
+  segmentedButtonTheme: const SegmentedButtonThemeData(
+    style: ButtonStyle(
+      iconColor: WidgetStatePropertyAll(Colors.white),
+    ),
   ),
 );
 

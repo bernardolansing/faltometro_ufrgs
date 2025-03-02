@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'src/theme.dart';
 import 'src/storage.dart';
@@ -35,6 +36,10 @@ class FaltometroState extends State<Faltometro> {
         },
         child: MaterialApp(
           title: 'Faltômetro UFRGS',
+          localizationsDelegates: GlobalMaterialLocalizations.delegates,
+          supportedLocales: const [
+            Locale('pt', 'BR'),
+          ],
           theme: lightTheme,
           darkTheme: darkTheme,
           themeMode: Settings.themeMode,

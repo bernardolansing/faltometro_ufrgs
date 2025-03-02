@@ -1,12 +1,9 @@
 import 'dart:developer';
-import 'dart:math' as math;
 
 import 'storage.dart';
 
 class Courses {
-  static List<Course> _courses = [];
-
-  static List<Course> get courses => _courses;
+  static List<Course> courses = [];
 
   /// A list of weekdays indexes in which the student has classes. 0 is Monday,
   /// 1 is Tuesday and so on.
@@ -14,7 +11,7 @@ class Courses {
     final List<int> wkdWithClass = [];
 
     for (final wk in Iterable.generate(5, (index) => index)) {
-      if (_courses.any((course) => course.periodsPerWeekday[wk] != 0)) {
+      if (courses.any((course) => course.periodsPerWeekday[wk] != 0)) {
         wkdWithClass.add(wk);
       }
     }
@@ -27,7 +24,7 @@ class Courses {
   static void load() {
     try {
       log('[COURSES] loading courses from settings');
-      _courses = Storage.coursesEntry.map(Course.fromEntry).toList();
+      courses = Storage.coursesEntry.map(Course.fromEntry).toList();
     }
     on TypeError catch (error) {
       log('[COURSES] error on decoding courses entries: ${error.toString()}');
@@ -36,8 +33,8 @@ class Courses {
     }
   }
 
-  static List<Map<String, dynamic>> get storageEntry => _courses
-      .map((course) => course.entry)
+  static List<Map<String, dynamic>> get storageEntry => courses
+      .map((course) => course.toEntry())
       .toList();
 
   static void newCourse({
@@ -56,10 +53,11 @@ class Courses {
     final newCourse = Course(
       title: title,
       periodsPerWeekday: periodsPerWeekday,
-      periodsSkipped: 0,
+      skippedDates: [],
       durationInWeeks: durationInWeeks ?? Course.defaultSemesterLength,
     );
-    _courses.add(newCourse);
+    newCourse._makeCalculations();
+    courses.add(newCourse);
     Storage.saveCourses();
   }
 
@@ -79,47 +77,13 @@ class Courses {
 
   static void deleteCourse(Course courseToDelete) {
     log('[COURSES] deleting course "${courseToDelete.title}" now');
-    _courses.remove(courseToDelete);
+    courses.remove(courseToDelete);
     Storage.saveCourses();
   }
 
   static void deleteAllCourses() {
     log('[COURSES] deleting all courses now');
-    _courses.clear();
-    Storage.saveCourses();
-  }
-
-  static void registerAbsences(Course course, {int? absences, int? weekday}) {
-    assert (absences != null || weekday != null);
-    log('[COURSES] registering absences for course "${course.title}"');
-
-    if (absences != null) {
-      assert (course.isUniform);
-      course.periodsSkipped += absences * course.periodsPerClassDay;
-    }
-
-    else {
-      assert (! course.isUniform);
-      course.periodsSkipped += course.periodsPerWeekday[weekday!];
-    }
-
-    Storage.saveCourses();
-  }
-
-  static void discountAbsences(Course course, {int? absences, int? weekday}) {
-    assert (absences != null || weekday != null);
-    log('[COURSES] discounting absences for course "${course.title}"');
-
-    if (absences != null) {
-      assert (course.isUniform);
-      course.periodsSkipped -= absences * course.periodsPerClassDay;
-    }
-
-    else {
-      assert (! course.isUniform);
-      course.periodsSkipped -= course.periodsPerWeekday[weekday!];
-    }
-
+    courses.clear();
     Storage.saveCourses();
   }
 }
@@ -129,90 +93,140 @@ class Course {
   // of classes.
 
   String title;
+  /// List with six integers, each integer counting the amount of periods for
+  /// a weeday. The first item accounts for Monday and the last item accounts
+  /// for Saturday.
   List<int> periodsPerWeekday;
-  int _periodsSkipped;
-  late int durationInWeeks;
+  List<DateTime> skippedDates;
+  int durationInWeeks;
+
+  // Cached calculations:
+  late bool _uniform;
+  late int _periodsPerClassDay;
+  late List<int> _weekdaysWithClass;
+  late int _skippedPeriods;
+  late int _skippedClasses;
+  late int _skippablePeriods;
+  late int _skippableClassDays;
+  late double _burntAbsencesPercentage;
+  late bool _critical;
+  late bool _gameOver;
 
   Course({
     required this.title,
     required this.periodsPerWeekday,
-    required int periodsSkipped,
+    required this.skippedDates,
     required this.durationInWeeks,
-  }) :
-        _periodsSkipped = periodsSkipped;
+  });
 
-  int get periodsSkipped => _periodsSkipped;
-
-  set periodsSkipped(int value) {
-    _periodsSkipped = math.max(value, 0);
+  static Course fromEntry(Map<String, dynamic> entry) {
+    final course = Course(
+      title: entry['title'],
+      periodsPerWeekday: List<int>.from(entry['periodsPerWeekday']),
+      skippedDates: List<String>.from(entry['skippedDates'] ?? [])
+          .map(DateTime.parse)
+          .toList(),
+      durationInWeeks: entry['durationInWeeks'],
+    );
+    course._makeCalculations();
+    return course;
   }
 
-  Course.fromEntry(Map<String, dynamic> entry) :
-        title = entry['title'],
-        periodsPerWeekday = List<int>.from(entry['periodsPerWeekday']),
-        _periodsSkipped = entry['periodsSkipped'],
-  // TODO: the '??' is for backwards compatibility. Once a breaking change
-  // is made, we can cut it out.
-        durationInWeeks = entry['durationInWeeks'] ?? defaultSemesterLength;
-
-  Map<String, dynamic> get entry => {
+  Map<String, dynamic> toEntry() => {
     'title': title,
     'periodsPerWeekday': periodsPerWeekday,
-    'periodsSkipped': _periodsSkipped,
+    'skippedDates': skippedDates
+        .map((date) => date.toString())
+        .toList(),
     'durationInWeeks': durationInWeeks,
   };
+
+  void setDatesSkipped(List<DateTime> newDatesSkipped) {
+    log('[COURSES] updating list of skipped dates');
+    skippedDates = newDatesSkipped;
+    _makeCalculations();
+    Storage.saveCourses();
+  }
 
   /// A course is uniform if the amount of periods is the same in all class
   /// days. So for example if a course has two periods on Monday, Wednesday and
   /// Friday, it will be uniform. In contrast, if a course has two periods on
   /// Monday and three periods on Wednesday, it will NOT me uniform.
-  bool get isUniform => periodsPerWeekday.toSet().length < 3;
-  // With .toSet(), we remove the duplicates in periodsPerWeekday. We expect to
-  // have 0 (from the days that there is no class) and at least one other
-  // number. If we have only one number other than 0, the course is uniform as
-  // that is the amount of periods for all class days.
+  bool get isUniform => _uniform;
 
   /// Number of periods in a class day. Valid only for 'uniform' courses.
   int get periodsPerClassDay {
     assert (isUniform);
-    return periodsPerWeekday.firstWhere((periods) => periods > 0);
+    return _periodsPerClassDay;
   }
 
-  /// The percentage of absences that already have been consumed for this
-  /// course. It ranges between 0 and 1 (100%). If it is 100%, it means that
-  /// the student has already used all of the tolerated absences, and therefore
-  /// it should be reproved.
-  double get burnAbsencesPercentage => (_periodsSkipped / skippablePeriods)
-      .clamp(0, 1.0);
+  int get skippedPeriods => _skippedPeriods;
+
+  /// The percentage of absences that have already been consumed for this
+  /// course. It ranges between 0 and 1 (100%).
+  double get burntAbsencesPercentage => _burntAbsencesPercentage;
 
   /// The amount of class periods that can be safely skipped by a student.
-  int get skippablePeriods {
-    final periodsPerWeek = periodsPerWeekday.reduce((acc, val) => acc + val);
-    final totalPeriods = durationInWeeks * periodsPerWeek;
-    return (totalPeriods * 0.25).toInt(); // 75% of class attendance is
-    // demanded.
-  }
+  int get skippablePeriods => _skippablePeriods;
 
   /// The total number of class days that may be skipped by the student over the
   /// semester. Valid only for 'uniform' courses.
   int get skippableClassDays {
     assert (isUniform);
-    return skippablePeriods ~/ periodsPerClassDay;
+    return _skippableClassDays;
   }
 
   /// Number of class days that were skipped. Valid only for uniform courses.
   int get skippedClasses {
     assert (isUniform);
-    return _periodsSkipped ~/ periodsPerClassDay;
+    return _skippedClasses;
   }
+
+  /// List of weekdays on which the student has classes. For this list, 0 is
+  /// Monday and 5 is Saturday.
+  List<int> get weekdaysWithClass => _weekdaysWithClass;
 
   /// A course is in critical state if the student has burnt more than 80% of
   /// the courses absences.
-  bool get isCritical => burnAbsencesPercentage > 0.8;
+  bool get isCritical => _critical;
 
-  /// The student has probably skipped more classes than it could, so its
+  /// The student has probably skipped more classes than they could, so their
   /// reprovation is almost certain.
-  bool get isGameOver => burnAbsencesPercentage >= 1.0;
+  bool get isGameOver => _gameOver;
+
+  void _makeCalculations() {
+    // The course is uniform if all class days have the same amount of periods.
+    _uniform = periodsPerWeekday.where((p) => p > 0).toSet().length == 1;
+
+    final periodsPerWeek = periodsPerWeekday.reduce((acc, val) => acc + val);
+    final totalPeriods = durationInWeeks * periodsPerWeek;
+    _skippablePeriods = (totalPeriods * 0.25).toInt(); // 75% of class
+    // attendance is demanded.
+    _weekdaysWithClass = periodsPerWeekday.indexed
+        .where((indexAndPeriods) => indexAndPeriods.$2 > 0)
+        .map((indexAndPeriods) => indexAndPeriods.$1)
+        .toList();
+
+    if (_uniform) {
+      _periodsPerClassDay = periodsPerWeekday
+          .firstWhere((periods) => periods != 0);
+      _skippedClasses = skippedDates.length;
+      _skippedPeriods = _skippedClasses * _periodsPerClassDay;
+      _skippableClassDays = _skippablePeriods ~/ _periodsPerClassDay;
+    } else {
+      _skippedPeriods = 0;
+      for (final skippedDay in skippedDates) {
+        // DateTime weekday is 1 for Monday and 6 to Saturday, so we have to
+        // discount 1 for it to serve as an index.
+        _skippedPeriods += periodsPerWeekday[skippedDay.weekday - 1];
+      }
+    }
+
+    _burntAbsencesPercentage = (_skippedPeriods / _skippablePeriods)
+        .clamp(0, 1.0);
+    _critical = _burntAbsencesPercentage >= 0.8;
+    _gameOver = _burntAbsencesPercentage >= 1;
+  }
 }
 
 extension PercentageFormattingExtension on double {
