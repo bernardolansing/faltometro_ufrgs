@@ -180,8 +180,8 @@ class _CourseScreenState extends State<CourseScreen> {
                   _durationInWeeks = selected.first;
                 }),
                 segments: List.generate(4, (index) => ButtonSegment(
-                  value: index + 14,
-                  label: Text('${index + 14}'),
+                  value: index + 15,
+                  label: Text('${index + 15}'),
                 )),
               ),
 
