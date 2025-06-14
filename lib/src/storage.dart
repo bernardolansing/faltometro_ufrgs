@@ -71,6 +71,12 @@ class Storage {
     _saveToFile();
   }
 
+  static void setRestaurantTicket(String? ticket) {
+    assert (ticket == null || ticket.length == 6);
+    _content['restaurantTicket'] = ticket;
+    _saveToFile();
+  }
+
   static Future<void> _saveToFile() async {
     log('Writing to Storage file');
     final raw = jsonEncode(_content);
@@ -86,4 +92,6 @@ class Storage {
     assert (_initialized);
     return Map<String, String>.from(_content['settings']);
   }
+
+  static String? get restaurantTicket => _content['restaurantTicket'];
 }

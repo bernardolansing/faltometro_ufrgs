@@ -5,6 +5,7 @@ import 'package:phosphor_flutter/phosphor_flutter.dart';
 import '../course.dart';
 import '../notifications.dart';
 import '../settings.dart';
+import '../storage.dart';
 import 'course_screen.dart';
 import 'explanation_screen.dart';
 import 'register_absence_screen.dart';
@@ -82,6 +83,16 @@ class _HomepageState extends State<Homepage> {
     }
   }
 
+  Future<void> _openRestaurantTicketDialog() async {
+    final ticketChanged = await showDialog(
+      context: context,
+      builder: (context) => const _RestaurantTicketDialog(),
+    );
+    if (ticketChanged == true) {
+      setState(() {});
+    }
+  }
+
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(
@@ -125,14 +136,32 @@ class _HomepageState extends State<Homepage> {
       });
       return false; // Return false to stop the notification bubbling.
     },
-    child: ListView(
-      padding: const EdgeInsets.all(10),
-      children: Courses.courses.map((c) => _CourseCard(
-        course: c,
-        onAbsence: () => _openRegisterAbsenceScreen(c),
-        onEdit: () => _openEditCourseScreen(c),
-        onDelete: () => _deleteCourse(c),
-      )).toList(growable: false),
+    child: Column(
+      children: [
+        const SizedBox(height: 8),
+
+        InkWell(
+          onTap: _openRestaurantTicketDialog,
+          child: Chip(
+            avatar: PhosphorIcon(PhosphorIcons.regular.ticket),
+            label: Storage.restaurantTicket != null
+                ? Text('Ticket RU: ${Storage.restaurantTicket}')
+                : const Text('Adicionar ticket RU'),
+          ),
+        ),
+
+        Expanded(
+          child: ListView(
+            padding: const EdgeInsets.all(10),
+            children: Courses.courses.map((c) => _CourseCard(
+              course: c,
+              onAbsence: () => _openRegisterAbsenceScreen(c),
+              onEdit: () => _openEditCourseScreen(c),
+              onDelete: () => _deleteCourse(c),
+            )).toList(growable: false),
+          ),
+        ),
+      ],
     ),
   );
 }
@@ -328,9 +357,59 @@ class _ConfirmCourseDeletionDialog extends StatelessWidget {
       ElevatedButton(
         onPressed: () => Navigator.of(context).pop(true),
         child: const Text('Confirmar'),
-      )
+      ),
     ],
   );
+}
+
+class _RestaurantTicketDialog extends StatefulWidget {
+  const _RestaurantTicketDialog();
+
+  @override
+  State<_RestaurantTicketDialog> createState() =>
+      _RestaurantTicketDialogState();
+}
+
+class _RestaurantTicketDialogState extends State<_RestaurantTicketDialog> {
+  final inputController = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) => AlertDialog(
+    title: const Text('Definir ticket RU'),
+    content: Column(
+      mainAxisSize: MainAxisSize.min,
+      spacing: 8,
+      children: [
+        const Text(_message, textAlign: TextAlign.justify),
+        TextField(
+          controller: inputController,
+          keyboardType: TextInputType.number,
+          maxLength: 6,
+          decoration: const InputDecoration(
+            filled: true,
+            hintText: 'Digite o seu ticket',
+          ),
+        ),
+      ],
+    ),
+    actions: [
+      TextButton(
+        onPressed: Navigator.of(context).pop,
+        child: const Text('Cancelar'),
+      ),
+      ElevatedButton(
+        onPressed: () {
+          // TODO: validate the input
+          // TODO: submit the changes
+          Navigator.of(context).pop(true);
+        },
+        child: const Text('Confirmar'),
+      ),
+    ],
+  );
+
+  static const _message = 'Você pode anotar o seu ticket do RU aqui, para não '
+      'ter que entrar no portal do aluno caso se esqueça dele.';
 }
 
 const _circularProgressSize = Size(100, 100);
