@@ -25,6 +25,7 @@ final lightTheme = ThemeData(
     color: Colors.white,
     surfaceTintColor: Colors.transparent,
   ),
+  chipTheme: const ChipThemeData(side: BorderSide(color: _primaryColor)),
   elevatedButtonTheme: ElevatedButtonThemeData(
     style: ButtonStyle(
       elevation: const WidgetStatePropertyAll(4),
@@ -81,6 +82,11 @@ final darkTheme = ThemeData(
   cardTheme: const CardTheme(
     color: Colors.black54,
     surfaceTintColor: Colors.transparent,
+  ),
+  chipTheme: const ChipThemeData(
+    iconTheme: IconThemeData(color: _secondaryColor),
+    backgroundColor: Colors.black87,
+    side: BorderSide(color: Colors.transparent),
   ),
   elevatedButtonTheme: ElevatedButtonThemeData(
     style: ButtonStyle(
