@@ -112,6 +112,9 @@ class Course {
   late bool _critical;
   late bool _gameOver;
 
+  int get credits => periodsPerWeekday.fold(0, (acc, val) => acc + val);
+  int get hoursOfClass => credits * 15;
+
   Course({
     required this.title,
     required this.periodsPerWeekday,

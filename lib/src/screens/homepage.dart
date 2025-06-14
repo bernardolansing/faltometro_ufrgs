@@ -185,44 +185,41 @@ class _CourseCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Card(
     child: Padding(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Column(
+        spacing: 8,
         children: [
-          // Row that displays the course name and the edit and delete buttons.
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Flexible(
-                child: Text(
-                  course.title,
-                  softWrap: true,
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    decoration: TextDecoration.underline,
-                    decorationColor: Theme.of(context)
-                        .colorScheme.secondary,
-                    decorationThickness: 2,
-                  ),
-                ),
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            dense: true,
+            title: Text(
+              course.title,
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                decoration: TextDecoration.underline,
+                decorationColor: Theme.of(context).colorScheme.secondary,
+                decorationThickness: 2,
               ),
-
-              Row(
-                children: [
-                  IconButton(
-                    onPressed: onEdit,
-                    icon: PhosphorIcon(PhosphorIcons.regular.pencil),
-                  ),
-                  IconButton(
-                    onPressed: onDelete,
-                    icon: PhosphorIcon(PhosphorIcons.regular.trash),
-                  ),
-                ],
-              )
-            ],
+            ),
+            subtitle: Text(
+              '${course.hoursOfClass} horas • ${course.credits} créditos',
+            ),
+            titleAlignment: ListTileTitleAlignment.top,
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
+                  onPressed: onEdit,
+                  icon: PhosphorIcon(PhosphorIcons.regular.pencil),
+                ),
+                IconButton(
+                  onPressed: onDelete,
+                  icon: PhosphorIcon(PhosphorIcons.regular.trash),
+                ),
+              ],
+            ),
           ),
-
-          const SizedBox(height: 8),
 
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -254,8 +251,6 @@ class _CourseCard extends StatelessWidget {
             ],
           ),
 
-          const SizedBox(height: 8),
-
           // Button to open the register absence dialog.
           SizedBox(
             width: double.infinity,
@@ -263,7 +258,7 @@ class _CourseCard extends StatelessWidget {
               onPressed: onAbsence,
               child: const Text('Registrar falta'),
             ),
-          )
+          ),
         ],
       ),
     ),

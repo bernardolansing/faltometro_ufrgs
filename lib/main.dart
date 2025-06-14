@@ -14,21 +14,20 @@ void main() async {
   Courses.load();
   Settings.load();
   Notifications.initialize();
-  runApp(const Faltometro());
+  runApp(const _Faltometro());
 }
 
-class Faltometro extends StatefulWidget {
-  const Faltometro({super.key});
+class _Faltometro extends StatefulWidget {
+  const _Faltometro({super.key});
 
   @override
-  State<Faltometro> createState() => FaltometroState();
+  State<_Faltometro> createState() => _FaltometroState();
 }
 
-class FaltometroState extends State<Faltometro> {
+class _FaltometroState extends State<_Faltometro> {
   @override
-  Widget build(BuildContext context) {
-
-    return NotificationListener<ThemeModeChangedNotification>(
+  Widget build(BuildContext context) =>
+      NotificationListener<ThemeModeChangedNotification>(
         onNotification: (_) {
           // App's theme has changed, so we have to refresh it.
           setState(() {});
@@ -44,7 +43,6 @@ class FaltometroState extends State<Faltometro> {
           darkTheme: darkTheme,
           themeMode: Settings.themeMode,
           home: const Homepage(),
-        )
-    );
-  }
+        ),
+      );
 }
