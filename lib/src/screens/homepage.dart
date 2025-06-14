@@ -371,7 +371,9 @@ class _RestaurantTicketDialog extends StatefulWidget {
 }
 
 class _RestaurantTicketDialogState extends State<_RestaurantTicketDialog> {
-  final inputController = TextEditingController();
+  final _inputController = TextEditingController();
+  
+  bool _invalidInput = false;
 
   @override
   Widget build(BuildContext context) => AlertDialog(
@@ -382,12 +384,14 @@ class _RestaurantTicketDialogState extends State<_RestaurantTicketDialog> {
       children: [
         const Text(_message, textAlign: TextAlign.justify),
         TextField(
-          controller: inputController,
+          controller: _inputController,
           keyboardType: TextInputType.number,
           maxLength: 6,
-          decoration: const InputDecoration(
+          onChanged: (value) => setState(() => _invalidInput = false),
+          decoration: InputDecoration(
             filled: true,
             hintText: 'Digite o seu ticket',
+            errorText: _invalidInput ? 'O ticket digitado não é válido' : null,
           ),
         ),
       ],
@@ -399,8 +403,17 @@ class _RestaurantTicketDialogState extends State<_RestaurantTicketDialog> {
       ),
       ElevatedButton(
         onPressed: () {
-          // TODO: validate the input
-          // TODO: submit the changes
+          if (_inputController.text.isEmpty) {
+            Storage.setRestaurantTicket(null);
+          }
+          else {
+            final digitRegex = RegExp(r'^\d{6}$');
+            if (! digitRegex.hasMatch(_inputController.text)) {
+              return setState(() => _invalidInput = true);
+            }
+            Storage.setRestaurantTicket(_inputController.text);
+          }
+
           Navigator.of(context).pop(true);
         },
         child: const Text('Confirmar'),
