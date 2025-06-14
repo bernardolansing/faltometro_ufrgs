@@ -18,6 +18,7 @@ you've already consumed.
 choose between receiving one notification a week (on Fridays nights), every day you have classes
 (at night as well) or not receiving them at all.
 - Dark theme.
+- You can write down you University Restaurant ticket at the home screen, so you won't forget it.
 
 ### Planned features
 - Cloud backup in user accounts in order to avoid data deletion when the app is reinstalled or you

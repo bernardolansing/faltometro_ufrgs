@@ -16,6 +16,7 @@ faltas você já consumiu.
 escolher entre receber uma notificação por semana (sextas-feiras à noite), uma para cada dia de aula
 (também à noite) ou então desativá-las.
 - Tema escuro.
+- Você pode anotar o seu ticket do RU na tela inicial. Dessa forma, você não esquecerá dele.
 
 ### Funcionalidades planejadas
 - Backup em nuvem em contas de usuário para evitar perda de dados quando o app for reinstalado ou
