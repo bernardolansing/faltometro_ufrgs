@@ -38,7 +38,9 @@ class _HomepageState extends State<Homepage> {
         // trigger extra dialogs.
         final permissionsAreOk = await Notifications.checkPermissions(context);
         // If they are, make sure that they're properly scheduled.
-        if (permissionsAreOk) { Notifications.updateSchedules(); }
+        if (permissionsAreOk) {
+          Notifications.updateSchedules();
+        }
       }
     }
   }
@@ -48,7 +50,9 @@ class _HomepageState extends State<Homepage> {
       builder: (context) => CourseScreen.edit(course: course),
     );
     final shouldUpdate = await Navigator.of(context).push(route);
-    if (shouldUpdate == true) { setState(() {}); }
+    if (shouldUpdate == true) {
+      setState(() {});
+    }
   }
 
   Future<void> _openExplanationScreen() => Navigator.of(context)
@@ -109,11 +113,6 @@ class _HomepageState extends State<Homepage> {
         ),
       ],
     ),
-    body: SafeArea(
-      child: Courses.courses.isNotEmpty
-          ? _buildCoursesList()
-          : const _EmptyListVariant(),
-    ),
     floatingActionButton: AnimatedSlide(
       offset: _fabVisible ? Offset.zero : const Offset(0, 3),
       duration: const Duration(milliseconds: 300),
@@ -122,40 +121,70 @@ class _HomepageState extends State<Homepage> {
         child: PhosphorIcon(PhosphorIcons.bold.plus, size: 28),
       ),
     ),
-  );
-
-  Widget _buildCoursesList() => NotificationListener<UserScrollNotification>(
-    onNotification: (scroll) {
-      setState(() {
-        if (scroll.direction == ScrollDirection.forward) {
-          _fabVisible = true;
-        } else if (scroll.direction == ScrollDirection.reverse) {
-          _fabVisible = false;
-        }
-      });
-      return false; // Return false to stop the notification bubbling.
-    },
-    child: ListView(
-      padding: const EdgeInsets.all(8),
-      children: [
-        InkWell(
-          onTap: _openRestaurantTicketDialog,
-          child: Chip(
-            avatar: PhosphorIcon(PhosphorIcons.regular.ticket),
-            label: Storage.restaurantTicket != null
-                ? Text('Ticket RU: ${Storage.restaurantTicket}')
-                : const Text('Adicionar ticket RU'),
-          ),
-        ),
-
-        ...Courses.courses.map((c) => _CourseCard(
-          course: c,
-          onAbsence: () => _openRegisterAbsenceScreen(c),
-          onEdit: () => _openEditCourseScreen(c),
-          onDelete: () => _deleteCourse(c),
-        )),
-      ],
+    body: NotificationListener<UserScrollNotification>(
+      onNotification: (scroll) {
+        setState(() {
+          if (scroll.direction == ScrollDirection.forward) {
+            _fabVisible = true;
+          } else if (scroll.direction == ScrollDirection.reverse) {
+            _fabVisible = false;
+          }
+        });
+        return false; // Return false to stop the notification bubbling.
+      },
+      child: Column(
+        children: [
+          if (Courses.courses.isEmpty)
+            const Expanded(child: _EmptyListVariant())
+          else
+            Expanded(
+              child: _RegularVariant(
+                onRestaurantTicketTap: _openRestaurantTicketDialog,
+                onRegisterAbsence: _openRegisterAbsenceScreen,
+                onEditCourse: _openEditCourseScreen,
+                onDeleteCourse: _deleteCourse,
+              ),
+            ),
+        ],
+      ),
     ),
+  );
+}
+
+class _RegularVariant extends StatelessWidget {
+  final void Function() onRestaurantTicketTap;
+  final void Function(Course) onRegisterAbsence;
+  final void Function(Course) onEditCourse;
+  final void Function(Course) onDeleteCourse;
+
+  const _RegularVariant({
+    required this.onRestaurantTicketTap,
+    required this.onRegisterAbsence,
+    required this.onEditCourse,
+    required this.onDeleteCourse,
+  });
+
+  @override
+  Widget build(BuildContext context) => ListView(
+    padding: const EdgeInsets.all(8),
+    children: [
+      InkWell(
+        onTap: onRestaurantTicketTap,
+        child: Chip(
+          avatar: PhosphorIcon(PhosphorIcons.regular.ticket),
+          label: Storage.restaurantTicket != null
+              ? Text('Ticket RU: ${Storage.restaurantTicket}')
+              : const Text('Adicionar ticket RU'),
+        ),
+      ),
+
+      ...Courses.courses.map((c) => _CourseCard(
+        course: c,
+        onAbsence: () => onRegisterAbsence(c),
+        onEdit: () => onEditCourse(c),
+        onDelete: () => onDeleteCourse(c),
+      )),
+    ],
   );
 }
 
@@ -365,7 +394,7 @@ class _RestaurantTicketDialog extends StatefulWidget {
 
 class _RestaurantTicketDialogState extends State<_RestaurantTicketDialog> {
   final _inputController = TextEditingController();
-  
+
   bool _invalidInput = false;
 
   @override
