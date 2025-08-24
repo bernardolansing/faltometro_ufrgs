@@ -119,7 +119,6 @@ class _HomepageState extends State<Homepage> {
       duration: const Duration(milliseconds: 300),
       child: FloatingActionButton(
         onPressed: _openNewCourseScreen,
-        backgroundColor: Theme.of(context).colorScheme.primary,
         child: PhosphorIcon(PhosphorIcons.bold.plus, size: 28),
       ),
     ),

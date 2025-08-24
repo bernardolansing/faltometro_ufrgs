@@ -34,13 +34,16 @@ final lightTheme = ThemeData(
             ? const Color(0xFFBDC2C2)
             : _primaryColor;
       }),
-      surfaceTintColor: const WidgetStatePropertyAll(Colors.transparent),
       foregroundColor: const WidgetStatePropertyAll(Colors.white),
+      overlayColor: const WidgetStatePropertyAll(_secondaryColor),
       iconColor: const WidgetStatePropertyAll(Colors.white),
       shape: WidgetStatePropertyAll(RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
       )),
     ),
+  ),
+  floatingActionButtonTheme: const FloatingActionButtonThemeData(
+    foregroundColor: _secondaryColor,
   ),
   dialogTheme: const DialogThemeData(
     backgroundColor: Colors.white,
@@ -95,13 +98,17 @@ final darkTheme = ThemeData(
             ? const Color(0xFF888A8A)
             : _primaryColor;
       }),
-      surfaceTintColor: const WidgetStatePropertyAll(Colors.transparent),
       foregroundColor: const WidgetStatePropertyAll(Colors.white),
+      overlayColor: const WidgetStatePropertyAll(_secondaryColor),
       iconColor: const WidgetStatePropertyAll(Colors.white),
       shape: WidgetStatePropertyAll(
         RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       ),
     ),
+  ),
+  floatingActionButtonTheme: const FloatingActionButtonThemeData(
+    backgroundColor: _secondaryColor,
+    foregroundColor: _primaryColor,
   ),
   textButtonTheme: const TextButtonThemeData(
     style: ButtonStyle(foregroundColor: WidgetStatePropertyAll(Colors.white)),
