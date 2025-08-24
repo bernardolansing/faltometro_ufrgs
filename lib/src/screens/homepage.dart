@@ -55,9 +55,6 @@ class _HomepageState extends State<Homepage> {
     }
   }
 
-  Future<void> _openExplanationScreen() => Navigator.of(context)
-      .push(MaterialPageRoute(builder: (context) => ExplanationScreen()));
-
   void _openSettingsScreen() async {
     final route = MaterialPageRoute<bool>(
       builder: (context) => const SettingsScreen(),
@@ -99,20 +96,6 @@ class _HomepageState extends State<Homepage> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(
-      leading: Image.asset('assets/white-logo.png'),
-      title: const Text('Faltômetro UFRGS'),
-      actions: [
-        IconButton(
-          onPressed: _openExplanationScreen,
-          icon: PhosphorIcon(PhosphorIcons.regular.question),
-        ),
-        IconButton(
-          onPressed: _openSettingsScreen,
-          icon: PhosphorIcon(PhosphorIcons.regular.gear),
-        ),
-      ],
-    ),
     floatingActionButton: AnimatedSlide(
       offset: _fabVisible ? Offset.zero : const Offset(0, 3),
       duration: const Duration(milliseconds: 300),
@@ -132,24 +115,75 @@ class _HomepageState extends State<Homepage> {
         });
         return false; // Return false to stop the notification bubbling.
       },
-      child: Column(
-        children: [
-          if (Courses.courses.isEmpty)
-            const Expanded(child: _EmptyListVariant())
-          else
-            Expanded(
-              child: _RegularVariant(
-                onRestaurantTicketTap: _openRestaurantTicketDialog,
-                onRegisterAbsence: _openRegisterAbsenceScreen,
-                onEditCourse: _openEditCourseScreen,
-                onDeleteCourse: _deleteCourse,
+      child: SafeArea(
+        child: Column(
+          children: [
+            _Navbar(onOpenSettings: _openSettingsScreen),
+            const Divider(color: Colors.black26, height: 1),
+
+            if (Courses.courses.isEmpty)
+              const Expanded(child: _EmptyListVariant())
+            else
+              Expanded(
+                child: _RegularVariant(
+                  onRestaurantTicketTap: _openRestaurantTicketDialog,
+                  onRegisterAbsence: _openRegisterAbsenceScreen,
+                  onEditCourse: _openEditCourseScreen,
+                  onDeleteCourse: _deleteCourse,
+                ),
               ),
-            ),
-        ],
+          ],
+        ),
       ),
     ),
   );
 }
+
+class _Navbar extends StatelessWidget {
+  final void Function() onOpenSettings;
+
+  const _Navbar({required this.onOpenSettings});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final color = theme.brightness == Brightness.light
+        ? theme.colorScheme.primary
+        : theme.colorScheme.secondary;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Row(
+        children: [
+          Image.asset(
+            'assets/white-logo.png',
+            width: 24,
+            color: color,
+          ),
+
+          const Spacer(),
+
+          IconButton(
+            onPressed: () {
+              final route = MaterialPageRoute(
+                builder: (context) => ExplanationScreen(),
+              );
+              Navigator.of(context).push(route);
+            },
+            style: ButtonStyle(iconColor: WidgetStatePropertyAll(color)),
+            icon: PhosphorIcon(PhosphorIcons.regular.question),
+          ),
+          IconButton(
+            onPressed: onOpenSettings,
+            style: ButtonStyle(iconColor: WidgetStatePropertyAll(color)),
+            icon: PhosphorIcon(PhosphorIcons.regular.gear),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 
 class _RegularVariant extends StatelessWidget {
   final void Function() onRestaurantTicketTap;
