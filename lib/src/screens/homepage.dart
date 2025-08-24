@@ -136,10 +136,9 @@ class _HomepageState extends State<Homepage> {
       });
       return false; // Return false to stop the notification bubbling.
     },
-    child: Column(
+    child: ListView(
+      padding: const EdgeInsets.all(8),
       children: [
-        const SizedBox(height: 8),
-
         InkWell(
           onTap: _openRestaurantTicketDialog,
           child: Chip(
@@ -150,17 +149,12 @@ class _HomepageState extends State<Homepage> {
           ),
         ),
 
-        Expanded(
-          child: ListView(
-            padding: const EdgeInsets.all(10),
-            children: Courses.courses.map((c) => _CourseCard(
-              course: c,
-              onAbsence: () => _openRegisterAbsenceScreen(c),
-              onEdit: () => _openEditCourseScreen(c),
-              onDelete: () => _deleteCourse(c),
-            )).toList(growable: false),
-          ),
-        ),
+        ...Courses.courses.map((c) => _CourseCard(
+          course: c,
+          onAbsence: () => _openRegisterAbsenceScreen(c),
+          onEdit: () => _openEditCourseScreen(c),
+          onDelete: () => _deleteCourse(c),
+        )),
       ],
     ),
   );
