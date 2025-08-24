@@ -18,10 +18,10 @@ final lightTheme = ThemeData(
   ),
   scaffoldBackgroundColor: const Color.fromRGBO(238, 238, 238, 1.0),
   appBarTheme: const AppBarTheme(
-    color: _primaryColor,
+    backgroundColor: _primaryColor,
     foregroundColor: Colors.white,
   ),
-  cardTheme: const CardTheme(
+  cardTheme: const CardThemeData(
     color: Colors.white,
     surfaceTintColor: Colors.transparent,
   ),
@@ -42,7 +42,7 @@ final lightTheme = ThemeData(
       )),
     ),
   ),
-  dialogTheme: const DialogTheme(
+  dialogTheme: const DialogThemeData(
     backgroundColor: Colors.white,
     surfaceTintColor: Colors.transparent,
   ),
@@ -76,10 +76,10 @@ final darkTheme = ThemeData(
   ),
   scaffoldBackgroundColor: const Color(0xFF2F2F2F),
   appBarTheme: const AppBarTheme(
-    color: Colors.black87,
+    backgroundColor: Colors.black87,
     foregroundColor: Colors.white,
   ),
-  cardTheme: const CardTheme(
+  cardTheme: const CardThemeData(
     color: Colors.black54,
     surfaceTintColor: Colors.transparent,
   ),
@@ -106,7 +106,7 @@ final darkTheme = ThemeData(
   textButtonTheme: const TextButtonThemeData(
     style: ButtonStyle(foregroundColor: WidgetStatePropertyAll(Colors.white)),
   ),
-  dialogTheme: const DialogTheme(
+  dialogTheme: const DialogThemeData(
     titleTextStyle: TextStyle(color: Colors.white, fontSize: 22),
     backgroundColor: Color(0xFF4C4C4C),
   ),

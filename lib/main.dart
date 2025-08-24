@@ -18,7 +18,7 @@ void main() async {
 }
 
 class _Faltometro extends StatefulWidget {
-  const _Faltometro({super.key});
+  const _Faltometro();
 
   @override
   State<_Faltometro> createState() => _FaltometroState();
