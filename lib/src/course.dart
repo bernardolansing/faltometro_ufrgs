@@ -45,9 +45,6 @@ class Courses {
     assert (periodsPerWeekday.length == 6);
     assert (periodsPerWeekday.any((element) => element > 0));
     assert (title.isNotEmpty);
-    if (durationInWeeks != null) {
-      assert (durationInWeeks >= 14 && durationInWeeks <= 17);
-    }
 
     log('[COURSES] creating new course now');
     final newCourse = Course(
@@ -89,7 +86,7 @@ class Courses {
 }
 
 class Course {
-  static const defaultSemesterLength = 15; // Semesters usually have 15 weeks
+  static const defaultSemesterLength = 17; // Semesters usually have 17 weeks
   // of classes.
 
   String title;
