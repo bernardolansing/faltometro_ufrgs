@@ -160,6 +160,12 @@ class _Navbar extends StatelessWidget {
             width: 24,
             color: color,
           ),
+          const SizedBox(width: 8),
+          Image.asset(
+            'assets/white-mark.png',
+            height: 24,
+            color: color,
+          ),
 
           const Spacer(),
 
