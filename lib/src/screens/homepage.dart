@@ -6,6 +6,7 @@ import '../course.dart';
 import '../notifications.dart';
 import '../settings.dart';
 import '../storage.dart';
+import '../widgets/restaurant_ticket_widget.dart';
 import 'course_screen.dart';
 import 'explanation_screen.dart';
 import 'register_absence_screen.dart';
@@ -155,6 +156,7 @@ class _Navbar extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
         children: [
+          // TODO: hide the text mark on narrow screens
           Image.asset(
             'assets/white-logo.png',
             width: 24,
@@ -166,6 +168,10 @@ class _Navbar extends StatelessWidget {
             height: 24,
             color: color,
           ),
+
+          const Spacer(),
+
+          const RestaurantTicketWidget(),
 
           const Spacer(),
 
