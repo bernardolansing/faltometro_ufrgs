@@ -29,7 +29,7 @@ class _RestaurantTicketWidgetState extends State<RestaurantTicketWidget> {
     }
 
     // TODO:
-    return InkWell();
+    return SizedBox(width: 1, height: 1,);
   }
 }
 
@@ -84,10 +84,12 @@ class _SetTicketFormDialogState extends State<_SetTicketFormDialog> {
       }
     }
 
-    if (! canProceed) {
-      return;
+    if (canProceed) {
+      Storage.setRestaurantTicket(_ticketNumberController.text.trim(),
+          ticketAmount);
+      ScaffoldMessenger.of(context).showSnackBar(_successSnackbar);
+      Navigator.of(context).pop(true);
     }
-    // TODO: effetively set the ticket in Storage module.
   }
 
   @override
@@ -146,6 +148,9 @@ class _SetTicketFormDialogState extends State<_SetTicketFormDialog> {
 
   static const _message = 'Você pode anotar o seu ticket do RU aqui, para não '
       'ter que entrar no portal do aluno caso se esqueça dele.';
+  static const _successSnackbar = SnackBar(
+    content: Text('Ticket RU atualizado'),
+  );
   static const _minAmount = 6;
   static const _maxAmount = 50;
   static const _amountInputHelperText = 'Deve ser um número entre $_minAmount '

@@ -14,6 +14,8 @@ class Storage {
   static late File _file;
   static late Map<String, dynamic> _content;
 
+  static late final RestaurantTicket? restaurantTicket;
+
   static Future<void> initialize() async {
     assert (! _initialized);
     // Open the file and make sure it exists, then parse its content.
@@ -47,6 +49,14 @@ class Storage {
     }
 
     _initialized = true;
+    try {
+      restaurantTicket = RestaurantTicket
+          ._fromStorage(_content['restaurantTicket']);
+    }
+    catch (error) {
+      log('Error while loading restaurant ticket from Storage: $error');
+      restaurantTicket = null;
+    }
   }
 
   /// Saves the state of all stored data.
@@ -71,9 +81,20 @@ class Storage {
     _saveToFile();
   }
 
-  static void setRestaurantTicket(String? ticket) {
-    assert (ticket == null || ticket.length == 6);
-    _content['restaurantTicket'] = ticket;
+  static void setRestaurantTicket(String number, int? amount) {
+    log('Updating restaurant ticket entry');
+    if (Storage.restaurantTicket == null) {
+      Storage.restaurantTicket = RestaurantTicket(number, amount);
+    } else {
+      Storage.restaurantTicket!.number = number;
+      if (amount != null) {
+        Storage.restaurantTicket!.amount = amount;
+      }
+    }
+    _content['restaurantTicket'] = {
+      'number': number,
+      'amount': Storage.restaurantTicket!.amount,
+    };
     _saveToFile();
   }
 
@@ -92,6 +113,25 @@ class Storage {
     assert (_initialized);
     return Map<String, String>.from(_content['settings']);
   }
+}
 
-  static String? get restaurantTicket => _content['restaurantTicket'];
+class RestaurantTicket {
+  String number;
+  int? amount;
+
+  RestaurantTicket(this.number, [this.amount]);
+
+  static RestaurantTicket? _fromStorage(Object? stored) {
+    // Older configuration files will have the restaurant ticket as a simple
+    // string, back from when we didn't support ticket amount.
+    if (stored is String) {
+      return RestaurantTicket(stored);
+    }
+
+    if (stored is Map<String, dynamic>) {
+      return RestaurantTicket(stored['number'], stored['amount']);
+    }
+
+    return null;
+  }
 }
