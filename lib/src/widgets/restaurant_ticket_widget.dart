@@ -294,6 +294,7 @@ class _SetTicketFormDialogState extends State<_SetTicketFormDialog> {
           keyboardType: TextInputType.number,
           maxLength: 6,
           onChanged: (value) => setState(() => _invalidTicketNumber = false),
+          textInputAction: TextInputAction.next,
           decoration: InputDecoration(
             filled: true,
             hintText: 'Digite o seu ticket',
@@ -311,6 +312,8 @@ class _SetTicketFormDialogState extends State<_SetTicketFormDialog> {
           controller: _ticketAmountController,
           keyboardType: TextInputType.number,
           onChanged: (value) => setState(() => _invalidAmount = false),
+          onEditingComplete: _submit,
+          textInputAction: TextInputAction.done,
           decoration: InputDecoration(
             helperText: 'Opcional',
             errorText: _invalidAmount
