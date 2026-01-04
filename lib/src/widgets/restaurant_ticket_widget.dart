@@ -14,6 +14,7 @@ class RestaurantTicketWidget extends StatefulWidget {
 class _RestaurantTicketWidgetState extends State<RestaurantTicketWidget> {
   @override
   Widget build(BuildContext context) {
+    // Widget to render if the ticket isn't set (or has just been zeroed).
     if (Storage.restaurantTicket == null) {
       return TextButton.icon(
         icon: PhosphorIcon(PhosphorIcons.regular.plus, size: 20,),
@@ -24,6 +25,41 @@ class _RestaurantTicketWidgetState extends State<RestaurantTicketWidget> {
         label: const Text(
           'Adicionar\nticket RU',
           style: TextStyle(fontSize: 12),
+        ),
+      );
+    }
+
+    // Widget to render if the ticket is set and user is counting how many of
+    // them are being consumed.
+    if (Storage.restaurantTicket!.amount != null) {
+      return InkWell(
+        onTap: () {},
+        borderRadius: BorderRadius.circular(8),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextButton.icon(
+              onPressed: () {},
+              style: const ButtonStyle(
+                visualDensity: VisualDensity.compact,
+                minimumSize: WidgetStatePropertyAll(Size.zero),
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+              icon: PhosphorIcon(PhosphorIcons.regular.ticket, size: 20),
+              label: Text(
+                Storage.restaurantTicket!.number,
+                style: const TextStyle(fontSize: 16),
+              ),
+            ),
+            Text(
+              '${Storage.restaurantTicket!.amount} restantes',
+              style: TextStyle(
+                decoration: TextDecoration.underline,
+                decorationColor: Theme.of(context).colorScheme.secondary,
+                decorationThickness: 2,
+              ),
+            ),
+          ],
         ),
       );
     }
