@@ -12,6 +12,16 @@ class RestaurantTicketWidget extends StatefulWidget {
 }
 
 class _RestaurantTicketWidgetState extends State<RestaurantTicketWidget> {
+  void _openManageTicketDialog() async {
+    await showDialog(
+      context: context,
+      builder: (context) => const _ManageTicketDialog(),
+    );
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     // Widget to render if the ticket isn't set (or has just been zeroed).
@@ -33,13 +43,13 @@ class _RestaurantTicketWidgetState extends State<RestaurantTicketWidget> {
     // them are being consumed.
     if (Storage.restaurantTicket!.amount != null) {
       return InkWell(
-        onTap: () {},
+        onTap: _openManageTicketDialog,
         borderRadius: BorderRadius.circular(8),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             TextButton.icon(
-              onPressed: () {},
+              onPressed: _openManageTicketDialog,
               style: const ButtonStyle(
                 visualDensity: VisualDensity.compact,
                 minimumSize: WidgetStatePropertyAll(Size.zero),
@@ -69,15 +79,80 @@ class _RestaurantTicketWidgetState extends State<RestaurantTicketWidget> {
   }
 }
 
-// TODO
 class _ManageTicketDialog extends StatelessWidget {
   const _ManageTicketDialog();
 
   @override
-  Widget build(BuildContext context) => Container();
+  Widget build(BuildContext context) => AlertDialog(
+    icon: PhosphorIcon(PhosphorIcons.regular.ticket),
+    content: Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        const Text(_message, textAlign: TextAlign.justify),
+
+        const SizedBox(height: 8),
+
+        Text(
+          Storage.restaurantTicket!.number,
+          style: const TextStyle(
+            fontSize: 28,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+        const Text(
+          'Ticket atual',
+          style: TextStyle(fontWeight: FontWeight.w300),
+        ),
+
+        const SizedBox(height: 8),
+
+        if (Storage.restaurantTicket!.amount != null)
+          Row(
+            spacing: 16,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text('Tickets restantes:'),
+
+              DecoratedBox(
+                decoration: BoxDecoration(
+                  border: BoxBorder.all(width: 1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(6),
+                  child: Text(Storage.restaurantTicket!.amount!.toString()),
+                ),
+              ),
+            ],
+          ),
+
+        const SizedBox(height: 16),
+
+        if (Storage.restaurantTicket!.amount != null)
+          ElevatedButton.icon(
+            onPressed: () {},
+            icon: PhosphorIcon(PhosphorIcons.regular.forkKnife),
+            label: const Text('Descontar um ticket'),
+          ),
+
+        TextButton.icon(
+          onPressed: () {},
+          icon: PhosphorIcon(PhosphorIcons.regular.pencil),
+          label: const Text('Editar ticket'),
+        ),
+
+        TextButton(
+          onPressed: Navigator.of(context).pop,
+          child: const Text('Fechar'),
+        ),
+      ],
+    ),
+  );
+
+  static const _message = 'O Faltômetro não tem acesso ao servidor da UFRGS, '
+      'então a contagem de tickets deve ser feita manualmente por você.';
 }
 
-// TODO
 class _SetTicketFormDialog extends StatefulWidget {
   const _SetTicketFormDialog();
 
