@@ -14,7 +14,7 @@ class Storage {
   static late File _file;
   static late Map<String, dynamic> _content;
 
-  static late final RestaurantTicket? restaurantTicket;
+  static RestaurantTicket? restaurantTicket;
 
   static Future<void> initialize() async {
     assert (! _initialized);
@@ -95,6 +95,13 @@ class Storage {
       'number': number,
       'amount': Storage.restaurantTicket!.amount,
     };
+    _saveToFile();
+  }
+
+  static void clearRestaurantTicket() {
+    log('Clearing restaurant ticket entry');
+    Storage.restaurantTicket = null;
+    _content['restaurantTicket'] = null;
     _saveToFile();
   }
 

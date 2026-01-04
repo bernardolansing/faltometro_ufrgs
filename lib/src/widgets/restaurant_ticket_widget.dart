@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
@@ -22,65 +24,99 @@ class _RestaurantTicketWidgetState extends State<RestaurantTicketWidget> {
     }
   }
 
+  // TODO: wrap in a NotificationListener to refresh on ticket updates.
   @override
   Widget build(BuildContext context) {
-    // Widget to render if the ticket isn't set (or has just been zeroed).
     if (Storage.restaurantTicket == null) {
-      return TextButton.icon(
-        icon: PhosphorIcon(PhosphorIcons.regular.plus, size: 20,),
-        onPressed: () => showDialog(
-          context: context,
-          builder: (context) => const _SetTicketFormDialog(),
-        ),
-        label: const Text(
-          'Adicionar\nticket RU',
-          style: TextStyle(fontSize: 12),
-        ),
-      );
+      return _buildUnsetTicketVariant();
     }
 
-    // Widget to render if the ticket is set and user is counting how many of
-    // them are being consumed.
     if (Storage.restaurantTicket!.amount != null) {
-      return InkWell(
-        onTap: _openManageTicketDialog,
-        borderRadius: BorderRadius.circular(8),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextButton.icon(
-              onPressed: _openManageTicketDialog,
-              style: const ButtonStyle(
-                visualDensity: VisualDensity.compact,
-                minimumSize: WidgetStatePropertyAll(Size.zero),
-                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              ),
-              icon: PhosphorIcon(PhosphorIcons.regular.ticket, size: 20),
-              label: Text(
-                Storage.restaurantTicket!.number,
-                style: const TextStyle(fontSize: 16),
-              ),
-            ),
-            Text(
-              '${Storage.restaurantTicket!.amount} restantes',
-              style: TextStyle(
-                decoration: TextDecoration.underline,
-                decorationColor: Theme.of(context).colorScheme.secondary,
-                decorationThickness: 2,
-              ),
-            ),
-          ],
-        ),
-      );
+      return _buildTicketWithAmountVariant();
     }
 
     // TODO:
-    return SizedBox(width: 1, height: 1,);
+    return _buildTicketWithoutAmountVariant();
   }
+
+  /// Widget to render if the ticket isn't set (or has just been zeroed).
+  Widget _buildUnsetTicketVariant() => TextButton.icon(
+    icon: PhosphorIcon(PhosphorIcons.regular.plus, size: 20,),
+    onPressed: () => showDialog(
+      context: context,
+      builder: (context) => const _SetTicketFormDialog(),
+    ),
+    label: const Text(
+      'Adicionar\nticket RU',
+      style: TextStyle(fontSize: 12),
+    ),
+  );
+
+  // TODO
+  Widget _buildTicketWithoutAmountVariant() => Container();
+
+  /// Widget to render if the ticket is set and user is counting how many of
+  /// them are being consumed.
+  Widget _buildTicketWithAmountVariant() => InkWell(
+    onTap: _openManageTicketDialog,
+    borderRadius: BorderRadius.circular(8),
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        TextButton.icon(
+          onPressed: _openManageTicketDialog,
+          style: const ButtonStyle(
+            visualDensity: VisualDensity.compact,
+            minimumSize: WidgetStatePropertyAll(Size.zero),
+            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          ),
+          icon: PhosphorIcon(PhosphorIcons.regular.ticket, size: 20),
+          label: Text(
+            Storage.restaurantTicket!.number,
+            style: const TextStyle(fontSize: 16),
+          ),
+        ),
+        Text(
+          '${Storage.restaurantTicket!.amount} restantes',
+          style: TextStyle(
+            decoration: TextDecoration.underline,
+            decorationColor: Theme.of(context).colorScheme.secondary,
+            decorationThickness: 2,
+          ),
+        ),
+      ],
+    ),
+  );
 }
 
 class _ManageTicketDialog extends StatelessWidget {
   const _ManageTicketDialog();
+
+  void _discountTicket(BuildContext context) {
+    log('Discounting restaurant ticket now');
+    assert (Storage.restaurantTicket?.amount != null);
+    final ticketsAfterDiscount = Storage.restaurantTicket!.amount! - 1;
+    if (ticketsAfterDiscount == 0) {
+      log('Number of tickets went down to zero, clearing ticket entry from '
+          'Storage');
+      Storage.clearRestaurantTicket();
+    } else {
+      log('New count of tickets is $ticketsAfterDiscount');
+      Storage.setRestaurantTicket(Storage.restaurantTicket!.number,
+          ticketsAfterDiscount);
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(_haveANiceLunchSnackbar);
+    Navigator.of(context).pop();
+  }
+
+  void _editTicket(BuildContext context) async {
+    Navigator.of(context).pop();
+    showDialog(
+      context: context,
+      builder: (context) => const _SetTicketFormDialog(),
+    );
+  }
 
   @override
   Widget build(BuildContext context) => AlertDialog(
@@ -130,13 +166,13 @@ class _ManageTicketDialog extends StatelessWidget {
 
         if (Storage.restaurantTicket!.amount != null)
           ElevatedButton.icon(
-            onPressed: () {},
+            onPressed: () => _discountTicket(context),
             icon: PhosphorIcon(PhosphorIcons.regular.forkKnife),
             label: const Text('Descontar um ticket'),
           ),
 
         TextButton.icon(
-          onPressed: () {},
+          onPressed: () => _editTicket(context),
           icon: PhosphorIcon(PhosphorIcons.regular.pencil),
           label: const Text('Editar ticket'),
         ),
@@ -151,6 +187,11 @@ class _ManageTicketDialog extends StatelessWidget {
 
   static const _message = 'O Faltômetro não tem acesso ao servidor da UFRGS, '
       'então a contagem de tickets deve ser feita manualmente por você.';
+
+  static const _haveANiceLunchSnackbar = SnackBar(
+    content: Text('Aproveite o almoço!'),
+    duration: Duration(seconds: 1),
+  );
 }
 
 class _SetTicketFormDialog extends StatefulWidget {
@@ -162,12 +203,25 @@ class _SetTicketFormDialog extends StatefulWidget {
 }
 
 class _SetTicketFormDialogState extends State<_SetTicketFormDialog> {
-  // TODO: preload these from the Storage when data format is updated.
   final _ticketNumberController = TextEditingController();
   final _ticketAmountController = TextEditingController();
 
   bool _invalidTicketNumber = false;
   bool _invalidAmount = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Populate fields with current values:
+    if (Storage.restaurantTicket != null) {
+      _ticketNumberController.text = Storage.restaurantTicket!.number;
+      if (Storage.restaurantTicket!.amount != null) {
+        _ticketAmountController.text = Storage.restaurantTicket!.amount!
+            .toString();
+      }
+    }
+  }
 
   void _submit() {
     bool canProceed = true;
@@ -185,7 +239,7 @@ class _SetTicketFormDialogState extends State<_SetTicketFormDialog> {
     if (ticketAmountText.isNotEmpty) {
       try {
         ticketAmount = int.parse(ticketAmountText);
-        if (ticketAmount < _minAmount || ticketAmount > _maxAmount) {
+        if (ticketAmount > _maxAmount) {
           throw const FormatException();
         }
       }
@@ -238,7 +292,7 @@ class _SetTicketFormDialogState extends State<_SetTicketFormDialog> {
           decoration: InputDecoration(
             helperText: 'Opcional',
             errorText: _invalidAmount
-                ? _amountInputHelperText
+                ? 'Deve ser um número menor que $_maxAmount'
                 : null,
           ),
         ),
@@ -253,7 +307,7 @@ class _SetTicketFormDialogState extends State<_SetTicketFormDialog> {
       ElevatedButton(
         onPressed: _ticketNumberController.text.isNotEmpty ? _submit : null,
         child: const Text('Salvar ticket'),
-      )
+      ),
     ],
   );
 
@@ -262,10 +316,7 @@ class _SetTicketFormDialogState extends State<_SetTicketFormDialog> {
   static const _successSnackbar = SnackBar(
     content: Text('Ticket RU atualizado'),
   );
-  static const _minAmount = 6;
   static const _maxAmount = 50;
-  static const _amountInputHelperText = 'Deve ser um número entre $_minAmount '
-      'e $_maxAmount';
 
   static final _ticketNumberRegex = RegExp(r'^\d{6}$');
 }
