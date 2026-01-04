@@ -14,6 +14,16 @@ class RestaurantTicketWidget extends StatefulWidget {
 }
 
 class _RestaurantTicketWidgetState extends State<RestaurantTicketWidget> {
+  void _openTicketFormDialog() async {
+    await showDialog(
+      context: context,
+      builder: (context) => const _SetTicketFormDialog(),
+    );
+    if (context.mounted) {
+      setState(() {});
+    }
+  }
+
   void _openManageTicketDialog() async {
     await showDialog(
       context: context,
@@ -41,10 +51,7 @@ class _RestaurantTicketWidgetState extends State<RestaurantTicketWidget> {
   /// Widget to render if the ticket isn't set (or has just been zeroed).
   Widget _buildUnsetTicketVariant() => TextButton.icon(
     icon: PhosphorIcon(PhosphorIcons.regular.plus, size: 20),
-    onPressed: () => showDialog(
-      context: context,
-      builder: (context) => const _SetTicketFormDialog(),
-    ),
+    onPressed: _openTicketFormDialog,
     label: const Text(
       'Adicionar\nticket RU',
       style: TextStyle(fontSize: 12),
@@ -95,7 +102,7 @@ class _ManageTicketDialog extends StatelessWidget {
     log('Discounting restaurant ticket now');
     assert (Storage.restaurantTicket?.amount != null);
     final ticketsAfterDiscount = Storage.restaurantTicket!.amount! - 1;
-    if (ticketsAfterDiscount == 0) {
+    if (ticketsAfterDiscount < 1) {
       log('Number of tickets went down to zero, clearing ticket entry from '
           'Storage');
       Storage.clearRestaurantTicket();
@@ -249,7 +256,7 @@ class _SetTicketFormDialogState extends State<_SetTicketFormDialog> {
     if (ticketAmountText.isNotEmpty) {
       try {
         ticketAmount = int.parse(ticketAmountText);
-        if (ticketAmount > _maxAmount) {
+        if (ticketAmount < 0 || ticketAmount > _maxAmount) {
           throw const FormatException();
         }
       }
@@ -302,7 +309,7 @@ class _SetTicketFormDialogState extends State<_SetTicketFormDialog> {
           decoration: InputDecoration(
             helperText: 'Opcional',
             errorText: _invalidAmount
-                ? 'Deve ser um número menor que $_maxAmount'
+                ? 'Deve ser um número maior que zero e menor que $_maxAmount'
                 : null,
           ),
         ),
