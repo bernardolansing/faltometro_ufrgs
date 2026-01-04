@@ -24,7 +24,6 @@ class _RestaurantTicketWidgetState extends State<RestaurantTicketWidget> {
     }
   }
 
-  // TODO: wrap in a NotificationListener to refresh on ticket updates.
   @override
   Widget build(BuildContext context) {
     if (Storage.restaurantTicket == null) {
@@ -41,7 +40,7 @@ class _RestaurantTicketWidgetState extends State<RestaurantTicketWidget> {
 
   /// Widget to render if the ticket isn't set (or has just been zeroed).
   Widget _buildUnsetTicketVariant() => TextButton.icon(
-    icon: PhosphorIcon(PhosphorIcons.regular.plus, size: 20,),
+    icon: PhosphorIcon(PhosphorIcons.regular.plus, size: 20),
     onPressed: () => showDialog(
       context: context,
       builder: (context) => const _SetTicketFormDialog(),
@@ -111,11 +110,22 @@ class _ManageTicketDialog extends StatelessWidget {
   }
 
   void _editTicket(BuildContext context) async {
-    Navigator.of(context).pop();
-    showDialog(
+    // This is not ideal as we're showing one dialog on top of another. However,
+    // replacing the dialog would cause the current one to be closed and the
+    // upper setState() call would take place before user has finished editing
+    // the ticket on the dialog that opens next. Unfortunately, Flutter's
+    // NotificationListener doesn't seem to receive notifications dispatched
+    // from dialogs, so getting the dialog replacement thing to work without
+    // state mismanagement would add a lot of complexity. Maybe one day this
+    // project adds Bloc or some state manager of this sort and then we could
+    // improve this section here, but not a priority for now.
+    await showDialog(
       context: context,
       builder: (context) => const _SetTicketFormDialog(),
     );
+    if (context.mounted) {
+      Navigator.of(context).pop();
+    }
   }
 
   @override
