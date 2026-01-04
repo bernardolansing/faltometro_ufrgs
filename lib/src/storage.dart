@@ -87,9 +87,7 @@ class Storage {
       Storage.restaurantTicket = RestaurantTicket(number, amount);
     } else {
       Storage.restaurantTicket!.number = number;
-      if (amount != null) {
-        Storage.restaurantTicket!.amount = amount;
-      }
+      Storage.restaurantTicket!.amount = amount;
     }
     _content['restaurantTicket'] = {
       'number': number,

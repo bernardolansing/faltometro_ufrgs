@@ -39,12 +39,9 @@ class _RestaurantTicketWidgetState extends State<RestaurantTicketWidget> {
     if (Storage.restaurantTicket == null) {
       return _buildUnsetTicketVariant();
     }
-
     if (Storage.restaurantTicket!.amount != null) {
       return _buildTicketWithAmountVariant();
     }
-
-    // TODO:
     return _buildTicketWithoutAmountVariant();
   }
 
@@ -58,8 +55,16 @@ class _RestaurantTicketWidgetState extends State<RestaurantTicketWidget> {
     ),
   );
 
-  // TODO
-  Widget _buildTicketWithoutAmountVariant() => Container();
+  /// Widget to render if the ticket number is set but user is not keeping track
+  /// of the amount of tickets that are consumed.
+  Widget _buildTicketWithoutAmountVariant() => TextButton.icon(
+    onPressed: _openManageTicketDialog,
+    icon: PhosphorIcon(PhosphorIcons.regular.ticket, size: 22),
+    label: Text(
+      Storage.restaurantTicket!.number,
+      style: const TextStyle(fontSize: 18),
+    ),
+  );
 
   /// Widget to render if the ticket is set and user is counting how many of
   /// them are being consumed.
