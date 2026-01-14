@@ -94,6 +94,9 @@ class _HomepageState extends State<Homepage> {
         child: PhosphorIcon(PhosphorIcons.bold.plus, size: 28),
       ),
     ),
+    resizeToAvoidBottomInset: false, // This prevents a RenderFlex overflow when
+    // the keyboard is opened for user to type its restaurant ticket in
+    // RestaurantTicketWidget.
     body: NotificationListener<UserScrollNotification>(
       onNotification: (scroll) {
         setState(() {
