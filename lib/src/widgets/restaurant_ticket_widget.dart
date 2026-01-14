@@ -140,6 +140,17 @@ class _ManageTicketDialog extends StatelessWidget {
     }
   }
 
+  void _clearTicket(BuildContext context) async {
+    final confirmation = await showDialog(
+      context: context,
+      builder: (context) => const _ConfirmTicketClearingDialog(),
+    );
+    if (context.mounted && confirmation == true) {
+      Storage.clearRestaurantTicket();
+      Navigator.of(context).pop();
+    }
+  }
+
   @override
   Widget build(BuildContext context) => AlertDialog(
     icon: PhosphorIcon(PhosphorIcons.regular.ticket),
@@ -197,6 +208,12 @@ class _ManageTicketDialog extends StatelessWidget {
           onPressed: () => _editTicket(context),
           icon: PhosphorIcon(PhosphorIcons.regular.pencil),
           label: const Text('Editar ticket'),
+        ),
+
+        TextButton.icon(
+          onPressed: () => _clearTicket(context),
+          icon: PhosphorIcon(PhosphorIcons.regular.x),
+          label: const Text('Limpar ticket'),
         ),
 
         TextButton(
@@ -272,9 +289,15 @@ class _SetTicketFormDialogState extends State<_SetTicketFormDialog> {
     }
 
     if (canProceed) {
-      Storage.setRestaurantTicket(_ticketNumberController.text.trim(),
-          ticketAmount);
-      ScaffoldMessenger.of(context).showSnackBar(_successSnackbar);
+      if (ticketAmount == 0) {
+        Storage.clearRestaurantTicket();
+      }
+      else {
+        final ticketNumber = _ticketNumberController.text.trim();
+        Storage.setRestaurantTicket(ticketNumber, ticketAmount);
+        ScaffoldMessenger.of(context).showSnackBar(_successSnackbar);
+      }
+
       Navigator.of(context).pop(true);
     }
   }
@@ -344,4 +367,37 @@ class _SetTicketFormDialogState extends State<_SetTicketFormDialog> {
   static const _maxAmount = 50;
 
   static final _ticketNumberRegex = RegExp(r'^\d{6}$');
+}
+
+class _ConfirmTicketClearingDialog extends StatelessWidget {
+  const _ConfirmTicketClearingDialog();
+
+  @override
+  Widget build(BuildContext context) => SimpleDialog(
+    title: const Text('Tem certeza de que deseja apagar seu ticket?'),
+    children: [
+      SimpleDialogOption(
+        padding: _optionPadding,
+
+        child: ListTile(
+          iconColor: Theme.of(context).colorScheme.error,
+          textColor: Theme.of(context).colorScheme.error,
+          leading: PhosphorIcon(PhosphorIcons.regular.trash),
+          title: const Text('Apagar ticket'),
+          onTap: () => Navigator.of(context).pop(true),
+        ),
+      ),
+      SimpleDialogOption(
+        padding: _optionPadding,
+        child: ListTile(
+          leading: PhosphorIcon(PhosphorIcons.regular.x),
+          title: const Text('Cancelar'),
+          onTap: Navigator.of(context).pop,
+        ),
+      ),
+    ],
+  );
+
+  static const _optionPadding = EdgeInsets
+      .symmetric(horizontal: 8, vertical: 0);
 }
