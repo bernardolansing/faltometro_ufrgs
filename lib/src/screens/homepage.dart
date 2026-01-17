@@ -5,7 +5,7 @@ import 'package:phosphor_flutter/phosphor_flutter.dart';
 import '../course.dart';
 import '../notifications.dart';
 import '../settings.dart';
-import '../storage.dart';
+import '../widgets/restaurant_ticket_widget.dart';
 import 'course_screen.dart';
 import 'explanation_screen.dart';
 import 'register_absence_screen.dart';
@@ -84,16 +84,6 @@ class _HomepageState extends State<Homepage> {
     }
   }
 
-  Future<void> _openRestaurantTicketDialog() async {
-    final ticketChanged = await showDialog(
-      context: context,
-      builder: (context) => const _RestaurantTicketDialog(),
-    );
-    if (ticketChanged == true) {
-      setState(() {});
-    }
-  }
-
   @override
   Widget build(BuildContext context) => Scaffold(
     floatingActionButton: AnimatedSlide(
@@ -104,6 +94,9 @@ class _HomepageState extends State<Homepage> {
         child: PhosphorIcon(PhosphorIcons.bold.plus, size: 28),
       ),
     ),
+    resizeToAvoidBottomInset: false, // This prevents a RenderFlex overflow when
+    // the keyboard is opened for user to type its restaurant ticket in
+    // RestaurantTicketWidget.
     body: NotificationListener<UserScrollNotification>(
       onNotification: (scroll) {
         setState(() {
@@ -126,7 +119,6 @@ class _HomepageState extends State<Homepage> {
             else
               Expanded(
                 child: _RegularVariant(
-                  onRestaurantTicketTap: _openRestaurantTicketDialog,
                   onRegisterAbsence: _openRegisterAbsenceScreen,
                   onEditCourse: _openEditCourseScreen,
                   onDeleteCourse: _deleteCourse,
@@ -155,6 +147,7 @@ class _Navbar extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
         children: [
+          // TODO: hide the text mark on narrow screens
           Image.asset(
             'assets/white-logo.png',
             width: 24,
@@ -166,6 +159,10 @@ class _Navbar extends StatelessWidget {
             height: 24,
             color: color,
           ),
+
+          const Spacer(),
+
+          const RestaurantTicketWidget(),
 
           const Spacer(),
 
@@ -192,13 +189,11 @@ class _Navbar extends StatelessWidget {
 
 
 class _RegularVariant extends StatelessWidget {
-  final void Function() onRestaurantTicketTap;
   final void Function(Course) onRegisterAbsence;
   final void Function(Course) onEditCourse;
   final void Function(Course) onDeleteCourse;
 
   const _RegularVariant({
-    required this.onRestaurantTicketTap,
     required this.onRegisterAbsence,
     required this.onEditCourse,
     required this.onDeleteCourse,
@@ -207,24 +202,12 @@ class _RegularVariant extends StatelessWidget {
   @override
   Widget build(BuildContext context) => ListView(
     padding: const EdgeInsets.all(8),
-    children: [
-      InkWell(
-        onTap: onRestaurantTicketTap,
-        child: Chip(
-          avatar: PhosphorIcon(PhosphorIcons.regular.ticket),
-          label: Storage.restaurantTicket != null
-              ? Text('Ticket RU: ${Storage.restaurantTicket}')
-              : const Text('Adicionar ticket RU'),
-        ),
-      ),
-
-      ...Courses.courses.map((c) => _CourseCard(
-        course: c,
-        onAbsence: () => onRegisterAbsence(c),
-        onEdit: () => onEditCourse(c),
-        onDelete: () => onDeleteCourse(c),
-      )),
-    ],
+    children: Courses.courses.map((c) => _CourseCard(
+      course: c,
+      onAbsence: () => onRegisterAbsence(c),
+      onEdit: () => onEditCourse(c),
+      onDelete: () => onDeleteCourse(c),
+    )).toList(),
   );
 }
 
@@ -422,69 +405,6 @@ class _ConfirmCourseDeletionDialog extends StatelessWidget {
       ),
     ],
   );
-}
-
-class _RestaurantTicketDialog extends StatefulWidget {
-  const _RestaurantTicketDialog();
-
-  @override
-  State<_RestaurantTicketDialog> createState() =>
-      _RestaurantTicketDialogState();
-}
-
-class _RestaurantTicketDialogState extends State<_RestaurantTicketDialog> {
-  final _inputController = TextEditingController();
-
-  bool _invalidInput = false;
-
-  @override
-  Widget build(BuildContext context) => AlertDialog(
-    title: const Text('Definir ticket RU'),
-    content: Column(
-      mainAxisSize: MainAxisSize.min,
-      spacing: 8,
-      children: [
-        const Text(_message, textAlign: TextAlign.justify),
-        TextField(
-          controller: _inputController,
-          keyboardType: TextInputType.number,
-          maxLength: 6,
-          onChanged: (value) => setState(() => _invalidInput = false),
-          decoration: InputDecoration(
-            filled: true,
-            hintText: 'Digite o seu ticket',
-            errorText: _invalidInput ? 'O ticket digitado não é válido' : null,
-          ),
-        ),
-      ],
-    ),
-    actions: [
-      TextButton(
-        onPressed: Navigator.of(context).pop,
-        child: const Text('Cancelar'),
-      ),
-      ElevatedButton(
-        onPressed: () {
-          if (_inputController.text.isEmpty) {
-            Storage.setRestaurantTicket(null);
-          }
-          else {
-            final digitRegex = RegExp(r'^\d{6}$');
-            if (! digitRegex.hasMatch(_inputController.text)) {
-              return setState(() => _invalidInput = true);
-            }
-            Storage.setRestaurantTicket(_inputController.text);
-          }
-
-          Navigator.of(context).pop(true);
-        },
-        child: const Text('Confirmar'),
-      ),
-    ],
-  );
-
-  static const _message = 'Você pode anotar o seu ticket do RU aqui, para não '
-      'ter que entrar no portal do aluno caso se esqueça dele.';
 }
 
 const _circularProgressSize = Size(100, 100);
