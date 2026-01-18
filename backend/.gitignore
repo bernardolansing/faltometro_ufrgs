@@ -1,0 +1,4 @@
+.idea
+.aws-sam/
+Scrapper/bin/
+Scrapper/obj/
