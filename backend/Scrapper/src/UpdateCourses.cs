@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Text;
 using System.Text.RegularExpressions;
 using Amazon.Lambda.Core;
@@ -13,30 +14,61 @@ public partial class UpdateCourses : LambdaScrapperFunction
     
     public async Task Handler()
     {
-        var graduationProgramsPage = await FetchAndParseHtml("https://www.ufrgs.br/site/ensino/graduacao/");
+        var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+        
+        var graduationProgramsPage = await FetchAndParseHtml("https://www.ufrgs.br/site/ensino/graduacao/"); // Fetch
+        // a list of UFRGS graduation programs.
         var gProgramCards = graduationProgramsPage.QuerySelectorAll(".card-course"); // Clickable cards, one for each
         // graduation program.
+        
+        // Now we're going to access each graduation program specific website in parallel. Let's use a
+        // ConcurrentDictionary for this.
+        const int initialCapacity = 6500; // A guess about how many courses we're going to find at most.
+        const int concurrencyLevel = 1; // The estimated amount of threads that'll update the dictionary. We're only
+        // using one thread for now.
+        var courses = new ConcurrentDictionary<string, string>(concurrencyLevel, initialCapacity); // This dictionary
+        // is safe to use in parallel code.
 
-        foreach (var gProgramCard in gProgramCards)
+        ushort errors = 0;
+        await Task.WhenAll(gProgramCards.Select(async gProgramCard =>
         {
-            var programPage = await FetchAndParseHtml(gProgramCard.GetAttribute("href")!); // This is a page that
-            // displays different curriculum options for a program. As far as I'm aware, a curriculum is just a
-            // different selecion of mandatory courses among the courses offered by a program.
-            
-            // So, as our goal is to obtain a list of all courses that exists, we can just grab the first curriculum
-            // that we find and scrap data from there.
-            var curriculumUrl = programPage.QuerySelector("iframe")!.GetAttribute("src")!;
-
-            var curriculumPage = await FetchAndParseHtml(curriculumUrl); // Now we can finnaly extract some courses
-            // data.
-            var tableRows = curriculumPage.QuerySelectorAll(".modelo1even, .modelo1odd"); // Selects the body table
-            // rows. Not all of them are courses, but we can me the distinction.
-            foreach (var courseRow in tableRows)
+            var programPageUrl = gProgramCard.GetAttribute("href")!;
+            try
             {
-                Console.WriteLine(ParseTableRowCandidate(courseRow));
+                var programPage = await FetchAndParseHtml(programPageUrl); // This is a page that
+                // displays different curriculum options for a program. As far as I'm aware, a curriculum is just a
+                // different selecion of mandatory courses among the courses offered by a program.
+
+                // So, as our goal is to obtain a list of all courses that exists, we can just grab the first curriculum
+                // that we find and scrap data from there.
+                var curriculumUrl = programPage.QuerySelector("iframe")!.GetAttribute("src")!;
+
+                var curriculumPage = await FetchAndParseHtml(curriculumUrl); // Now we can finnaly extract some courses
+                // data.
+                var tableRows = curriculumPage.QuerySelectorAll(".modelo1even, .modelo1odd"); // Selects the body table
+                // rows. Not all of them are courses, but we can me the distinction.
+                var coursesForThisProgram = tableRows.Select(ParseTableRowCandidate)
+                    .Where(candidate => candidate != null);
+                foreach (var course in coursesForThisProgram)
+                {
+                    var (courseCode, courseTitle) = course!.Value;
+                    courses.TryAdd(courseCode, courseTitle);
+                }
             }
-            
-        }
+            catch (Exception error)
+            {
+                errors++;
+                await Console.Error.WriteLineAsync($"Failed to parse courses coming from page {programPageUrl}");
+                await Console.Error.WriteLineAsync(error.Message);
+                await Console.Error.WriteLineAsync(error.StackTrace);
+            }
+        }));
+
+        var elapsed = stopwatch.Elapsed;
+        Console.WriteLine($"Found {courses.Count} courses across {gProgramCards.Count - errors} programs.");
+        if (errors > 0)
+            Console.WriteLine($"Scraping failed for {errors} programs");
+        Console.WriteLine($"Execution took {elapsed.TotalSeconds}s");
     }
 
     private static (string, string)? ParseTableRowCandidate(IElement row)

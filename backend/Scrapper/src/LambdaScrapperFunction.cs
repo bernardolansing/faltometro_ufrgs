@@ -5,7 +5,7 @@ namespace Scrapper;
 
 public abstract class LambdaScrapperFunction
 {
-    private readonly HttpClient _client = new();
+    private readonly HttpClient _client = new() { Timeout = TimeSpan.FromSeconds(180) };
     private readonly HtmlParser _parser = new();
 
     protected async Task<IHtmlDocument> FetchAndParseHtml(string url)
