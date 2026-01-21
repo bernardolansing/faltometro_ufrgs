@@ -2,4 +2,5 @@
 .aws-sam/
 Scrapper/bin/
 Scrapper/obj/
+Scrapper/.env
 backend.sln.DotSettings.user
