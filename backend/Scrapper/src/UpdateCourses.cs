@@ -11,11 +11,6 @@ public partial class UpdateCourses : LambdaScrapperFunction
 {
     private static readonly Regex CourseCodeRegex = CourseCodeRegexGen();
     
-    public static async Task Main()
-    {
-        await new UpdateCourses().Handler();
-    }
-    
     public async Task Handler()
     {
         var graduationProgramsPage = await FetchAndParseHtml("https://www.ufrgs.br/site/ensino/graduacao/");
@@ -84,4 +79,15 @@ public partial class UpdateCourses : LambdaScrapperFunction
 
     [GeneratedRegex("^[A-Z]{3}\\d{5}$")]
     private static partial Regex CourseCodeRegexGen();
+}
+
+[TestClass]
+public class UpdateCoursesTest
+{
+    [TestMethod]
+    public async Task ExecuteUpdateCourses()
+    {
+        var instance = new UpdateCourses();
+        await instance.Handler();
+    }
 }
