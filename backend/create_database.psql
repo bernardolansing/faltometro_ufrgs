@@ -1,0 +1,8 @@
+-- Script for creating the tables in a new database.
+
+CREATE TABLE courses (
+    code CHAR(8) PRIMARY KEY,
+    title VARCHAR(50) NOT NULL,
+    
+    CHECK (code ~ '^[A-Z]{3}\d{5}$')
+);

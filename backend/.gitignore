@@ -1,6 +1,6 @@
 .idea
 .aws-sam/
+.env
 Scrapper/bin/
 Scrapper/obj/
-Scrapper/.env
 backend.sln.DotSettings.user

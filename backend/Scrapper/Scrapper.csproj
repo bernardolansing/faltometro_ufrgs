@@ -12,7 +12,9 @@
       <PackageReference Include="Amazon.Lambda.Serialization.SystemTextJson" Version="2.4.5" />
       <PackageReference Include="AngleSharp" Version="1.4.0" />
       <PackageReference Include="DotNetEnv" Version="3.1.1" />
+      <PackageReference Include="EFCore.NamingConventions" Version="10.0.1" />
       <PackageReference Include="MSTest" Version="4.0.2" />
+      <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.0" />
     </ItemGroup>
 
 </Project>

@@ -1,5 +1,7 @@
+using System.ComponentModel.DataAnnotations;
 using AngleSharp.Html.Dom;
 using AngleSharp.Html.Parser;
+using Microsoft.EntityFrameworkCore;
 
 namespace Scrapper;
 
@@ -7,10 +9,56 @@ public abstract class LambdaScrapperFunction
 {
     private readonly HttpClient _client = new() { Timeout = TimeSpan.FromSeconds(180) };
     private readonly HtmlParser _parser = new();
+    protected readonly AppDatabase Db = new();
 
     protected async Task<IHtmlDocument> FetchAndParseHtml(string url)
     {
         var htmlPage = await _client.GetStringAsync(url);
         return await _parser.ParseDocumentAsync(htmlPage);
     }
+}
+
+public class Course
+{
+    [Key, MaxLength(8)]
+    public required string Code { get; init; }
+    [MaxLength(50)]
+    public required string Title { get; init; }
+}
+
+public class AppDatabase : DbContext
+{
+    public DbSet<Course> Courses { get; init; }
+    
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        DotNetEnv.Env.TraversePath().Load();
+        var dbHost = Environment.GetEnvironmentVariable("DB_HOST");
+        var dbPort = Environment.GetEnvironmentVariable("DB_PORT");
+        var dbUser = Environment.GetEnvironmentVariable("DB_USER");
+        var dbPassword = Environment.GetEnvironmentVariable("DB_PASSWORD");
+        if (dbHost == null || dbPort == null || dbUser == null || dbPassword == null)
+            throw new Exception("At least one of the Database credentials are null. Please populate .env with the " +
+                                "connection details");
+        
+        var connectionString = $"Host={dbHost};Port={dbPort};Database=faltometro_ufrgs_db;Username={dbUser};" +
+                               $"Password={dbPassword};";
+        optionsBuilder.UseNpgsql(connectionString)
+            .UseSnakeCaseNamingConvention();
+    }
+}
+
+[TestClass]
+public class TestAppDatabase
+{
+    [TestMethod]
+    public async Task TestListCourses()
+    {
+        var db = new AppDatabase();
+        await db.Database.EnsureCreatedAsync(TestContext.CancellationToken);
+        var courses = await db.Courses.ToListAsync(TestContext.CancellationToken);
+        Console.WriteLine($"Found {courses.Count} courses!");
+    }
+
+    public TestContext TestContext { get; set; }
 }
