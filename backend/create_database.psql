@@ -2,7 +2,7 @@
 
 CREATE TABLE courses (
     code CHAR(8) PRIMARY KEY,
-    title VARCHAR(50) NOT NULL,
+    title TEXT NOT NULL,
     
     CHECK (code ~ '^[A-Z]{3}\d{5}$')
 );

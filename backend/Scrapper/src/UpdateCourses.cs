@@ -4,6 +4,7 @@ using System.Text.RegularExpressions;
 using Amazon.Lambda.Core;
 using AngleSharp.Dom;
 using AngleSharp.Text;
+using Microsoft.EntityFrameworkCore;
 
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
 namespace Scrapper;
@@ -63,12 +64,26 @@ public partial class UpdateCourses : LambdaScrapperFunction
                 await Console.Error.WriteLineAsync(error.StackTrace);
             }
         }));
-
-        var elapsed = stopwatch.Elapsed;
         Console.WriteLine($"Found {courses.Count} courses across {gProgramCards.Count - errors} programs.");
-        if (errors > 0)
-            Console.WriteLine($"Scraping failed for {errors} programs");
-        Console.WriteLine($"Execution took {elapsed.TotalSeconds}s");
+
+        // Now, if no errors ocurred, we're going to clear the courses table from the database and populate it again
+        // with the updated list of courses.
+        if (errors == 0)
+        {
+            Console.WriteLine("Repopulating courses table in database");
+            var transaction = await Db.Database.BeginTransactionAsync();
+            await Db.Courses.ExecuteDeleteAsync();
+            await Db.Courses.AddRangeAsync(courses.Select(pair => new Course(pair.Key, pair.Value)));
+            await Db.SaveChangesAsync();
+            await transaction.CommitAsync();
+        }
+        else
+        {
+            await Console.Error.WriteLineAsync($"Scraping failed for {errors} programs");
+            await Console.Error.WriteLineAsync("Aborting upload to database as errors ocurred");
+        }
+            
+        Console.WriteLine($"Execution took {stopwatch.Elapsed.TotalSeconds}s");
     }
 
     private static (string, string)? ParseTableRowCandidate(IElement row)

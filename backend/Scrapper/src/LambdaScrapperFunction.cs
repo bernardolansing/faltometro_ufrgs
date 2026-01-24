@@ -18,12 +18,12 @@ public abstract class LambdaScrapperFunction
     }
 }
 
-public class Course
+public class Course(string code, string title)
 {
     [Key, MaxLength(8)]
-    public required string Code { get; init; }
-    [MaxLength(50)]
-    public required string Title { get; init; }
+    public string Code { get; init; } = code;
+    
+    public string Title { get; init; } = title;
 }
 
 public class AppDatabase : DbContext
