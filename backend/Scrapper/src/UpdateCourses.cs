@@ -96,32 +96,34 @@ public partial class UpdateCourses : LambdaScrapperFunction
             return null;
         
         // There's a little bit of work required to extract the course title, as most of the times there's some HTML
-        // and extra whitespaces after the title text itself. So we're using a string builder to concatenate each
-        // character until we find some HTML tag or extra whitespaces.
+        // and extra whitespaces after the title text itself. Sometimes, words are split by multiple spaces as well.
+        // So we're using a string builder to concatenate each character until we find some HTML tag and then get rid
+        // of whitespaces.
         var courseTitleBuilder = new StringBuilder();
         var lastCharWasWhitespace = false;
         foreach (var character in row.Children[1].InnerHtml)
         {
-            if (character.IsWhiteSpaceCharacter())
-            {
-                if (lastCharWasWhitespace)
-                    break;
-                lastCharWasWhitespace = true;
-            }
-            else if (character == '<')
+            // We've detected the start of an HTML tag, so there's nothing relevant beyond this point.
+            if (character == '<')
                 break;
-            else
+            
+            // If the character is a non-whitespace that is not a HTML tag opening, we should include it.
+            if (!character.IsWhiteSpaceCharacter())
             {
-                if (lastCharWasWhitespace)
-                {
-                    courseTitleBuilder.Append(' ');
-                    lastCharWasWhitespace = false;
-                }
                 courseTitleBuilder.Append(character);
+                lastCharWasWhitespace = false;
+            }
+            
+            // Now if it is a whitespace, we only want to include it if the last character wasn't. This ensures that
+            // there'll be only one space between every word.
+            else if (!lastCharWasWhitespace)
+            {
+                courseTitleBuilder.Append(' ');
+                lastCharWasWhitespace = true;
             }
         }
         
-        return (courseCode, courseTitleBuilder.ToString());
+        return (courseCode, courseTitleBuilder.ToString().Trim());
     }
 
     [GeneratedRegex("^[A-Z]{3}\\d{5}$")]
