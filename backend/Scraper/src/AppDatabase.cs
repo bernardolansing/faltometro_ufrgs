@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
 namespace Scraper;
@@ -16,6 +17,9 @@ public enum Weekday { Mon, Tue, Wed, Thu, Fri, Sat }
 [Keyless]
 public class CourseOption
 {
+    [ForeignKey(nameof(Course))]
+    public string CourseCode { get; init; }
+    
     [MaxLength(2)]
     public string OptionName { get; init; }
     
@@ -26,11 +30,11 @@ public class CourseOption
 public class CourseOptionClassSession
 {
     [MaxLength(5)]
-    public string StartingTime { get; init; }
+    public required string StartingTime { get; init; }
     
-    public Weekday Weekday { get; init; }
+    public required Weekday Weekday { get; init; }
     
-    public short Periods { get; init; }
+    public required short Periods { get; init; }
     
     public string? Location { get; init; }
 }
