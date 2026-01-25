@@ -9,14 +9,15 @@ using Microsoft.EntityFrameworkCore;
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
 namespace Scraper;
 
-public partial class UpdateCourses : LambdaScraperFunction
+public class UpdateCourses
 {
-    private static readonly Regex CourseCodeRegex = CourseCodeRegexGen();
+    private static readonly Regex CourseCodeRegex = new("^[A-Z]{3}\\d{5}$");
     
     public async Task Handler()
     {
         var stopwatch = System.Diagnostics.Stopwatch.StartNew();
         var client = new ScraperClient();
+        var db = new AppDatabase();
         
         // Fetch a list of UFRGS graduation programs.
         var graduationProgramsPage = await client.FetchAndParseHtml("https://www.ufrgs.br/site/ensino/graduacao/");
@@ -72,10 +73,10 @@ public partial class UpdateCourses : LambdaScraperFunction
         if (errors == 0)
         {
             Console.WriteLine("Repopulating courses table in database");
-            var transaction = await Db.Database.BeginTransactionAsync();
-            await Db.Courses.ExecuteDeleteAsync();
-            await Db.Courses.AddRangeAsync(courses.Select(pair => new Course(pair.Key, pair.Value)));
-            await Db.SaveChangesAsync();
+            var transaction = await db.Database.BeginTransactionAsync();
+            await db.Courses.ExecuteDeleteAsync();
+            await db.Courses.AddRangeAsync(courses.Select(pair => new Course(pair.Key, pair.Value)));
+            await db.SaveChangesAsync();
             await transaction.CommitAsync();
         }
         else
@@ -126,9 +127,6 @@ public partial class UpdateCourses : LambdaScraperFunction
         
         return (courseCode, courseTitleBuilder.ToString().Trim());
     }
-
-    [GeneratedRegex("^[A-Z]{3}\\d{5}$")]
-    private static partial Regex CourseCodeRegexGen();
 }
 
 [TestClass]

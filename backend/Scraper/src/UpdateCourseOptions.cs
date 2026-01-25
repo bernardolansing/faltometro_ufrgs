@@ -2,7 +2,7 @@ using DotNetEnv;
 
 namespace Scraper;
 
-public class UpdateCourseOptions : LambdaScraperFunction
+public class UpdateCourseOptions
 {
     public async Task Handler(string sessionId)
     {
