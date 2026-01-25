@@ -11,9 +11,35 @@ public class Course(string code, string title)
     public string Title { get; init; } = title;
 }
 
+public enum Weekday { Mon, Tue, Wed, Thu, Fri, Sat }
+
+[Keyless]
+public class CourseOption
+{
+    [MaxLength(2)]
+    public string OptionName { get; init; }
+    
+    public List<CourseOptionClassSession> CourseOptionsClassSessions { get; init; }
+}
+
+[Keyless]
+public class CourseOptionClassSession
+{
+    [MaxLength(5)]
+    public string StartingTime { get; init; }
+    
+    public Weekday Weekday { get; init; }
+    
+    public short Periods { get; init; }
+    
+    public string? Location { get; init; }
+}
+
 internal class AppDatabase : DbContext
 {
     internal DbSet<Course> Courses { get; init; }
+    internal DbSet<CourseOption> CourseOptions { get; init; }
+    internal DbSet<CourseOptionClassSession> CourseOptionsClassSessions { get; init; }
     
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -43,6 +69,22 @@ public class TestAppDatabase
         await db.Database.EnsureCreatedAsync(TestContext.CancellationToken);
         var courses = await db.Courses.ToListAsync(TestContext.CancellationToken);
         Console.WriteLine($"Found {courses.Count} courses!");
+    }
+
+    [TestMethod]
+    public async Task TestListCourseOptionsClassSessions()
+    {
+        var db = new AppDatabase();
+        var sessions = await db.CourseOptionsClassSessions.ToListAsync(TestContext.CancellationToken);
+        Console.WriteLine($"Found {sessions.Count} sessions!");
+    }
+
+    [TestMethod]
+    public async Task TestListCourseOptions()
+    {
+        var db = new AppDatabase();
+        var options = await db.CourseOptions.ToListAsync(TestContext.CancellationToken);
+        Console.WriteLine($"Found {options.Count} course options!");
     }
 
     public TestContext TestContext { get; set; }
