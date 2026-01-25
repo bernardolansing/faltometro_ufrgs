@@ -6,12 +6,33 @@ public class UpdateCourseOptions
 {
     public async Task Handler(string sessionId)
     {
+        const string pageUri = "https://www1.ufrgs.br/intranet/portal/public/index.php?cods=1,1,1,224";
+        
         var client = new ScraperClient(sessionId);
         
-        var classOptionsPerProgramPage = await client.FetchAndParseHtml(
-            "https://www1.ufrgs.br/intranet/portal/public/index.php?cods=1,1,1,224");
-        var graduationPrograms = classOptionsPerProgramPage.QuerySelectorAll("#selecionado option");
-        Console.WriteLine(graduationPrograms.Count);
+        var classOptionsPerProgramPage = await client.FetchAndParseHtml(pageUri);
+        var graduationProgramsCodes = classOptionsPerProgramPage.QuerySelectorAll("#selecionado option")
+            .Select(option => option.GetAttribute("value")!)
+            .Skip(1);
+        
+        foreach (var programCode in graduationProgramsCodes)
+        {
+            var form = new Dictionary<string, string> { ["selecionado"] = programCode };
+            var classOptionsPage = await client.PostFormAndParseHtml(pageUri, form);
+            var optionsTable = classOptionsPage.GetElementById("Horarios");
+
+            if (optionsTable != null)
+            {
+                // TODO: parse the table.
+            }
+            else
+            {
+                var programName = classOptionsPage.QuerySelector("#principal b")?.InnerHtml;
+                if (programName == null)
+                    throw new Exception("Failed to parse options for program code " + programCode);
+                Console.WriteLine($"Program named \"{programName}\" seems to be discontinued");
+            }
+        }
     }
 }
 

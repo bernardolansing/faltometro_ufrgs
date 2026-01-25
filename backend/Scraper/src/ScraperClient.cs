@@ -39,10 +39,23 @@ internal class ScraperClient
     internal async Task<IHtmlDocument> FetchAndParseHtml(string url)
     {
         var response = await _client.GetAsync(url);
+        var responseBodyString = await GetBodyAndCheckSessionExpired(response);
+        return await _parser.ParseDocumentAsync(responseBodyString);
+    }
+
+    internal async Task<IHtmlDocument> PostFormAndParseHtml(string url, Dictionary<string, string> formData)
+    {
+        var requestContent = new FormUrlEncodedContent(formData);
+        var response = await _client.PostAsync(url, requestContent);
+        var responseBodyString = await GetBodyAndCheckSessionExpired(response);
+        return await _parser.ParseDocumentAsync(responseBodyString);
+    }
+
+    private static async Task<string> GetBodyAndCheckSessionExpired(HttpResponseMessage response)
+    {
         var responseBodyBytes = await response.Content.ReadAsByteArrayAsync();
         if (Enumerable.SequenceEqual(ExpiredSessionHtmlStr, responseBodyBytes))
             throw new Exception("Provided session ID token is expired");
-        var responseBodyString = Encoding.Latin1.GetString(responseBodyBytes);
-        return await _parser.ParseDocumentAsync(responseBodyString);
+        return Encoding.Latin1.GetString(responseBodyBytes);
     }
 }
