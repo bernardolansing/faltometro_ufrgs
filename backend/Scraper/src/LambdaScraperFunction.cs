@@ -5,9 +5,9 @@ using AngleSharp.Html.Dom;
 using AngleSharp.Html.Parser;
 using Microsoft.EntityFrameworkCore;
 
-namespace Scrapper;
+namespace Scraper;
 
-public abstract class LambdaScrapperFunction
+public abstract class LambdaScraperFunction
 {
     protected readonly AppDatabase Db = new();
 }

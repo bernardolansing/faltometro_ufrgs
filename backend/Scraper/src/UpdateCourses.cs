@@ -7,9 +7,9 @@ using AngleSharp.Text;
 using Microsoft.EntityFrameworkCore;
 
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
-namespace Scrapper;
+namespace Scraper;
 
-public partial class UpdateCourses : LambdaScrapperFunction
+public partial class UpdateCourses : LambdaScraperFunction
 {
     private static readonly Regex CourseCodeRegex = CourseCodeRegexGen();
     

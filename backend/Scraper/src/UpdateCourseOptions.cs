@@ -1,8 +1,8 @@
 using DotNetEnv;
 
-namespace Scrapper;
+namespace Scraper;
 
-public class UpdateCourseOptions : LambdaScrapperFunction
+public class UpdateCourseOptions : LambdaScraperFunction
 {
     public async Task Handler(string sessionId)
     {

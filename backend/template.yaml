@@ -13,8 +13,8 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       Description: Lambda Function that scraps and updates the list of courses.
-      CodeUri: ./Scrapper/
-      Handler: Scrapper::Scrapper.UpdateCourses::Handler
+      CodeUri: ./Scraper/
+      Handler: Scraper::Scraper.UpdateCourses::Handler
       PackageType: Zip
       Runtime: dotnet10
       MemorySize: 512
