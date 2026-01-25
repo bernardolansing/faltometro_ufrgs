@@ -16,9 +16,10 @@ public partial class UpdateCourses : LambdaScrapperFunction
     public async Task Handler()
     {
         var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+        var client = new ScraperClient();
         
-        var graduationProgramsPage = await FetchAndParseHtml("https://www.ufrgs.br/site/ensino/graduacao/"); // Fetch
-        // a list of UFRGS graduation programs.
+        // Fetch a list of UFRGS graduation programs.
+        var graduationProgramsPage = await client.FetchAndParseHtml("https://www.ufrgs.br/site/ensino/graduacao/");
         var gProgramCards = graduationProgramsPage.QuerySelectorAll(".card-course"); // Clickable cards, one for each
         // graduation program.
         
@@ -36,7 +37,7 @@ public partial class UpdateCourses : LambdaScrapperFunction
             var programPageUrl = gProgramCard.GetAttribute("href")!;
             try
             {
-                var programPage = await FetchAndParseHtml(programPageUrl); // This is a page that
+                var programPage = await client.FetchAndParseHtml(programPageUrl); // This is a page that
                 // displays different curriculum options for a program. As far as I'm aware, a curriculum is just a
                 // different selecion of mandatory courses among the courses offered by a program.
 
@@ -44,8 +45,8 @@ public partial class UpdateCourses : LambdaScrapperFunction
                 // that we find and scrap data from there.
                 var curriculumUrl = programPage.QuerySelector("iframe")!.GetAttribute("src")!;
 
-                var curriculumPage = await FetchAndParseHtml(curriculumUrl); // Now we can finnaly extract some courses
-                // data.
+                var curriculumPage = await client.FetchAndParseHtml(curriculumUrl); // Now we can finnaly extract some
+                // courses data.
                 var tableRows = curriculumPage.QuerySelectorAll(".modelo1even, .modelo1odd"); // Selects the body table
                 // rows. Not all of them are courses, but we can me the distinction.
                 var coursesForThisProgram = tableRows.Select(ParseTableRowCandidate)

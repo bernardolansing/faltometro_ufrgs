@@ -6,7 +6,12 @@ public class UpdateCourseOptions : LambdaScrapperFunction
 {
     public async Task Handler(string sessionId)
     {
+        var client = new ScraperClient(sessionId);
         
+        var classOptionsPerProgramPage = await client.FetchAndParseHtml(
+            "https://www1.ufrgs.br/intranet/portal/public/index.php?cods=1,1,1,224");
+        var graduationPrograms = classOptionsPerProgramPage.QuerySelectorAll("#selecionado option");
+        Console.WriteLine(graduationPrograms.Count);
     }
 }
 
