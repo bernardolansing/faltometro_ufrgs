@@ -36,7 +36,7 @@ public class CourseOptionClassSession
     
     public required short Periods { get; init; }
     
-    public string? Location { get; init; }
+    public string? Location { get; set; }
 }
 
 internal class AppDatabase : DbContext
