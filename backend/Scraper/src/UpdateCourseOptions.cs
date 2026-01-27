@@ -164,6 +164,43 @@ public class UpdateCourseOptions
             var actualResponse = GetClassSessionsFromTableCell(ParseHtmlFragmentString(example1));
             Assert.HasCount(1, actualResponse);
             Assert.IsTrue(CheckEquality(expectedResponse, actualResponse[0]));
+
+            const string example2 = @"
+            <ul>
+                <li class=""hor"">Segunda 7:30-9:10 2</li>
+                Sala de aula 062 - Campus: Centro
+                <li class=""hor"">Quarta 7:30-9:10 2</li>
+                Sala de aula 062 - Campus: Centro
+                <li class=""hor"">Sexta 7:30-9:10 2</li>
+                Sala de aula 062 - Campus: Centro
+            </ul>";
+            var expectedResponse2 = new List<CourseOptionClassSession>
+            {
+                new()
+                {
+                    Location = "Sala de aula 062 - Campus: Centro",
+                    Weekday = Weekday.Mon,
+                    Periods = 2,
+                    StartingTime = "7:30",
+                },
+                new()
+                {
+                    Location = "Sala de aula 062 - Campus: Centro",
+                    Weekday = Weekday.Wed,
+                    Periods = 2,
+                    StartingTime = "7:30",
+                },
+                new()
+                {
+                    Location = "Sala de aula 062 - Campus: Centro",
+                    Weekday = Weekday.Fri,
+                    Periods = 2,
+                    StartingTime = "7:30",
+                }
+            };
+            var actualResponse2 = GetClassSessionsFromTableCell(ParseHtmlFragmentString(example2));
+            Assert.HasCount(expectedResponse2.Count, actualResponse2);
+            Assert.IsTrue(expectedResponse2.Zip(actualResponse2).All(pair => CheckEquality(pair.First, pair.Second)));
         }
         
         [TestMethod]
@@ -196,7 +233,8 @@ public class UpdateCourseOptions
             return doc.DocumentElement.Children[1].Children[0];
         }
 
-        private bool CheckEquality(CourseOptionClassSession x, CourseOptionClassSession y) => x.Location == y.Location
+        private static bool CheckEquality(CourseOptionClassSession x, CourseOptionClassSession y) =>
+            x.Location == y.Location
             && x.Weekday == y.Weekday
             && x.Periods == y.Periods
             && x.StartingTime == y.StartingTime;
