@@ -14,39 +14,57 @@ public class UpdateCourseOptions
         
         var client = new ScraperClient(sessionId);
         
+        // This page contains a select menu with all graduation programs. To each program is assigned an identification.
         var classOptionsPerProgramPage = await client.FetchAndParseHtml(pageUri);
         var graduationProgramsCodes = classOptionsPerProgramPage.QuerySelectorAll("#selecionado option")
             .Select(option => option.GetAttribute("value")!)
-            .Skip(1);
+            .Skip(1); // The first option is a bogus "pick a course" that doesn't do a thing.
         
         foreach (var programCode in graduationProgramsCodes)
         {
+            // To access the course options for a given program, we have to send a POST request to the same endpoint
+            // as before, but with a urlencoded-form specifying the graduation program code that we want to fetch.
             var form = new Dictionary<string, string> { ["selecionado"] = programCode };
             var classOptionsPage = await client.PostFormAndParseHtml(pageUri, form);
-            var optionsTable = classOptionsPage.GetElementById("Horarios");
+            var programName = classOptionsPage.QuerySelector("#principal b")?.InnerHtml;
+            var optionsTable = classOptionsPage.GetElementById("Horarios"); // This a the table that contains one
+            // course option per row.
 
+            // Should we fail to find such table, it means that this program is dead, so let's skip to the next one.
             if (optionsTable == null)
             {
-                var programName = classOptionsPage.QuerySelector("#principal b")?.InnerHtml;
                 if (programName == null)
                     throw new Exception("Failed to parse options for program code " + programCode);
                 Console.WriteLine($"Program named \"{programName}\" seems to be discontinued");
                 continue;
             }
-
+            
+            // Every row of this table contains information on a single course option. When a course has many options,
+            // they'll all come in a sequence. However, only the first row will actually contain the code/name of the
+            // course. Easy enough, we just have to cache it and update whenever a new course code is found.
             var allRows = optionsTable.QuerySelectorAll(".modelo1odd, .modelo1even");
-            string currentCourseCode;
-            var classSessionsForThisOption = new List<CourseOptionClassSession>();
+            var currentCourseCode = "";
+            var optionsForThisProgram = new List<CourseOption>();
             foreach (var row in allRows)
             {
                 var courseCell = row.Children[0].InnerHtml;
                 if (courseCell.StartsWith('('))
                     currentCourseCode = courseCell.Substring(1, 8);
-                var courseOptionName = row.Children[2].InnerHtml.Trim();
-
-                var classSessionsInfo = row.Children[8].Children[0];
                 
+                var courseOptionName = row.Children[2].InnerHtml.Trim();
+                var classSessionsInfo = row.Children[8].Children[0];
+                var classSessions = GetClassSessionsFromTableCell(classSessionsInfo);
+                var newCourse = new CourseOption
+                {
+                    CourseCode = currentCourseCode,
+                    OptionName = courseOptionName,
+                    CourseOptionsClassSessions = classSessions
+                };
+                optionsForThisProgram.Add(newCourse);
             }
+            
+            if (programName != null)
+                Console.WriteLine($"Found {optionsForThisProgram.Count} course options for program {programName}");
         }
     }
 
