@@ -7,18 +7,17 @@ CREATE TABLE courses (
     CHECK (code ~ '^[A-Z]{3}\d{5}$')
 );
 
-CREATE TYPE weekday AS ENUM ('mon', 'tue', 'wed', 'thu', 'fri', 'sat');
-
 CREATE TABLE course_options (
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    course_code CHAR(8) REFERENCES courses (code),
+    course_code CHAR(8) REFERENCES courses ON DELETE CASCADE,
     option_name VARCHAR(2) NOT NULL,
 
     CHECK (option_name = UPPER(option_name))
 );
 
 CREATE TABLE course_options_class_sessions (
-    course_option INT REFERENCES course_options,
+    id INT GENERATED ALWAYS AS IDENTITY,
+    course_option_id INT REFERENCES course_options ON DELETE CASCADE,
     starting_time CHAR(5) NOT NULL,
     weekday weekday NOT NULL,
     periods SMALLINT NOT NULL,

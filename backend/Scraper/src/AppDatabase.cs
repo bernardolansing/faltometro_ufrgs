@@ -12,31 +12,34 @@ public class Course(string code, string title)
     public string Title { get; init; } = title;
 }
 
-public enum Weekday { Mon, Tue, Wed, Thu, Fri, Sat }
-
-[Keyless]
 public class CourseOption
 {
+    public int Id { get; init; }
+    
     [ForeignKey(nameof(Course))]
-    public string CourseCode { get; init; }
+    public required string CourseCode { get; init; }
     
     [MaxLength(2)]
-    public string OptionName { get; init; }
+    public required string OptionName { get; init; }
     
-    public List<CourseOptionClassSession> CourseOptionsClassSessions { get; init; }
+    public required List<CourseOptionClassSession> CourseOptionsClassSessions { get; init; }
 }
 
-[Keyless]
 public class CourseOptionClassSession
 {
+    public int Id { get; init; }
+    
     [MaxLength(5)]
     public required string StartingTime { get; init; }
     
-    public required Weekday Weekday { get; init; }
+    public required short Weekday { get; init; }
     
     public required short Periods { get; init; }
     
     public string? Location { get; set; }
+    
+    [ForeignKey(nameof(CourseOption))]
+    public int CourseOptionId { get; init; }
 }
 
 internal class AppDatabase : DbContext
@@ -89,6 +92,30 @@ public class TestAppDatabase
         var db = new AppDatabase();
         var options = await db.CourseOptions.ToListAsync(TestContext.CancellationToken);
         Console.WriteLine($"Found {options.Count} course options!");
+    }
+
+    [TestMethod]
+    public void TestAddCourseOption()
+    {
+        var classSession = new CourseOptionClassSession
+        {
+            Periods = 2,
+            StartingTime = "13:30",
+            Weekday = 3
+        };
+        var courseOption = new CourseOption
+        {
+            CourseCode = "INF01202", // Example of a course code that exists.
+            OptionName = "B",
+            CourseOptionsClassSessions = [classSession]
+        };
+
+        var db = new AppDatabase();
+        
+        var transaction = db.Database.BeginTransaction();
+        db.CourseOptions.Add(courseOption);
+        db.SaveChanges();
+        transaction.Rollback();
     }
 
     public TestContext TestContext { get; set; }

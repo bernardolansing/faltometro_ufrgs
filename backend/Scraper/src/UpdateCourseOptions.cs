@@ -9,12 +9,15 @@ namespace Scraper;
 
 public class UpdateCourseOptions
 {
+    private static readonly List<string> Weekdays = ["Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
+    
     public async Task Handler(string sessionId)
     {
         const string pageUri = "https://www1.ufrgs.br/intranet/portal/public/index.php?cods=1,1,1,224";
         
         var stopwatch = Stopwatch.StartNew();
         var client = new ScraperClient(sessionId);
+        var db = new AppDatabase();
         
         // This page contains a select menu with all graduation programs. To each program is assigned an identification.
         var classOptionsPerProgramPage = await client.FetchAndParseHtml(pageUri);
@@ -72,9 +75,13 @@ public class UpdateCourseOptions
             foreach (var courseOption in optionsForThisProgram)
                 optionsBag.Add(courseOption);
         }));
+
+        Console.WriteLine($"Found {optionsBag.Count} course options in total");
+        Console.WriteLine("Adding them to the database now");
+        
+        db.CourseOptions.AddRange(optionsBag);
         
         Console.WriteLine($"Execution took {stopwatch.Elapsed.TotalSeconds}s");
-        Console.WriteLine($"Found {optionsBag.Count} course options in total");
     }
 
     /// <summary>
@@ -124,7 +131,7 @@ public class UpdateCourseOptions
                     var words = element.InnerHtml.Split(' ');
                     var newSession = new CourseOptionClassSession
                     {
-                        Weekday = WeekdayFromString(words[0]),
+                        Weekday = (short) Weekdays.IndexOf(words[0]),
                         StartingTime = words[1].Split('-')[0],
                         Periods = short.Parse(words[2])
                     };
@@ -154,17 +161,6 @@ public class UpdateCourseOptions
         return sessionsFound;
     }
 
-    private static Weekday WeekdayFromString(string weekdayStr) => weekdayStr switch
-    {
-        "Segunda" => Weekday.Mon,
-        "Terça" => Weekday.Tue,
-        "Quarta" => Weekday.Wed,
-        "Quinta" => Weekday.Thu,
-        "Sexta" => Weekday.Fri,
-        "Sábado" => Weekday.Sat,
-        _ => throw new Exception("Tried to deserialize unknown weekday name: " + weekdayStr)
-    };
-
     [TestClass]
     public class UpdateCourseOptionsTest
     {
@@ -183,7 +179,7 @@ public class UpdateCourseOptions
             ";
             var expectedResponse = new CourseOptionClassSession
             {
-                Weekday = Weekday.Mon,
+                Weekday = 0,
                 StartingTime = "18:30",
                 Periods = 4,
                 Location = "310 SALA DE AULA - Campus: Saúde"
@@ -206,21 +202,21 @@ public class UpdateCourseOptions
                 new()
                 {
                     Location = "Sala de aula 062 - Campus: Centro",
-                    Weekday = Weekday.Mon,
+                    Weekday = 0,
                     Periods = 2,
                     StartingTime = "7:30",
                 },
                 new()
                 {
                     Location = "Sala de aula 062 - Campus: Centro",
-                    Weekday = Weekday.Wed,
+                    Weekday = 3,
                     Periods = 2,
                     StartingTime = "7:30",
                 },
                 new()
                 {
                     Location = "Sala de aula 062 - Campus: Centro",
-                    Weekday = Weekday.Fri,
+                    Weekday = 5,
                     Periods = 2,
                     StartingTime = "7:30",
                 }
