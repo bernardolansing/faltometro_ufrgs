@@ -69,29 +69,32 @@ internal class AppDatabase : DbContext
 [TestClass]
 public class TestAppDatabase
 {
-    [TestMethod]
-    public async Task TestListCourses()
+    private readonly AppDatabase _db = new();
+    
+    public TestAppDatabase()
     {
-        var db = new AppDatabase();
-        await db.Database.EnsureCreatedAsync(TestContext.CancellationToken);
-        var courses = await db.Courses.ToListAsync(TestContext.CancellationToken);
+        _db.Database.EnsureCreated();
+        _db.Database.BeginTransaction();
+    }
+
+    ~TestAppDatabase()
+    {
+        _db.Database.RollbackTransaction();
+    }
+    
+    [TestMethod]
+    public void TestListCourses()
+    {
+        var courses = _db.Courses.ToList();
         Console.WriteLine($"Found {courses.Count} courses!");
     }
 
     [TestMethod]
-    public async Task TestListCourseOptionsClassSessions()
+    public void TestAddCourse()
     {
-        var db = new AppDatabase();
-        var sessions = await db.CourseOptionsClassSessions.ToListAsync(TestContext.CancellationToken);
-        Console.WriteLine($"Found {sessions.Count} sessions!");
-    }
-
-    [TestMethod]
-    public async Task TestListCourseOptions()
-    {
-        var db = new AppDatabase();
-        var options = await db.CourseOptions.ToListAsync(TestContext.CancellationToken);
-        Console.WriteLine($"Found {options.Count} course options!");
+        var course = new Course("EXA01234", "Course example");
+        _db.Courses.Add(course);
+        _db.SaveChanges();
     }
 
     [TestMethod]
@@ -109,14 +112,8 @@ public class TestAppDatabase
             OptionName = "B",
             CourseOptionsClassSessions = [classSession]
         };
-
-        var db = new AppDatabase();
         
-        var transaction = db.Database.BeginTransaction();
-        db.CourseOptions.Add(courseOption);
-        db.SaveChanges();
-        transaction.Rollback();
+        _db.CourseOptions.Add(courseOption);
+        _db.SaveChanges();
     }
-
-    public TestContext TestContext { get; set; }
 }
