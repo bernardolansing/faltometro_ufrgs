@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using AngleSharp.Dom;
 using AngleSharp.Html.Dom;
@@ -12,6 +13,7 @@ public class UpdateCourseOptions
     {
         const string pageUri = "https://www1.ufrgs.br/intranet/portal/public/index.php?cods=1,1,1,224";
         
+        var stopwatch = Stopwatch.StartNew();
         var client = new ScraperClient(sessionId);
         
         // This page contains a select menu with all graduation programs. To each program is assigned an identification.
@@ -19,8 +21,9 @@ public class UpdateCourseOptions
         var graduationProgramsCodes = classOptionsPerProgramPage.QuerySelectorAll("#selecionado option")
             .Select(option => option.GetAttribute("value")!)
             .Skip(1); // The first option is a bogus "pick a course" that doesn't do a thing.
-        
-        foreach (var programCode in graduationProgramsCodes)
+
+        var optionsBag = new ConcurrentBag<CourseOption>();
+        await Task.WhenAll(graduationProgramsCodes.Select(async programCode =>
         {
             // To access the course options for a given program, we have to send a POST request to the same endpoint
             // as before, but with a urlencoded-form specifying the graduation program code that we want to fetch.
@@ -36,9 +39,9 @@ public class UpdateCourseOptions
                 if (programName == null)
                     throw new Exception("Failed to parse options for program code " + programCode);
                 Console.WriteLine($"Program named \"{programName}\" seems to be discontinued");
-                continue;
+                return;
             }
-            
+
             // Every row of this table contains information on a single course option. When a course has many options,
             // they'll all come in a sequence. However, only the first row will actually contain the code/name of the
             // course. Easy enough, we just have to cache it and update whenever a new course code is found.
@@ -50,7 +53,7 @@ public class UpdateCourseOptions
                 var courseCell = row.Children[0].InnerHtml;
                 if (courseCell.StartsWith('('))
                     currentCourseCode = courseCell.Substring(1, 8);
-                
+
                 var courseOptionName = row.Children[2].InnerHtml.Trim();
                 var classSessionsInfo = row.Children[8].Children[0];
                 var classSessions = GetClassSessionsFromTableCell(classSessionsInfo);
@@ -62,10 +65,16 @@ public class UpdateCourseOptions
                 };
                 optionsForThisProgram.Add(newCourse);
             }
-            
+
             if (programName != null)
                 Console.WriteLine($"Found {optionsForThisProgram.Count} course options for program {programName}");
-        }
+
+            foreach (var courseOption in optionsForThisProgram)
+                optionsBag.Add(courseOption);
+        }));
+        
+        Console.WriteLine($"Execution took {stopwatch.Elapsed.TotalSeconds}s");
+        Console.WriteLine($"Found {optionsBag.Count} course options in total");
     }
 
     /// <summary>
