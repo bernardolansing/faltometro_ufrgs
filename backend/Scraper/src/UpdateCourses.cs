@@ -12,7 +12,7 @@ namespace Scraper;
 
 public class UpdateCourses
 {
-    private static readonly Regex CourseCodeRegex = new("^[A-Z]{3}\\d{5}$");
+    private static readonly Regex CourseCodeRegex = new(@"^[A-Z]{3}(\d{5}|\d{2}[A-Z]{1}\d{2})$");
     
     public async Task Handler()
     {
