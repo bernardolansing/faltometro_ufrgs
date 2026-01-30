@@ -3,6 +3,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Amazon.Lambda.Core;
 using AngleSharp.Dom;
+using AngleSharp.Html.Dom;
 using AngleSharp.Text;
 using Microsoft.EntityFrameworkCore;
 
@@ -39,24 +40,25 @@ public class UpdateCourses
             try
             {
                 var programPage = await client.FetchAndParseHtml(programPageUrl); // This is a page that
-                // displays different curriculum options for a program. As far as I'm aware, a curriculum is just a
-                // different selecion of mandatory courses among the courses offered by a program.
+                // displays different variations for the same program. We'll have to scan each one of the variations'
+                // curriculums.
+                var curriculumUrls = GetCurriculumUrlForEachProgramVariant(programPage);
 
-                // So, as our goal is to obtain a list of all courses that exists, we can just grab the first curriculum
-                // that we find and scrap data from there.
-                var curriculumUrl = programPage.QuerySelector("iframe")!.GetAttribute("src")!;
-
-                var curriculumPage = await client.FetchAndParseHtml(curriculumUrl); // Now we can finnaly extract some
-                // courses data.
-                var tableRows = curriculumPage.QuerySelectorAll(".modelo1even, .modelo1odd"); // Selects the body table
-                // rows. Not all of them are courses, but we can me the distinction.
-                var coursesForThisProgram = tableRows.Select(ParseTableRowCandidate)
-                    .Where(candidate => candidate != null);
-                foreach (var course in coursesForThisProgram)
+                await Task.WhenAll(curriculumUrls.Select(async currUrl =>
                 {
-                    var (courseCode, courseTitle) = course!.Value;
-                    courses.TryAdd(courseCode, courseTitle);
-                }
+                    var curriculumPage = await client.FetchAndParseHtml(currUrl); // Load the curriculum.
+                    var tableRows = curriculumPage.QuerySelectorAll(".modelo1even, .modelo1odd"); // Selects the body
+                    // table rows. Not all of them are courses, but we can me the distinction.
+                    
+                    // Extract all courses found for this curriculum, then try to add them to the dictionary.
+                    var coursesForThisProgram = tableRows.Select(ParseTableRowCandidate)
+                        .Where(candidate => candidate != null);
+                    foreach (var course in coursesForThisProgram)
+                    {
+                        var (courseCode, courseTitle) = course!.Value;
+                        courses.TryAdd(courseCode, courseTitle);
+                    }
+                }));
             }
             catch (Exception error)
             {
@@ -86,6 +88,20 @@ public class UpdateCourses
         }
             
         Console.WriteLine($"Execution took {stopwatch.Elapsed.TotalSeconds}s");
+    }
+
+    /// <summary>
+    /// For a given undergraduate program website, returns a URL for the curriculum of each of its variants.
+    /// </summary>
+    /// <param name="programPage">The serialized HTML document for the program's webpage.</param>
+    /// <returns>A list of URLs corresponding to the curriculums of the program's variations.</returns>
+    private static List<string> GetCurriculumUrlForEachProgramVariant(IHtmlDocument programPage)
+    {
+        var allIframes = programPage.QuerySelectorAll("iframe");
+        var urls = new List<string>();
+        for (var i = 0; i < allIframes.Length; i += 2)
+            urls.Add(allIframes[i].GetAttribute("src")!);
+        return urls;
     }
 
     private static (string, string)? ParseTableRowCandidate(IElement row)
