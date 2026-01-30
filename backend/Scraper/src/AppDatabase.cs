@@ -60,7 +60,7 @@ internal class AppDatabase : DbContext
                                 "connection details");
         
         var connectionString = $"Host={dbHost};Port={dbPort};Database=faltometro_ufrgs_db;Username={dbUser};" +
-                               $"Password={dbPassword};";
+                               $"Password={dbPassword};Include Error Detail=true;";
         optionsBuilder.UseNpgsql(connectionString)
             .UseSnakeCaseNamingConvention();
     }

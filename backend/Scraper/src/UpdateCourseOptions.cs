@@ -4,6 +4,7 @@ using AngleSharp.Dom;
 using AngleSharp.Html.Dom;
 using AngleSharp.Html.Parser;
 using DotNetEnv;
+using Microsoft.EntityFrameworkCore;
 
 namespace Scraper;
 
@@ -78,8 +79,12 @@ public class UpdateCourseOptions
 
         Console.WriteLine($"Found {optionsBag.Count} course options in total");
         Console.WriteLine("Adding them to the database now");
-        
-        db.CourseOptions.AddRange(optionsBag);
+
+        await db.Database.BeginTransactionAsync();
+        await db.CourseOptions.ExecuteDeleteAsync();
+        await db.CourseOptions.AddRangeAsync(optionsBag);
+        await db.SaveChangesAsync();
+        await db.Database.CommitTransactionAsync();
         
         Console.WriteLine($"Execution took {stopwatch.Elapsed.TotalSeconds}s");
     }
