@@ -1,3 +1,5 @@
 .idea/
 bin/
 obj/
+.env
+Backend.sln.DotSettings.user

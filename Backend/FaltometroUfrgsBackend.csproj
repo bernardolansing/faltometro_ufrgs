@@ -8,4 +8,12 @@
         <Company>bernardolansing</Company>
     </PropertyGroup>
 
+    <ItemGroup>
+      <PackageReference Include="AngleSharp" Version="1.4.0" />
+      <PackageReference Include="DotNetEnv" Version="3.1.1" />
+      <PackageReference Include="EFCore.NamingConventions" Version="10.0.1" />
+      <PackageReference Include="MSTest" Version="4.1.0" />
+      <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.0" />
+    </ItemGroup>
+
 </Project>

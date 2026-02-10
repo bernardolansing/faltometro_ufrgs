@@ -1,0 +1,22 @@
+meta {
+  name: Update course options
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{ENDPOINT}}/admin/update-course-options
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "ufrgs_session_id": "..."
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
