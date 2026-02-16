@@ -55,7 +55,9 @@ internal class ScraperClient
     {
         var responseBodyBytes = await response.Content.ReadAsByteArrayAsync();
         if (Enumerable.SequenceEqual(ExpiredSessionHtmlStr, responseBodyBytes))
-            throw new Exception("Provided session ID token is expired");
+            throw new InvalidUfrgsSessionToken();
         return Encoding.Latin1.GetString(responseBodyBytes);
     }
 }
+
+class InvalidUfrgsSessionToken : Exception;

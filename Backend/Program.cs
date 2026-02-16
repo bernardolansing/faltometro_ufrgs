@@ -10,7 +10,9 @@ mvcBuilder.AddJsonOptions(options =>
     options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower;
 });
 mvcBuilder.Services.AddDbContext<AppDatabase>();
+mvcBuilder.Services.AddExceptionHandler<ExceptionHandler>();
 
 var app = builder.Build();
+app.UseExceptionHandler(_ => {});
 app.MapControllers();
 app.Run();
