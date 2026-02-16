@@ -3,4 +3,5 @@ TestResults/
 bin/
 obj/
 .env
+terraform/.terraform
 Backend.sln.DotSettings.user
