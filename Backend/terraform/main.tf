@@ -16,6 +16,18 @@ terraform {
 locals {
   project_id = "faltometro-ufrgs"
   region     = "southamerica-east1"
+  backend_image_name = "faltometro-ufrgs-backend"
+  // The Docker image tag to be used by the Cloud Run Service. If new-backend-image-tag is specified, it uses it;
+  // otherwise, the current tag in Terraform state is going to be used. This way, it's not necessary to provide the
+  // current image tag along with its digest every time we want to apply and the Cloud Run Service is only going to be
+  // updated when a new tag is provided.
+  backend_image_tag = var.new-backend-image-tag == null ? lookup(data.terraform_remote_state.current_state.outputs, "current-backend-service-image") : var.new-backend-image-tag
+}
+
+variable "new-backend-image-tag" {
+  type = string
+  description = "If set, updates the Docker image tag to be used by the backend Cloud Run Service that runs our web server"
+  default = null
 }
 
 provider "google" {
@@ -56,7 +68,7 @@ resource "google_project_iam_member" "cloud-run-service-account-roles" {
 // This uses Google Artifact Registry to create a Docker image repository. The images to be stored there run our web
 // server. The "latest" image is the one to be used.
 resource "google_artifact_registry_repository" "backend-image-repo" {
-  location      = "southamerica-east1"
+  location      = local.region
   repository_id = "backend-image"
   format        = "Docker"
 
@@ -74,10 +86,7 @@ resource "google_cloud_run_v2_service" "backend-service" {
   template {
     service_account = google_service_account.cloud-run-service-account.email
     containers {
-      // The URL pointing to the Docker image that runs the backend code. This is the most recent image pushed to the
-      // "backend-image-repo" Artifact Registry repository. Please make sure to build the image using this URL (after
-      // interpolation) as tag.
-      image = "${local.region}-docker.pkg.dev/${local.project_id}/${google_artifact_registry_repository.backend-image-repo.repository_id}/faltometro-ufrgs-backend:latest"
+      image = local.backend_image_tag
     }
   }
   deletion_protection = false
@@ -107,4 +116,22 @@ resource "google_secret_manager_secret" "database-creds-secret" {
   }
 
   depends_on = [google_project_service.project-services]
+}
+
+data "google_artifact_registry_docker_image" "latest-backend-image" {
+  image_name    = local.backend_image_name
+  location      = local.region
+  repository_id = google_artifact_registry_repository.backend-image-repo.repository_id
+}
+
+data "terraform_remote_state" "current_state" {
+  backend = "gcs"
+  config = {
+    bucket = "faltometro-ufrgs-terraform-state-bucket"
+  }
+}
+
+output "current-backend-service-image" {
+  description = "The digest of the currently in use Docker image running the Cloud Run web server"
+  value = data.google_artifact_registry_docker_image.latest-backend-image.self_link
 }
