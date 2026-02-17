@@ -1,6 +1,8 @@
 using System.Text.Json;
 using FaltometroUfrgsBackend.Services;
 
+DotNetEnv.Env.TraversePath().Load();
+
 var builder = WebApplication.CreateBuilder(args);
 
 var mvcBuilder = builder.Services.AddControllers();
