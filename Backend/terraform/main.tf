@@ -15,7 +15,7 @@ terraform {
 
 locals {
   project_id = "faltometro-ufrgs"
-  region = "southamerica-east1"
+  region     = "southamerica-east1"
 }
 
 provider "google" {
@@ -38,7 +38,7 @@ resource "google_project_service" "project-services" {
 
 // Create a service account to be used by Cloud Run. A service account is a set of privilleges granted to its "members".
 resource "google_service_account" "cloud-run-service-account" {
-  account_id = "cloud-run-service-account"
+  account_id   = "cloud-run-service-account"
   display_name = "Google Cloud Run service account"
 }
 
@@ -68,6 +68,9 @@ resource "google_artifact_registry_repository" "backend-image-repo" {
 resource "google_cloud_run_v2_service" "backend-service" {
   name     = "backend-service"
   location = "southamerica-east1"
+  scaling {
+    min_instance_count = 0
+  }
   template {
     service_account = google_service_account.cloud-run-service-account.email
     containers {
@@ -93,9 +96,15 @@ resource "google_cloud_run_v2_service_iam_member" "backend-service-public-access
 // This creates a Secret Manager secret to store the production database connection string. At first, it'll be empty and
 // you're going to have to set the connection string yourself manually. This spares us from caching it locally wherever
 // the terraform deployment takes place.
-resource "google_secret_manager_regional_secret" "database-creds-secret" {
-  location  = local.region
+resource "google_secret_manager_secret" "database-creds-secret" {
   secret_id = "database-creds-secret"
+  replication {
+    user_managed {
+      replicas {
+        location = local.region
+      }
+    }
+  }
 
   depends_on = [google_project_service.project-services]
 }
