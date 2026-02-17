@@ -13,9 +13,14 @@ terraform {
   }
 }
 
+locals {
+  project_id = "faltometro-ufrgs"
+  region = "southamerica-east1"
+}
+
 provider "google" {
-  project = "faltometro-ufrgs"
-  region  = "southamerica-east1"
+  project = local.project_id
+  region  = local.region
   zone    = "southamerica-east1-b"
 }
 
@@ -25,9 +30,27 @@ resource "google_project_service" "project-services" {
     "run.googleapis.com",
     "artifactregistry.googleapis.com",
     "iam.googleapis.com",
+    "secretmanager.googleapis.com",
   ])
 
   service = each.value
+}
+
+// Create a service account to be used by Cloud Run. A service account is a set of privilleges granted to its "members".
+resource "google_service_account" "cloud-run-service-account" {
+  account_id = "cloud-run-service-account"
+  display_name = "Google Cloud Run service account"
+}
+
+// Here we define which privilleges ("roles") are those. 
+resource "google_project_iam_member" "cloud-run-service-account-roles" {
+  for_each = toset([
+    "roles/secretmanager.secretAccessor", // Allow access to Secrets Manager secrets.
+  ])
+
+  member  = google_service_account.cloud-run-service-account.member
+  project = local.project_id
+  role    = each.value
 }
 
 // This uses Google Artifact Registry to create a Docker image repository. The images to be stored there run our web
@@ -46,8 +69,12 @@ resource "google_cloud_run_v2_service" "backend-service" {
   name     = "backend-service"
   location = "southamerica-east1"
   template {
+    service_account = google_service_account.cloud-run-service-account.email
     containers {
-      image = "southamerica-east1-docker.pkg.dev/faltometro-ufrgs/backend-image/faltometro-ufrgs-backend:latest"
+      // The URL pointing to the Docker image that runs the backend code. This is the most recent image pushed to the
+      // "backend-image-repo" Artifact Registry repository. Please make sure to build the image using this URL (after
+      // interpolation) as tag.
+      image = "${local.region}-docker.pkg.dev/${local.project_id}/${google_artifact_registry_repository.backend-image-repo.repository_id}/faltometro-ufrgs-backend:latest"
     }
   }
   deletion_protection = false
@@ -61,4 +88,14 @@ resource "google_cloud_run_v2_service_iam_member" "backend-service-public-access
   name     = google_cloud_run_v2_service.backend-service.name
   member   = "allUsers"
   role     = "roles/run.invoker"
+}
+
+// This creates a Secret Manager secret to store the production database connection string. At first, it'll be empty and
+// you're going to have to set the connection string yourself manually. This spares us from caching it locally wherever
+// the terraform deployment takes place.
+resource "google_secret_manager_regional_secret" "database-creds-secret" {
+  location  = local.region
+  secret_id = "database-creds-secret"
+
+  depends_on = [google_project_service.project-services]
 }
