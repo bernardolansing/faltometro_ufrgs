@@ -14,7 +14,7 @@ namespace FaltometroUfrgsBackend.Controllers;
 
 [ApiController]
 [Route("admin/update-course-options")]
-public class UpdateCourseOptionsController
+public class UpdateCourseOptionsController(AppDatabase db)
 {
     /// <summary>
     /// List of weekdays' names as they are found in the student dashboard.
@@ -33,7 +33,6 @@ public class UpdateCourseOptionsController
         
         var stopwatch = Stopwatch.StartNew();
         var client = new ScraperClient(body.UfrgsSessionId);
-        var db = new AppDatabase();
         
         // This page contains a select menu with all graduation programs. To each program is assigned an identification.
         var classOptionsPerProgramPage = await client.FetchAndParseHtml(pageUri);
@@ -253,8 +252,10 @@ public class UpdateCourseOptionsController
             var sessionId = Environment.GetEnvironmentVariable("UFRGS_SESSION_ID");
             if (string.IsNullOrEmpty(sessionId))
                 throw new Exception("Missing UFRGS_SESSION_ID environment variable!");
-        
-            var instance = new UpdateCourseOptionsController();
+
+            var localSecretsService = new LocalDevSecretProviderService();
+            var databaseService = new AppDatabase(localSecretsService);
+            var instance = new UpdateCourseOptionsController(databaseService);
             await instance.RunUpdate(new RequestBody { UfrgsSessionId = sessionId });
         }
         

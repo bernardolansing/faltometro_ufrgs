@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FaltometroUfrgsBackend.Services;
 
-internal class AppDatabase : DbContext
+public class AppDatabase(ISecretProviderService secretProviderService) : DbContext
 {
     internal DbSet<Course> Courses { get; init; }
     internal DbSet<CourseOption> CourseOptions { get; init; }
@@ -11,17 +11,8 @@ internal class AppDatabase : DbContext
     
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        DotNetEnv.Env.TraversePath().Load();
-        var dbHost = Environment.GetEnvironmentVariable("DB_HOST");
-        var dbPort = Environment.GetEnvironmentVariable("DB_PORT");
-        var dbUser = Environment.GetEnvironmentVariable("DB_USER");
-        var dbPassword = Environment.GetEnvironmentVariable("DB_PASSWORD");
-        if (dbHost == null || dbPort == null || dbUser == null || dbPassword == null)
-            throw new Exception("At least one of the Database credentials are null. Please populate .env with the " +
-                                "connection details");
-        
-        var connectionString = $"Host={dbHost};Port={dbPort};Database=faltometro_ufrgs_db;Username={dbUser};" +
-                               $"Password={dbPassword};Include Error Detail=true;";
+        Console.WriteLine("Starting AppDatabase service");
+        var connectionString = secretProviderService.GetDatabaseConnectionString();
         optionsBuilder.UseNpgsql(connectionString)
             .UseSnakeCaseNamingConvention();
     }
@@ -30,7 +21,7 @@ internal class AppDatabase : DbContext
 [TestClass]
 public class TestAppDatabase
 {
-    private readonly AppDatabase _db = new();
+    private readonly AppDatabase _db = new(new LocalDevSecretProviderService());
     
     public TestAppDatabase()
     {

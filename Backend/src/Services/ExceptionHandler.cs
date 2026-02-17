@@ -6,6 +6,11 @@ namespace FaltometroUfrgsBackend.Services;
 
 public class ExceptionHandler : IExceptionHandler
 {
+    public ExceptionHandler()
+    {
+        Console.WriteLine("Starting ExceptionHandler service");
+    }
+    
     public async ValueTask<bool> TryHandleAsync(HttpContext context, Exception exception, CancellationToken cancelToken)
     {
         HttpStatusCode statusCode;

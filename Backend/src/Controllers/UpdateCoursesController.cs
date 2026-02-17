@@ -14,7 +14,7 @@ namespace FaltometroUfrgsBackend.Controllers;
 
 [ApiController]
 [Route("admin/update-courses")]
-public class UpdateCoursesController
+public class UpdateCoursesController(AppDatabase db)
 {
     private static readonly Regex CourseCodeRegex = new(@"^[A-Z]{3}(\d{5}|\d{2}[A-Z]{1}\d{2})$");
     
@@ -23,7 +23,6 @@ public class UpdateCoursesController
     {
         var stopwatch = System.Diagnostics.Stopwatch.StartNew();
         var client = new ScraperClient();
-        var db = new AppDatabase();
         
         // Fetch a list of UFRGS graduation programs.
         var graduationProgramsPage = await client.FetchAndParseHtml("https://www.ufrgs.br/site/ensino/graduacao/");
@@ -156,7 +155,9 @@ public class UpdateCoursesTest
     [TestMethod]
     public async Task ExecuteUpdateCourses()
     {
-        var instance = new UpdateCoursesController();
+        var localSecretsService = new LocalDevSecretProviderService();
+        var databaseService = new AppDatabase(localSecretsService);
+        var instance = new UpdateCoursesController(databaseService);
         await instance.RunUpdate();
     }
 }

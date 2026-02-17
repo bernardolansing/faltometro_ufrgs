@@ -1,7 +1,12 @@
 using System.Text.Json;
 using FaltometroUfrgsBackend.Services;
 
-DotNetEnv.Env.TraversePath().Load();
+DotNetEnv.Env.TraversePath().Load(); // Load environment variables from .env file.
+
+var runningOnCloudRun = Environment.GetEnvironmentVariable("K_SERVICE") != null; // This environment variable is set
+// when we're running on production Cloud Run. You can also set it locally to pretend that we're running on cloud. This,
+// however, requires a configured gcloud service account in your system and CAUTION!!!: it's going to use the production
+// database.
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +16,14 @@ mvcBuilder.AddJsonOptions(options =>
     options.JsonSerializerOptions.AllowDuplicateProperties = false;
     options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower;
 });
+if (runningOnCloudRun)
+{
+    var prodService = new ProductionSecretProviderService();
+    await prodService.InitAsync();
+    mvcBuilder.Services.AddSingleton<ISecretProviderService>(prodService);
+}
+else
+    mvcBuilder.Services.AddSingleton<ISecretProviderService, LocalDevSecretProviderService>();
 mvcBuilder.Services.AddDbContext<AppDatabase>();
 mvcBuilder.Services.AddExceptionHandler<ExceptionHandler>();
 

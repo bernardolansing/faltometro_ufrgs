@@ -3,13 +3,18 @@ using Google.Cloud.SecretManager.V1;
 
 namespace FaltometroUfrgsBackend.Services;
 
-internal interface ISecretProvider
+public interface ISecretProviderService
 {
     string GetDatabaseConnectionString();
 }
 
-internal class LocalDevSecretProvider : ISecretProvider
+public class LocalDevSecretProviderService : ISecretProviderService
 {
+    public LocalDevSecretProviderService()
+    {
+        Console.WriteLine("Starting LocalDevSecretProvider service");
+    }
+    
     public string GetDatabaseConnectionString()
     {
         var dbHost = Environment.GetEnvironmentVariable("DB_HOST");
@@ -26,23 +31,21 @@ internal class LocalDevSecretProvider : ISecretProvider
     }
 }
 
-internal class ProductionSecretProvider : ISecretProvider, IHostedService
+public class ProductionSecretProviderService : ISecretProviderService
 {
     private const string ProjectId = "faltometro-ufrgs";
     
     private string? _databaseConnectionString;
-    
-    public async Task StartAsync(CancellationToken cancellationToken)
+
+    internal async Task InitAsync()
     {
         Console.WriteLine("Starting ProductionSecretProvider service");
-        var secretManagerClient = await SecretManagerServiceClient.CreateAsync(cancellationToken);
+        var secretManagerClient = await SecretManagerServiceClient.CreateAsync();
         
         var dbCredsSecretResponse = await secretManagerClient
             .AccessSecretVersionAsync(new SecretVersionName(ProjectId, "database-creds-secret", "latest"));
         _databaseConnectionString = Encoding.UTF8.GetString(dbCredsSecretResponse.Payload.Data.ToByteArray());
     }
-
-    public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 
     public string GetDatabaseConnectionString() => _databaseConnectionString!;
 }
@@ -50,12 +53,10 @@ internal class ProductionSecretProvider : ISecretProvider, IHostedService
 [TestClass]
 public class SecretProviderTests
 {
-    public TestContext TestContext { get; set; }
-    
     [TestMethod]
     public void TestLocalDevSecretsProvider()
     {
-        var provider = new LocalDevSecretProvider();
+        var provider = new LocalDevSecretProviderService();
         
         // First we check if it breaks if at least one of the required environment variables are not set.
         Environment.SetEnvironmentVariable("DB_HOST", null);
@@ -77,8 +78,8 @@ public class SecretProviderTests
     [TestMethod]
     public async Task TestProductionSecretProvider()
     {
-        var provider = new ProductionSecretProvider();
-        await provider.StartAsync(TestContext.CancellationToken);
+        var provider = new ProductionSecretProviderService();
+        await provider.InitAsync();
         Assert.IsNotEmpty(provider.GetDatabaseConnectionString());
     }
 }
