@@ -16,7 +16,7 @@ namespace FaltometroUfrgsBackend.Controllers;
 [Route("admin/update-courses")]
 public class UpdateCoursesController(AppDatabase db)
 {
-    private static readonly Regex CourseCodeRegex = new(@"^[A-Z]{3}(\d{5}|\d{2}[A-Z]{1}\d{2})$");
+    private static readonly Regex CourseCodeRegex = new("^[A-Z0-9]{8}$");
     
     [HttpPost]
     public async Task RunUpdate()

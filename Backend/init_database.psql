@@ -4,7 +4,7 @@ CREATE TABLE courses (
     code CHAR(8) PRIMARY KEY,
     title TEXT NOT NULL,
     
-    CHECK (code ~ '^[A-Z]{3}(\d{5}|\d{2}[A-Z]{1}\d{2})$')
+    CHECK (code ~ '^[A-Z0-9]{8}$')
 );
 
 CREATE TABLE course_options (
