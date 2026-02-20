@@ -1,4 +1,3 @@
-using System.Collections.Concurrent;
 using System.Diagnostics;
 using AngleSharp.Dom;
 using AngleSharp.Html.Dom;
@@ -40,7 +39,19 @@ public class UpdateCourseOptionsController(AppDatabase db)
             .Select(option => option.GetAttribute("value")!)
             .Skip(1); // The first option is a bogus "pick a course" that doesn't do a thing.
 
-        var optionsBag = new ConcurrentBag<CourseOption>();
+        // While fetching course options, weirdly we might find options for courses that don't exist in the programs'
+        // curricula. Also, the same course option may be offered to multiple different programs. To get around both
+        // problems, we're going to fetch all valid course codes from DB and create a hash table from them. For each
+        // course code, we're going to add the corresponding offered options in a list.
+        var coursesAndOptions = new Dictionary<string, List<CourseOption>>();
+        var validCourseCodes = db.Courses.Select(course => course.Code)
+            .ToAsyncEnumerable();
+        await foreach (var courseCode in validCourseCodes)
+            coursesAndOptions.Add(courseCode, []);
+        uint validOptions = 0;
+        uint invalidOptions = 0; // Invalid options refer to course codes that were found in the offered options table,
+        // but were not already included in the database.
+        
         await Task.WhenAll(graduationProgramsCodes.Select(async programCode =>
         {
             // To access the course options for a given program, we have to send a POST request to the same endpoint
@@ -65,7 +76,6 @@ public class UpdateCourseOptionsController(AppDatabase db)
             // course. Easy enough, we just have to cache it and update whenever a new course code is found.
             var allRows = optionsTable.QuerySelectorAll(".modelo1odd, .modelo1even");
             var currentCourseCode = "";
-            var optionsForThisProgram = new List<CourseOption>();
             foreach (var row in allRows)
             {
                 var courseCell = row.Children[0].InnerHtml;
@@ -73,6 +83,19 @@ public class UpdateCourseOptionsController(AppDatabase db)
                     currentCourseCode = courseCell.Substring(1, 8);
 
                 var courseOptionName = row.Children[2].InnerHtml.Trim();
+
+                // We've found ourselves an invalid course. Let's just ignore them, there are too few of these.
+                if (!coursesAndOptions.TryGetValue(currentCourseCode, out var optionsForCurrentCourse))
+                {
+                    invalidOptions++;
+                    continue;
+                }
+
+                // Now let's verify that we haven't already added this option before, from another program.
+                if (optionsForCurrentCourse.Any(option => option.OptionName == courseOptionName))
+                    continue;
+                
+                // A new course option is found!
                 var classSessionsInfo = row.Children[8].Children[0];
                 var classSessions = GetClassSessionsFromTableCell(classSessionsInfo);
                 var newCourse = new CourseOption
@@ -81,22 +104,20 @@ public class UpdateCourseOptionsController(AppDatabase db)
                     OptionName = courseOptionName,
                     CourseOptionsClassSessions = classSessions
                 };
-                optionsForThisProgram.Add(newCourse);
+                optionsForCurrentCourse.Add(newCourse);
+                validOptions++;
             }
-
-            if (programName != null)
-                Console.WriteLine($"Found {optionsForThisProgram.Count} course options for program {programName}");
-
-            foreach (var courseOption in optionsForThisProgram)
-                optionsBag.Add(courseOption);
         }));
-
-        Console.WriteLine($"Found {optionsBag.Count} course options in total");
+        
+        Console.WriteLine($"Found {validOptions} course options in total");
         Console.WriteLine("Adding them to the database now");
-
+        Console.WriteLine($"{invalidOptions} options were invalid and will be discarded");
+        var allCourseOptions = coursesAndOptions.Values
+            .Aggregate(Enumerable.Empty<CourseOption>(), (acc, val) => acc.Concat(val));
+        
         await db.Database.BeginTransactionAsync();
         await db.CourseOptions.ExecuteDeleteAsync();
-        await db.CourseOptions.AddRangeAsync(optionsBag);
+        await db.CourseOptions.AddRangeAsync(allCourseOptions);
         await db.SaveChangesAsync();
         await db.Database.CommitTransactionAsync();
         
