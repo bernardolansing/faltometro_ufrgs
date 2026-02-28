@@ -1,11 +1,14 @@
 using System.Text;
 using Google.Cloud.SecretManager.V1;
+using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace FaltometroUfrgsBackend.Services;
 
 public interface ISecretProviderService
 {
     string GetDatabaseConnectionString();
+    
+    SupabaseSecrets GetSupabaseSecrets();
 }
 
 public class LocalDevSecretProviderService : ISecretProviderService
@@ -29,6 +32,24 @@ public class LocalDevSecretProviderService : ISecretProviderService
         return $"Host={dbHost};Port={dbPort};Database=faltometro_ufrgs_db;Username={dbUser};Password={dbPassword};" +
                $"Include Error Detail=true;";
     }
+
+    public SupabaseSecrets GetSupabaseSecrets()
+    {
+        var supabaseUrl = Environment.GetEnvironmentVariable("SUPABASE_URL");
+        var supabaseKey = Environment.GetEnvironmentVariable("SUPABASE_KEY");
+        var adminUserId = Environment.GetEnvironmentVariable("ADMIN_USER_ID");
+        
+        if (supabaseUrl == null || supabaseKey == null || adminUserId == null)
+            throw new Exception("At least one of the Supabase fields was not provided. Please populate .env with" +
+                                "Supabase credentials");
+
+        return new SupabaseSecrets
+        {
+            Url = supabaseUrl,
+            Key = supabaseKey,
+            AdminUserId = adminUserId
+        };
+    }
 }
 
 public class ProductionSecretProviderService : ISecretProviderService
@@ -36,18 +57,38 @@ public class ProductionSecretProviderService : ISecretProviderService
     private const string ProjectId = "faltometro-ufrgs";
     
     private string? _databaseConnectionString;
+    private SupabaseSecrets? _supabaseSecrets;
 
     internal async Task InitAsync()
     {
         Console.WriteLine("Starting ProductionSecretProvider service");
         var secretManagerClient = await SecretManagerServiceClient.CreateAsync();
         
-        var dbCredsSecretResponse = await secretManagerClient
-            .AccessSecretVersionAsync(new SecretVersionName(ProjectId, "database-creds-secret", "latest"));
-        _databaseConnectionString = Encoding.UTF8.GetString(dbCredsSecretResponse.Payload.Data.ToByteArray());
+        var dbSecretVersion = new SecretVersionName(ProjectId, "database-creds-secret", "latest");
+        var dbSecretTask = secretManagerClient.AccessSecretVersionAsync(dbSecretVersion);
+
+        var supabaseSecretVersion = new SecretVersionName(ProjectId, "supabase-secrets", "latest");
+        var supabaseSecretTask = secretManagerClient.AccessSecretVersionAsync(supabaseSecretVersion);
+        
+        await Task.WhenAll(dbSecretTask, supabaseSecretTask);
+        var dbCredsResponse = dbSecretTask.Result;
+        var supabaseCredsResponse = supabaseSecretTask.Result;
+        
+        _databaseConnectionString = Encoding.UTF8.GetString(dbCredsResponse.Payload.Data.ToByteArray());
+        _supabaseSecrets = JsonSerializer
+            .Deserialize<SupabaseSecrets>(supabaseCredsResponse.Payload.Data.ToByteArray());
     }
 
     public string GetDatabaseConnectionString() => _databaseConnectionString!;
+    
+    public SupabaseSecrets GetSupabaseSecrets() => _supabaseSecrets!;
+}
+
+public class SupabaseSecrets
+{
+    public required string Url { get; init; }
+    public required string Key { get; init; }
+    public required string AdminUserId { get; init; }
 }
 
 [TestClass]
