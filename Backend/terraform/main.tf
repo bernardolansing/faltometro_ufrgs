@@ -118,6 +118,23 @@ resource "google_secret_manager_secret" "database-creds-secret" {
   depends_on = [google_project_service.project-services]
 }
 
+// Now there's a tricky thing about deploying container images to the GCR service. We declared that the service must
+// run the "latest" backend-image-repo image. But in reality, upon deployment, this latest tag will be resolved to a
+// specific digest in the registry. So, releasing further images to the registry won't actually update the service by
+// itself, we have to update the assigned digest.
+
+// But we don't want to manually keep track of the latest digest. We do want to update the digest only when the server
+// code changed and a new Docker image was pushed to the registry. That's why we declared the nullable
+// "new-backend-image-tag" variable.
+
+// What we're going to then is to declare both the code Docker images registry and the Terraform current state as data
+// sources. From the remote state, we fetch the current Docker image digest that is used by the GCR service; for that
+// information to be available, we also have to declare it as an output. From the registry, we fetch the digest of the
+// latest Docker image, which, upon deployment, is the brand new uploaded image.
+
+// So, if the deployment variable was set, we update GCR service image digest. If not, we feed the same digest stored in
+// Terraform state, thus not triggering an update.
+
 data "google_artifact_registry_docker_image" "latest-backend-image" {
   image_name    = local.backend_image_name
   location      = local.region
