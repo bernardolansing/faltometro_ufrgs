@@ -118,6 +118,20 @@ resource "google_secret_manager_secret" "database-creds-secret" {
   depends_on = [google_project_service.project-services]
 }
 
+// And another secret, this one for storing information regarding Supabase. Also, has to be manually filled.
+resource "google_secret_manager_secret" "supabase-secrets" {
+  secret_id = "supabase-secrets"
+  replication {
+    user_managed {
+      replicas {
+        location = local.region
+      }
+    }
+  }
+  
+  depends_on = [google_project_service.project-services]
+}
+
 // Now there's a tricky thing about deploying container images to the GCR service. We declared that the service must
 // run the "latest" backend-image-repo image. But in reality, upon deployment, this latest tag will be resolved to a
 // specific digest in the registry. So, releasing further images to the registry won't actually update the service by
