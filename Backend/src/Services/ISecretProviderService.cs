@@ -1,5 +1,6 @@
 using System.Text;
 using Google.Cloud.SecretManager.V1;
+using Microsoft.IdentityModel.Tokens;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace FaltometroUfrgsBackend.Services;
@@ -35,19 +36,21 @@ public class LocalDevSecretProviderService : ISecretProviderService
 
     public SupabaseSecrets GetSupabaseSecrets()
     {
-        var supabaseUrl = Environment.GetEnvironmentVariable("SUPABASE_URL");
+        var supabaseProjectId = Environment.GetEnvironmentVariable("SUPABASE_PROJECT_ID");
         var supabaseKey = Environment.GetEnvironmentVariable("SUPABASE_KEY");
         var adminUserId = Environment.GetEnvironmentVariable("ADMIN_USER_ID");
+        var supabaseJwkStr = Environment.GetEnvironmentVariable("SUPABASE_JWK_STR");
         
-        if (supabaseUrl == null || supabaseKey == null || adminUserId == null)
+        if (supabaseProjectId == null || supabaseKey == null || adminUserId == null || supabaseJwkStr == null)
             throw new Exception("At least one of the Supabase fields was not provided. Please populate .env with" +
                                 "Supabase credentials");
 
         return new SupabaseSecrets
         {
-            Url = supabaseUrl,
+            ProjectId = supabaseProjectId,
             Key = supabaseKey,
-            AdminUserId = adminUserId
+            AdminUserId = adminUserId,
+            TokenIssuerKey = new JsonWebKey(supabaseJwkStr)
         };
     }
 }
@@ -86,9 +89,14 @@ public class ProductionSecretProviderService : ISecretProviderService
 
 public class SupabaseSecrets
 {
-    public required string Url { get; init; }
+    public required string ProjectId { get; init; }
     public required string Key { get; init; }
     public required string AdminUserId { get; init; }
+    public required JsonWebKey TokenIssuerKey { get; init; }
+
+    internal string GetProjectUrl() => $"https://{ProjectId}.supabase.com";
+
+    internal string GetTokenIssuerUrl() => $"https://{ProjectId}.supabase.co/auth/v1";
 }
 
 [TestClass]
@@ -97,6 +105,7 @@ public class SecretProviderTests
     [TestMethod]
     public void TestLocalDevSecretsProvider()
     {
+        DotNetEnv.Env.TraversePath().Load();
         var provider = new LocalDevSecretProviderService();
         
         // First we check if it breaks if at least one of the required environment variables are not set.
@@ -112,6 +121,8 @@ public class SecretProviderTests
                                 "Password=DB_PASSWORD;Include Error Detail=true;";
         var retrieved = provider.GetDatabaseConnectionString();
         Assert.AreEqual(expected, retrieved);
+
+        provider.GetSupabaseSecrets(); // Just to see if it's not going to throw any exception.
     }
     
     // Careful: this one is going to retrieve the actual production DB connection string. This will only be possible if
