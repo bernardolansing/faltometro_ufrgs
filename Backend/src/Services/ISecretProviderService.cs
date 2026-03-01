@@ -89,6 +89,8 @@ public class ProductionSecretProviderService : ISecretProviderService
 
 public class SupabaseSecrets
 {
+    public static readonly string[] TokenAudiences = ["authenticated"];
+    
     public required string ProjectId { get; init; }
     public required string Key { get; init; }
     public required string AdminUserId { get; init; }
