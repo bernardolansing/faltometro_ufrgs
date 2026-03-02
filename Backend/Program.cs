@@ -49,6 +49,7 @@ mvcBuilder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 var app = builder.Build();
 app.UseExceptionHandler(_ => {});
 app.UseAuthentication();
+app.UseAuthorization();
 app.MapControllers();
 
 // In Google Cloud Run we must serve the app in 0.0.0.0:PORT for it to work. If PORT envvar is not set, we are running

@@ -16,6 +16,8 @@ public class HomeController : Controller
             greet += "You are currently not signed in.";
         else
             greet += $"You are currently signed in as {userEmail.Value}.";
+        if (User.IsInRole("admin"))
+            greet += " You are an admin!";
         
         return greet;
     }

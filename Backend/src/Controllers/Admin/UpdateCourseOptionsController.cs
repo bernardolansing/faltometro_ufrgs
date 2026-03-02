@@ -6,12 +6,14 @@ using DotNetEnv;
 using FaltometroUfrgsBackend.Models;
 using FaltometroUfrgsBackend.Services;
 using FaltometroUfrgsBackend.Utils;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace FaltometroUfrgsBackend.Controllers;
 
 [ApiController]
+[Authorize(Roles = "admin")]
 [Route("admin/update-course-options")]
 public class UpdateCourseOptionsController(AppDatabase db)
 {
