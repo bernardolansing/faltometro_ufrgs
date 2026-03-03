@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace FaltometroUfrgsBackend.Controllers;
+namespace FaltometroUfrgsBackend.Controllers.Admin;
 
 [ApiController]
 [Authorize(Roles = "admin")]
@@ -116,10 +116,14 @@ public class UpdateCourseOptionsController(AppDatabase db)
         Console.WriteLine($"{invalidOptions} options were invalid and will be discarded");
         var allCourseOptions = coursesAndOptions.Values
             .Aggregate(Enumerable.Empty<CourseOption>(), (acc, val) => acc.Concat(val));
-        
+
+        var newGenerationNumber = new Random()
+            .Next(0, int.MaxValue);
         await db.Database.BeginTransactionAsync();
         await db.CourseOptions.ExecuteDeleteAsync();
         await db.CourseOptions.AddRangeAsync(allCourseOptions);
+        await db.Generations.Where(g => g.Id == Generation.CourseOptionsGenerationId)
+            .ExecuteUpdateAsync(s => s.SetProperty(g => g.GenerationNumber, newGenerationNumber));
         await db.SaveChangesAsync();
         await db.Database.CommitTransactionAsync();
         

@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace FaltometroUfrgsBackend.Controllers;
+namespace FaltometroUfrgsBackend.Controllers.Admin;
 
 [ApiController]
 [Authorize(Roles = "admin")]
@@ -77,12 +77,17 @@ public class UpdateCoursesController(AppDatabase db)
         Console.WriteLine($"Found {courses.Count} courses across {gProgramCards.Count - errors} programs.");
 
         // Now, if no errors ocurred, we're going to clear the courses table from the database and populate it again
-        // with the updated list of courses.
+        // with the updated list of courses. Note that we're also generating a new generation number, so that the API
+        // consumers will know the database was updated.
         if (errors == 0)
         {
             Console.WriteLine("Repopulating courses table in database");
+            var newGenerationNumber = new Random()
+                .Next(0, int.MaxValue);
             var transaction = await db.Database.BeginTransactionAsync();
             await db.Courses.ExecuteDeleteAsync();
+            await db.Generations.Where(g => g.Id == Generation.CoursesGenerationId)
+                .ExecuteUpdateAsync(s => s.SetProperty(g => g.GenerationNumber, newGenerationNumber));
             await db.Courses.AddRangeAsync(courses.Select(pair => new Course(pair.Key, pair.Value)));
             await db.SaveChangesAsync();
             await transaction.CommitAsync();
