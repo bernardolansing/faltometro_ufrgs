@@ -16,6 +16,7 @@ public class LocalDevSecretProviderService : ISecretProviderService
 {
     public LocalDevSecretProviderService()
     {
+        DotNetEnv.Env.TraversePath().Load();
         Console.WriteLine("Starting LocalDevSecretProvider service");
     }
     
@@ -107,7 +108,6 @@ public class SecretProviderTests
     [TestMethod]
     public void TestLocalDevSecretsProvider()
     {
-        DotNetEnv.Env.TraversePath().Load();
         var provider = new LocalDevSecretProviderService();
         
         // First we check if it breaks if at least one of the required environment variables are not set.

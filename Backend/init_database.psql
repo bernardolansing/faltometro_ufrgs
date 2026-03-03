@@ -26,3 +26,12 @@ CREATE TABLE course_options_class_sessions (
     CHECK (periods > 0),
     CHECK (starting_time ~ '^(?:[01]?[0-9]|2[0-3]):[0-5][0-9]$')
 );
+
+-- This table is meant for checking whether front end caches are updated or not. Every time a scraped table is
+-- repopulated, a new generation number is assigned.
+CREATE TABLE generations (
+    id TEXT PRIMARY KEY,
+    generation_number INT NOT NULL
+);
+INSERT INTO generations VALUES ('courses', random(0, 2147483647));
+INSERT INTO generations VALUES ('course_options', random(0, 2147483647));

@@ -8,6 +8,7 @@ public class AppDatabase(ISecretProviderService secretProviderService) : DbConte
     internal DbSet<Course> Courses { get; init; }
     internal DbSet<CourseOption> CourseOptions { get; init; }
     internal DbSet<CourseOptionClassSession> CourseOptionsClassSessions { get; init; }
+    internal DbSet<Generation> Generations { get; init; }
     
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -39,6 +40,14 @@ public class TestAppDatabase
     {
         var courses = _db.Courses.ToList();
         Console.WriteLine($"Found {courses.Count} courses!");
+    }
+
+    [TestMethod]
+    public void TestListGenerations()
+    {
+        var generations = _db.Generations.ToList();
+        foreach (var generation in generations)
+            Console.WriteLine($"Generation {generation.Id} -> {generation.GenerationNumber}");
     }
 
     [TestMethod]
