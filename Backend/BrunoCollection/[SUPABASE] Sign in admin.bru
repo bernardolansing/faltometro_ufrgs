@@ -1,5 +1,5 @@
 meta {
-  name: [SUPABASE] Sign in
+  name: [SUPABASE] Sign in admin
   type: http
   seq: 4
 }
@@ -23,14 +23,6 @@ body:json {
     "email": "{{ADMIN_EMAIL}}",
     "password": "{{ADMIN_PASSWORD}}"
   }
-}
-
-script:post-response {
-  if (res.status == 200) {
-    const data = res.getBody();
-    bru.setEnvVar("BEARER_TOKEN", data.access_token);
-  }
-  
 }
 
 settings {
