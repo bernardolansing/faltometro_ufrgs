@@ -7,7 +7,11 @@ meta {
 post {
   url: {{ENDPOINT}}/admin/update-course-options
   body: json
-  auth: inherit
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{BEARER_TOKEN}}
 }
 
 body:json {
