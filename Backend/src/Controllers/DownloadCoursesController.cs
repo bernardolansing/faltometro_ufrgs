@@ -1,7 +1,7 @@
+using System.Text;
 using System.Text.Json;
 using FaltometroUfrgsBackend.Models;
 using FaltometroUfrgsBackend.Services;
-using Google.Rpc.Context;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,10 +9,10 @@ namespace FaltometroUfrgsBackend.Controllers;
 
 [ApiController]
 [Route("download-courses")]
-public class DownloadCoursesController(AppDatabase db)
+public class DownloadCoursesController(AppDatabase db) : Controller
 {
     [HttpGet]
-    public async Task<ActionResult<string>> Get([FromQuery] uint? generation)
+    public async Task Get([FromQuery] uint? generation)
     {
         // User has submitted a generation number, we must check if it matches with the most recent generation.
         if (generation != null)
@@ -22,10 +22,14 @@ public class DownloadCoursesController(AppDatabase db)
                 .ToListAsync();
             // User already has the most recent courses downloaded:
             if (generation == result.First())
-                return new NoContentResult();
+                return;
         }
-        
-        var allCourses = await db.Courses.ToArrayAsync();
-        return string.Join("\n", allCourses.Select(course => JsonSerializer.Serialize(course)));
+
+        await foreach (var course in db.Courses.AsAsyncEnumerable())
+        {
+            var line = JsonSerializer.Serialize(course) + '\n';
+            var mem = new ReadOnlyMemory<byte>(Encoding.UTF8.GetBytes(line));
+            await Response.BodyWriter.WriteAsync(mem);
+        }
     }
 }
