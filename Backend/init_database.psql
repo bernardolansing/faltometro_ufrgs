@@ -19,7 +19,7 @@ CREATE TABLE course_options_class_sessions (
     id INT GENERATED ALWAYS AS IDENTITY,
     course_option_id INT REFERENCES course_options ON DELETE CASCADE,
     starting_time VARCHAR(5) NOT NULL,
-    weekday CHAR NOT NULL,
+    weekday SMALLINT NOT NULL,
     periods SMALLINT NOT NULL,
     location TEXT,
 
