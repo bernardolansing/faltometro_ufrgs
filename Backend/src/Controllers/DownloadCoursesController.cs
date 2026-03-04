@@ -11,6 +11,15 @@ namespace FaltometroUfrgsBackend.Controllers;
 [Route("download-courses")]
 public class DownloadCoursesController(AppDatabase db) : Controller
 {
+    /// <summary>
+    /// Retrieves (if necessary) the list of courses from the database, by streaming.
+    ///
+    /// First of all, if the provided generation number is updated, the response is a no-body 200. Otherwise, the
+    /// response is a stream of JSON lines (JSONL, in other words each line is a serialized JSON object), each one
+    /// corresponding to a course. This allows the consumer to process data on-the-fly.
+    /// </summary>
+    /// <param name="generation">The courses list generation number that the consumer currently has downloaded. If
+    /// updated, there'll be no need for a response.</param>
     [HttpGet]
     public async Task Get([FromQuery] uint? generation)
     {
