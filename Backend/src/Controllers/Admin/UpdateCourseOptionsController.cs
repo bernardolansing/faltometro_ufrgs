@@ -14,7 +14,7 @@ namespace FaltometroUfrgsBackend.Controllers.Admin;
 
 [ApiController]
 [Authorize(Roles = "admin")]
-[Route("admin/update-course-options")]
+[Route("Admin/UpdateCourseOptions")]
 public class UpdateCourseOptionsController(AppDatabase db)
 {
     /// <summary>

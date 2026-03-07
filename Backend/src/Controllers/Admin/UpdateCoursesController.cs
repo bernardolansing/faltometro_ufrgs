@@ -14,7 +14,7 @@ namespace FaltometroUfrgsBackend.Controllers.Admin;
 
 [ApiController]
 [Authorize(Roles = "admin")]
-[Route("admin/update-courses")]
+[Route("Admin/UpdateCourses")]
 public class UpdateCoursesController(AppDatabase db)
 {
     private static readonly Regex CourseCodeRegex = new("^[A-Z0-9]{8}$");

@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 namespace FaltometroUfrgsBackend.Controllers;
 
 [ApiController]
-[Route("download-course-options")]
+[Route("DownloadCourseOptions")]
 public class DownloadCourseOptionsController(AppDatabase db) : Controller
 {
     /// <summary>
