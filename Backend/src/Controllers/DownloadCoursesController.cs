@@ -12,7 +12,7 @@ namespace FaltometroUfrgsBackend.Controllers;
 public class DownloadCoursesController(AppDatabase db) : Controller
 {
     /// <summary>
-    /// Retrieves (if necessary) the list of courses from the database, by streaming.
+    /// Streams (if necessary) the list of courses from the database.
     ///
     /// First of all, if the provided generation number is updated, the response is a no-body 200. Otherwise, the
     /// response is a stream of JSON lines (JSONL, in other words each line is a serialized JSON object), each one

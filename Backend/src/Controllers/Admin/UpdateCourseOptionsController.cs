@@ -18,7 +18,7 @@ namespace FaltometroUfrgsBackend.Controllers.Admin;
 public class UpdateCourseOptionsController(AppDatabase db)
 {
     /// <summary>
-    /// List of weekdays' names as they are found in the student dashboard.
+    /// List of weekdays' names as they are found in the student's dashboard.
     /// </summary>
     private static readonly List<string> Weekdays = ["Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
     
@@ -32,18 +32,19 @@ public class UpdateCourseOptionsController(AppDatabase db)
     {
         const string pageUri = "https://www1.ufrgs.br/intranet/portal/public/index.php?cods=1,1,1,224";
         
+        Console.WriteLine("Commencing update on course options list");
         var stopwatch = Stopwatch.StartNew();
         var client = new ScraperClient(body.UfrgsSessionId);
         
-        // This page contains a select menu with all graduation programs. To each program is assigned an identification.
+        // This page contains a select menu with all undergrad programs. To each program is assigned an identification.
         var classOptionsPerProgramPage = await client.FetchAndParseHtml(pageUri);
-        var graduationProgramsCodes = classOptionsPerProgramPage.QuerySelectorAll("#selecionado option")
+        var undergradProgramsCodes = classOptionsPerProgramPage.QuerySelectorAll("#selecionado option")
             .Select(option => option.GetAttribute("value")!)
-            .Skip(1); // The first option is a bogus "pick a course" that doesn't do a thing.
+            .Skip(1); // The first option is a bogus "pick a course" that should be discarded.
 
         // While fetching course options, weirdly we might find options for courses that don't exist in the programs'
         // curricula. Also, the same course option may be offered to multiple different programs. To get around both
-        // problems, we're going to fetch all valid course codes from DB and create a hash table from them. For each
+        // problems, we're going to fetch all valid course codes from DB and create a dictionary from them. For each
         // course code, we're going to add the corresponding offered options in a list.
         var coursesAndOptions = new Dictionary<string, List<CourseOption>>();
         var validCourseCodes = db.Courses.Select(course => course.Code)
@@ -52,16 +53,16 @@ public class UpdateCourseOptionsController(AppDatabase db)
             coursesAndOptions.Add(courseCode, []);
         uint validOptions = 0;
         uint invalidOptions = 0; // Invalid options refer to course codes that were found in the offered options table,
-        // but were not already included in the database.
+        // but were not included in the database.
         
-        await Task.WhenAll(graduationProgramsCodes.Select(async programCode =>
+        await Task.WhenAll(undergradProgramsCodes.Select(async programCode =>
         {
             // To access the course options for a given program, we have to send a POST request to the same endpoint
-            // as before, but with a urlencoded-form specifying the graduation program code that we want to fetch.
+            // as before, but with a urlencoded-form specifying the undergrad program code that we want to fetch.
             var form = new Dictionary<string, string> { ["selecionado"] = programCode };
             var classOptionsPage = await client.PostFormAndParseHtml(pageUri, form);
             var programName = classOptionsPage.QuerySelector("#principal b")?.InnerHtml;
-            var optionsTable = classOptionsPage.GetElementById("Horarios"); // This a the table that contains one
+            var optionsTable = classOptionsPage.GetElementById("Horarios"); // This is a the table that contains one
             // course option per row.
 
             // Should we fail to find such table, it means that this program is dead, so let's skip to the next one.
@@ -74,12 +75,16 @@ public class UpdateCourseOptionsController(AppDatabase db)
             }
 
             // Every row of this table contains information on a single course option. When a course has many options,
-            // they'll all come in a sequence. However, only the first row will actually contain the code/name of the
-            // course. Easy enough, we just have to cache it and update whenever a new course code is found.
+            // they'll all come one after another. However, only the first row will actually contain the code/name of
+            // the course; subsequent rows leave that cell empty. Easy enough, we just have to cache it and update
+            // whenever a new course code is found.
             var allRows = optionsTable.QuerySelectorAll(".modelo1odd, .modelo1even");
             var currentCourseCode = "";
             foreach (var row in allRows)
             {
+                // If filled, this cell looks like:
+                // (XXX12345) COURSE NAME
+                // The content between parentesis is the 8 characters long course code.
                 var courseCell = row.Children[0].InnerHtml;
                 if (courseCell.StartsWith('('))
                     currentCourseCode = courseCell.Substring(1, 8);
@@ -184,7 +189,7 @@ public class UpdateCourseOptionsController(AppDatabase db)
                     sessionsFound.Add(newSession);
                 }
                         
-                // We've found the location for the last session. Let's append it.
+                // We've found the location for the last session. Let's update it.
                 else if (info is IHtmlAnchorElement)
                 {
                     Debug.Assert(sessionsFound.Last().Location == null);
@@ -197,10 +202,10 @@ public class UpdateCourseOptionsController(AppDatabase db)
             else
             {
                 var text = info.Text().Trim();
-                if (text == "")
+                if (text.Length == 0)
                     continue;
                 Debug.Assert(sessionsFound.Last().Location == null);
-                sessionsFound.Last().Location = info.Text().Trim();
+                sessionsFound.Last().Location = text;
             }
         }
         

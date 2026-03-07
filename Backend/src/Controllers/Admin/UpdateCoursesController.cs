@@ -1,4 +1,3 @@
-using System.Collections.Concurrent;
 using System.Text;
 using System.Text.RegularExpressions;
 using AngleSharp.Dom;
@@ -23,24 +22,19 @@ public class UpdateCoursesController(AppDatabase db)
     [HttpPost]
     public async Task RunUpdate()
     {
+        Console.WriteLine("Commencing update on courses list");
         var stopwatch = System.Diagnostics.Stopwatch.StartNew();
         var client = new ScraperClient();
         
-        // Fetch a list of UFRGS graduation programs.
-        var graduationProgramsPage = await client.FetchAndParseHtml("https://www.ufrgs.br/site/ensino/graduacao/");
-        var gProgramCards = graduationProgramsPage.QuerySelectorAll(".card-course"); // Clickable cards, one for each
-        // graduation program.
+        // Fetch a list of UFRGS undegrad programs.
+        var undergradProgramsPage = await client.FetchAndParseHtml("https://www.ufrgs.br/site/ensino/graduacao/");
+        var programCards = undergradProgramsPage.QuerySelectorAll(".card-course"); // Clickable cards, one for each
+        // program.
         
-        // Now we're going to access each graduation program specific website in parallel. Let's use a
-        // ConcurrentDictionary for this.
-        const int initialCapacity = 6500; // A guess about how many courses we're going to find at most.
-        const int concurrencyLevel = 1; // The estimated amount of threads that'll update the dictionary. We're only
-        // using one thread for now.
-        var courses = new ConcurrentDictionary<string, string>(concurrencyLevel, initialCapacity); // This dictionary
-        // is safe to use in parallel code.
-
+        // Now we're going to fetch each undergrad program's specific website in parallel.
+        var courses = new Dictionary<string, string>(); // Dict matching each course code to the course title.
         ushort errors = 0;
-        await Task.WhenAll(gProgramCards.Select(async gProgramCard =>
+        await Task.WhenAll(programCards.Select(async gProgramCard =>
         {
             var programPageUrl = gProgramCard.GetAttribute("href")!;
             try
@@ -74,7 +68,7 @@ public class UpdateCoursesController(AppDatabase db)
                 await Console.Error.WriteLineAsync(error.StackTrace);
             }
         }));
-        Console.WriteLine($"Found {courses.Count} courses across {gProgramCards.Count - errors} programs.");
+        Console.WriteLine($"Found {courses.Count} courses across {programCards.Count - errors} programs.");
 
         // Now, if no errors ocurred, we're going to clear the courses table from the database and populate it again
         // with the updated list of courses. Note that we're also generating a new generation number, so that the API
@@ -105,9 +99,11 @@ public class UpdateCoursesController(AppDatabase db)
     /// For a given undergraduate program website, returns a URL for the curriculum of each of its variants.
     /// </summary>
     /// <param name="programPage">The serialized HTML document for the program's webpage.</param>
-    /// <returns>A list of URLs corresponding to the curriculums of the program's variations.</returns>
+    /// <returns>A list of URLs for each of the curriculums of the program's variations.</returns>
     private static List<string> GetCurriculumUrlForEachProgramVariant(IHtmlDocument programPage)
     {
+        // Each curriculum is added as an iframe. Also, after each curriculum iframe there's another iframe that is
+        // irrelevant for us. We can just grab the even-indexed iframes' URLs.
         var allIframes = programPage.QuerySelectorAll("iframe");
         var urls = new List<string>();
         for (var i = 0; i < allIframes.Length; i += 2)
