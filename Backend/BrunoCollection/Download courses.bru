@@ -1,0 +1,20 @@
+meta {
+  name: Download courses
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{ENDPOINT}}/DownloadCourses?generation=1997167929
+  body: none
+  auth: inherit
+}
+
+params:query {
+  generation: 1997167929
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
