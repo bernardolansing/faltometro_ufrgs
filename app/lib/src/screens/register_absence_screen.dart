@@ -2,10 +2,11 @@ import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
-import '../course.dart';
+import '../courses_manager.dart';
+import '../models/user_course.dart';
 
 class RegisterAbsenceScreen extends StatefulWidget {
-  final Course _course;
+  final UserCourse _course;
 
   const RegisterAbsenceScreen(this._course, {super.key});
 
@@ -73,7 +74,7 @@ class _RegisterAbsenceScreenState extends State<RegisterAbsenceScreen> {
 
             ElevatedButton.icon(
               onPressed: () {
-                widget._course.setDatesSkipped(_dates);
+                CoursesManager.setSkippedDatesForCourse(widget._course, _dates);
                 Navigator.of(context).pop();
               },
               icon: Icon(PhosphorIcons.regular.checkCircle),

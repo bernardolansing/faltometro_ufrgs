@@ -6,10 +6,9 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
-import 'course.dart';
+import 'courses_manager.dart';
 import 'settings.dart';
 import 'screens/notification_request_dialog.dart';
-
 
 class Notifications {
   static late final AndroidFlutterLocalNotificationsPlugin _plugin;
@@ -113,7 +112,7 @@ class Notifications {
       _plugin.cancel(notification.id);
     }
 
-    if (Courses.courses.isEmpty) {
+    if (CoursesManager.courses.isEmpty) {
       log('[NOTIFICATIONS] cleared schedules as no courses are registered');
       return;
     }
@@ -188,7 +187,7 @@ class Notifications {
 
     // Progressively update the date object until it matches every class
     // weekday.
-    for (final weekday in Courses.weekdaysWithClass) {
+    for (final weekday in CoursesManager.weekdaysWithClass) {
       // We add 1 because tz considers that the week starts by Monday and the
       // week is 1-indexed.
       while (schedule.weekday != weekday + 1) {

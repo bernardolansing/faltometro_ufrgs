@@ -4,7 +4,6 @@ import 'dart:io';
 
 import 'package:path_provider/path_provider.dart';
 
-import 'course.dart';
 import 'settings.dart';
 
 /// Settings file manager module. You must initialize it before being able
@@ -63,7 +62,7 @@ class Storage {
   static void _saveAll() {
     log('Writing to Storage file');
     _content = {
-      'courses': Courses.storageEntry,
+      // 'courses': Courses.storageEntry,
       'settings': Settings.storageEntry,
     };
     _saveToFile();
@@ -71,7 +70,7 @@ class Storage {
 
   /// Writes current state of [Courses] module to the local storage.
   static void saveCourses() {
-    _content['courses'] = Courses.storageEntry;
+    // _content['courses'] = Courses.storageEntry;
     _saveToFile();
   }
 

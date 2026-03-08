@@ -3,18 +3,19 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
-import '../course.dart';
+import '../courses_manager.dart';
+import '../models/user_course.dart';
 
 /// Screen for creating or editing a course. If you want to create a new course,
 /// use [CourseScreen.newCourse] constructor. If you want to edit a course, use
 /// [CourseScreen.edit].
 class CourseScreen extends StatefulWidget {
-  final Course? _courseToEdit;  // null if creating new course
+  final UserCourse? _courseToEdit;  // null if creating new course
 
   const CourseScreen.newCourse({super.key}) :
         _courseToEdit = null;
 
-  const CourseScreen.edit({super.key, required Course course}) :
+  const CourseScreen.edit({super.key, required UserCourse course}) :
         _courseToEdit = course;
 
   @override
@@ -35,7 +36,7 @@ class _CourseScreenState extends State<CourseScreen> {
     if (_isCreatingCourse) {
       _titleController = TextEditingController();
       _periodsPerWeekday = [0, 0, 0, 0, 0, 0];
-      _durationInWeeks = Course.defaultSemesterLength;
+      _durationInWeeks = UserCourse.defaultSemesterLength;
     } else {
       final course = widget._courseToEdit!;
       _titleController = TextEditingController(text: course.title);
@@ -57,7 +58,7 @@ class _CourseScreenState extends State<CourseScreen> {
 
   void _buttonAction() {
     if (_isCreatingCourse) {
-      Courses.newCourse(
+      CoursesManager.createCourse(
         title: _titleController.text,
         periodsPerWeekday: _periodsPerWeekday,
         durationInWeeks: _durationInWeeks,
@@ -65,7 +66,7 @@ class _CourseScreenState extends State<CourseScreen> {
     }
 
     else {
-      Courses.editCourse(
+      CoursesManager.editCourse(
         course: widget._courseToEdit!,
         title: _titleController.text,
         periodsPerWeekday: _periodsPerWeekday,
@@ -128,7 +129,7 @@ class _CourseScreenState extends State<CourseScreen> {
               const Spacer(),
 
               ...Iterable.generate(6, (index) => ListTile(
-                title: Text(weekdaysNames[index]),
+                title: Text(_weekdaysNames[index]),
                 visualDensity: VisualDensity.compact,
                 dense: true,
                 contentPadding: const EdgeInsets.symmetric(horizontal: 4),
@@ -224,3 +225,6 @@ const _periodsExplanationText = 'Cada período corresponde a 50 minutos de '
 const _semesterLengthExplanationText = 'Selecione quantas semanas de aula '
     'esta disciplina terá. Geralmente, são 15. Desconsidere semana acadêmica '
     'e de recuperações/exames.';
+
+const _weekdaysNames = ['Segunda-feira', 'Terça-feira', 'Quarta-feira',
+  'Quinta-feira', 'Sexta-feira', 'Sábado'];

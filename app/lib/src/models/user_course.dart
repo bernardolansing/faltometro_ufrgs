@@ -10,7 +10,8 @@ class UserCourse {
   /// a weeday. The first item accounts for Monday and the last item accounts
   /// for Saturday.
   List<int> periodsPerWeekday;
-  List<DateTime> skippedDates;
+  late List<DateTime> _skippedDates; // This one is going to have getter and
+  // setter, as updating it requires recalculating attributes.
   int durationInWeeks;
 
   // Cached calculations:
@@ -25,15 +26,22 @@ class UserCourse {
   late bool _critical;
   late bool _gameOver;
 
+  List<DateTime> get skippedDates => _skippedDates;
   int get credits => periodsPerWeekday.fold(0, (acc, val) => acc + val);
   int get hoursOfClass => credits * 15;
+
+  set skippedDates(List<DateTime> dates) {
+    _skippedDates = dates;
+    _makeCalculations(); // Recalculate course attributes.
+  }
 
   UserCourse({
     required this.title,
     required this.periodsPerWeekday,
-    required this.skippedDates,
+    required List<DateTime> skippedDates,
     required this.durationInWeeks,
   }) {
+    _skippedDates = skippedDates;
     _makeCalculations();
   }
 

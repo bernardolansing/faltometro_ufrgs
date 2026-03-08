@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
-import '../course.dart';
+import '../../main.dart';
+import '../courses_manager.dart';
+import '../models/user_course.dart';
 import '../notifications.dart';
 import '../settings.dart';
 import '../widgets/restaurant_ticket_widget.dart';
@@ -45,7 +47,7 @@ class _HomepageState extends State<Homepage> {
     }
   }
 
-  Future<void> _openEditCourseScreen(Course course) async {
+  Future<void> _openEditCourseScreen(UserCourse course) async {
     final route = MaterialPageRoute<bool>(
       builder: (context) => CourseScreen.edit(course: course),
     );
@@ -63,7 +65,7 @@ class _HomepageState extends State<Homepage> {
     if (shouldRefresh == true) { setState(() {}); }
   }
 
-  Future<void> _openRegisterAbsenceScreen(Course course) async {
+  Future<void> _openRegisterAbsenceScreen(UserCourse course) async {
     final route = MaterialPageRoute(
       builder: (context) => RegisterAbsenceScreen(course),
     );
@@ -71,14 +73,14 @@ class _HomepageState extends State<Homepage> {
     setState(() {});
   }
 
-  Future<void> _deleteCourse(Course course) async {
+  Future<void> _deleteCourse(UserCourse course) async {
     final deletionConfirmed = await showDialog<bool>(
       context: context,
       builder: (context) => _ConfirmCourseDeletionDialog(course),
     );
 
     if (deletionConfirmed == true) {
-      Courses.deleteCourse(course);
+      CoursesManager.deleteCourse(course);
       Notifications.updateSchedules();
       setState(() {});
     }
@@ -114,7 +116,7 @@ class _HomepageState extends State<Homepage> {
             _Navbar(onOpenSettings: _openSettingsScreen),
             const Divider(color: Colors.black26, height: 1),
 
-            if (Courses.courses.isEmpty)
+            if (CoursesManager.courses.isEmpty)
               const Expanded(child: _EmptyListVariant())
             else
               Expanded(
@@ -189,9 +191,9 @@ class _Navbar extends StatelessWidget {
 
 
 class _RegularVariant extends StatelessWidget {
-  final void Function(Course) onRegisterAbsence;
-  final void Function(Course) onEditCourse;
-  final void Function(Course) onDeleteCourse;
+  final void Function(UserCourse) onRegisterAbsence;
+  final void Function(UserCourse) onEditCourse;
+  final void Function(UserCourse) onDeleteCourse;
 
   const _RegularVariant({
     required this.onRegisterAbsence,
@@ -202,7 +204,7 @@ class _RegularVariant extends StatelessWidget {
   @override
   Widget build(BuildContext context) => ListView(
     padding: const EdgeInsets.all(8),
-    children: Courses.courses.map((c) => _CourseCard(
+    children: CoursesManager.courses.map((c) => _CourseCard(
       course: c,
       onAbsence: () => onRegisterAbsence(c),
       onEdit: () => onEditCourse(c),
@@ -244,7 +246,7 @@ class _EmptyListVariant extends StatelessWidget {
 }
 
 class _CourseCard extends StatelessWidget {
-  final Course course;
+  final UserCourse course;
   final void Function() onAbsence;
   final void Function() onEdit;
   final void Function() onDelete;
@@ -383,7 +385,7 @@ class _CourseCard extends StatelessWidget {
 }
 
 class _ConfirmCourseDeletionDialog extends StatelessWidget {
-  final Course _course;
+  final UserCourse _course;
 
   const _ConfirmCourseDeletionDialog(this._course);
 

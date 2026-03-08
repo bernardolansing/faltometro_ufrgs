@@ -64,7 +64,7 @@ class CoursesManager {
     List<int>? periodsPerWeekday,
     int? durationInWeeks,
   }) {
-    log('[CourseManager] editing course "${course.title}" now');
+    log('[CoursesManager] editing course "${course.title}" now');
     assert (courses.contains(course));
     course
       ..title = title ?? course.title
@@ -76,19 +76,19 @@ class CoursesManager {
   static void setSkippedDatesForCourse(
       UserCourse course,
       List<DateTime> skippedDates) {
-    log('[CourseManager] altering skipped dates for course "${course.title}"');
+    log('[CoursesManager] altering skipped dates for course "${course.title}"');
     course.skippedDates = skippedDates;
     _storageEntry.store(courses);
   }
 
   static void deleteCourse(UserCourse course) {
-    log('[CourseManager] deleting course "${course.title}" now');
+    log('[CoursesManager] deleting course "${course.title}" now');
     courses.remove(course);
     _storageEntry.store(courses);
   }
 
   static void deleteAllCourses() {
-    log('[CourseManager] deleting all courses now');
+    log('[CoursesManager] deleting all courses now');
     courses.clear();
     _storageEntry.store(courses);
   }
@@ -98,11 +98,9 @@ class _CoursesManagerJsonConverter implements JsonConverter<List<UserCourse>> {
   static final _courseConverter = UserCourseJsonConverter();
 
   @override
-  List<UserCourse> fromJson(json) {
-    final listOfCourses = List<dynamic>.from(json['courses']);
-    return listOfCourses.map(_courseConverter.fromJson)
-        .toList();
-  }
+  List<UserCourse> fromJson(json) => List<dynamic>.from(json)
+      .map(_courseConverter.fromJson)
+      .toList();
 
   @override
   toJson(List<UserCourse> entry) => entry.map(_courseConverter.toJson)

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
-import '../course.dart';
+import '../courses_manager.dart';
 import '../notifications.dart';
 import '../settings.dart';
 
@@ -114,7 +114,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 title: const Text('Remover todas as disciplinas'),
                 visualDensity: VisualDensity.compact,
                 contentPadding: const EdgeInsets.symmetric(horizontal: 12),
-                enabled: Courses.courses.isNotEmpty,
+                enabled: CoursesManager.courses.isNotEmpty,
                 onTap: _openRemoveAllCoursesConfirmationDialog,
               ),
             ],
@@ -162,7 +162,7 @@ class _RemoveAllCoursesConfirmationDialog extends StatelessWidget {
 
       ElevatedButton(
         onPressed: () {
-          Courses.deleteAllCourses();
+          CoursesManager.deleteAllCourses();
           Navigator.of(context).pop(true);
         },
         child: const Text('Confirmar'),
