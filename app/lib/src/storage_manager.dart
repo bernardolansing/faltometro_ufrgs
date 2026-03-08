@@ -13,6 +13,7 @@ class StorageManager {
 
   static StorageEntry<T> getEntry<T>(String name, JsonConverter<T> converter) {
     return _FileStorageEntry<T>(
+      name: name,
       file: File('${_basePath.path}/$name.json'),
       jsonConverter: converter,
     );
@@ -25,7 +26,7 @@ class StorageManager {
 abstract class JsonConverter<T> {
   T fromJson(dynamic json);
 
-  dynamic toJson(T self);
+  dynamic toJson(T entry);
 }
 
 /// Represents a JSON content that is saved locally, requiring no network
@@ -34,35 +35,40 @@ abstract class StorageEntry<T> {
   /// Reads the JSON content assigned to this entry and returns it deserialized.
   /// If no content could be found, throws [MissingStorageEntry].
   Future<T> load();
+  
+  /// Saves the updated entry to the storage.
+  Future<void> store(T value);
 }
 
 /// JSON storage based on files. Currently the only available implementation for
 /// [StorageEntry].
 class _FileStorageEntry<T> implements StorageEntry<T> {
+  final String _name;
   final File _file;
   final JsonConverter<T> _converter;
 
   _FileStorageEntry({
+    required String name,
     required File file,
     required JsonConverter<T> jsonConverter,
   }) :
+        _name = name,
         _file = file,
         _converter = jsonConverter;
 
   @override
   Future<T> load() async {
-    final fileName = _file.uri.pathSegments.last;
     final fileExists = await _file.exists();
 
     if (! fileExists) {
-      log('[STORAGE] File $fileName is missing');
+      log('[FileStorageEntry] stored entry $_name is missing');
       throw MissingStorageEntry();
     }
 
-    log('[STORAGE] reading file $fileName');
+    log('[FileStorageEntry] reading entry $_name');
     final content = await _file.readAsString();
     if (content.isEmpty) {
-      log('[STORAGE] file $fileName had no content');
+      log('[FileStorageEntry] entry $_name had no content');
       throw MissingStorageEntry();
     }
 
@@ -71,13 +77,21 @@ class _FileStorageEntry<T> implements StorageEntry<T> {
       jsonDeserialized = jsonDecode(content);
     } catch (error, stackTrace) {
       log(
-        '[STORAGE] error while decoding file $fileName: $error',
+        '[FileStorageEntry] error while decoding entry $_name: $error',
         stackTrace: stackTrace,
       );
       throw MissingStorageEntry();
     }
 
     return _converter.fromJson(jsonDeserialized);
+  }
+  
+  @override
+  Future<void> store(T entry) async {
+    log('[STORAGE] storing entry $_name');
+    final jsonObject = _converter.toJson(entry);
+    final jsonString = jsonEncode(jsonObject);
+    await _file.writeAsString(jsonString);
   }
 }
 
