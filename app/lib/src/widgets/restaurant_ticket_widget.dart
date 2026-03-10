@@ -3,7 +3,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
-import '../storage.dart';
+import '../restaurant_manager.dart';
 
 class RestaurantTicketWidget extends StatefulWidget {
   const RestaurantTicketWidget({super.key});
@@ -36,10 +36,10 @@ class _RestaurantTicketWidgetState extends State<RestaurantTicketWidget> {
 
   @override
   Widget build(BuildContext context) {
-    if (Storage.restaurantTicket == null) {
+    if (RestaurantManager.ticket == null) {
       return _buildUnsetTicketVariant();
     }
-    if (Storage.restaurantTicket!.amount != null) {
+    if (RestaurantManager.ticket!.amount != null) {
       return _buildTicketWithAmountVariant();
     }
     return _buildTicketWithoutAmountVariant();
@@ -61,7 +61,7 @@ class _RestaurantTicketWidgetState extends State<RestaurantTicketWidget> {
     onPressed: _openManageTicketDialog,
     icon: PhosphorIcon(PhosphorIcons.regular.ticket, size: 22),
     label: Text(
-      Storage.restaurantTicket!.number,
+      RestaurantManager.ticket!.number,
       style: const TextStyle(fontSize: 18),
     ),
   );
@@ -83,12 +83,12 @@ class _RestaurantTicketWidgetState extends State<RestaurantTicketWidget> {
           ),
           icon: PhosphorIcon(PhosphorIcons.regular.ticket, size: 20),
           label: Text(
-            Storage.restaurantTicket!.number,
+            RestaurantManager.ticket!.number,
             style: const TextStyle(fontSize: 16),
           ),
         ),
         Text(
-          '${Storage.restaurantTicket!.amount} restantes',
+          '${RestaurantManager.ticket!.amount} restantes',
           style: TextStyle(
             decoration: TextDecoration.underline,
             decorationColor: Theme.of(context).colorScheme.secondary,
@@ -105,18 +105,8 @@ class _ManageTicketDialog extends StatelessWidget {
 
   void _discountTicket(BuildContext context) {
     log('Discounting restaurant ticket now');
-    assert (Storage.restaurantTicket?.amount != null);
-    final ticketsAfterDiscount = Storage.restaurantTicket!.amount! - 1;
-    if (ticketsAfterDiscount < 1) {
-      log('Number of tickets went down to zero, clearing ticket entry from '
-          'Storage');
-      Storage.clearRestaurantTicket();
-    } else {
-      log('New count of tickets is $ticketsAfterDiscount');
-      Storage.setRestaurantTicket(Storage.restaurantTicket!.number,
-          ticketsAfterDiscount);
-    }
-
+    assert (RestaurantManager.ticket?.amount != null);
+    RestaurantManager.discountTicket();
     ScaffoldMessenger.of(context).showSnackBar(_haveANiceLunchSnackbar);
     Navigator.of(context).pop();
   }
@@ -146,7 +136,7 @@ class _ManageTicketDialog extends StatelessWidget {
       builder: (context) => const _ConfirmTicketClearingDialog(),
     );
     if (context.mounted && confirmation == true) {
-      Storage.clearRestaurantTicket();
+      RestaurantManager.clearTicket();
       Navigator.of(context).pop();
     }
   }
@@ -162,7 +152,7 @@ class _ManageTicketDialog extends StatelessWidget {
         const SizedBox(height: 8),
 
         Text(
-          Storage.restaurantTicket!.number,
+          RestaurantManager.ticket!.number,
           style: const TextStyle(
             fontSize: 28,
             fontWeight: FontWeight.w800,
@@ -175,7 +165,7 @@ class _ManageTicketDialog extends StatelessWidget {
 
         const SizedBox(height: 8),
 
-        if (Storage.restaurantTicket!.amount != null)
+        if (RestaurantManager.ticket!.amount != null)
           Row(
             spacing: 16,
             mainAxisAlignment: MainAxisAlignment.center,
@@ -189,7 +179,7 @@ class _ManageTicketDialog extends StatelessWidget {
                 ),
                 child: Padding(
                   padding: const EdgeInsets.all(6),
-                  child: Text(Storage.restaurantTicket!.amount!.toString()),
+                  child: Text(RestaurantManager.ticket!.amount!.toString()),
                 ),
               ),
             ],
@@ -197,7 +187,7 @@ class _ManageTicketDialog extends StatelessWidget {
 
         const SizedBox(height: 16),
 
-        if (Storage.restaurantTicket!.amount != null)
+        if (RestaurantManager.ticket!.amount != null)
           ElevatedButton.icon(
             onPressed: () => _discountTicket(context),
             icon: PhosphorIcon(PhosphorIcons.regular.forkKnife),
@@ -253,10 +243,10 @@ class _SetTicketFormDialogState extends State<_SetTicketFormDialog> {
     super.initState();
 
     // Populate fields with current values:
-    if (Storage.restaurantTicket != null) {
-      _ticketNumberController.text = Storage.restaurantTicket!.number;
-      if (Storage.restaurantTicket!.amount != null) {
-        _ticketAmountController.text = Storage.restaurantTicket!.amount!
+    if (RestaurantManager.ticket != null) {
+      _ticketNumberController.text = RestaurantManager.ticket!.number;
+      if (RestaurantManager.ticket!.amount != null) {
+        _ticketAmountController.text = RestaurantManager.ticket!.amount!
             .toString();
       }
     }
@@ -290,11 +280,11 @@ class _SetTicketFormDialogState extends State<_SetTicketFormDialog> {
 
     if (canProceed) {
       if (ticketAmount == 0) {
-        Storage.clearRestaurantTicket();
+        RestaurantManager.clearTicket();
       }
       else {
         final ticketNumber = _ticketNumberController.text.trim();
-        Storage.setRestaurantTicket(ticketNumber, ticketAmount);
+        RestaurantManager.setTicket(ticketNumber, ticketAmount);
         ScaffoldMessenger.of(context).showSnackBar(_successSnackbar);
       }
 

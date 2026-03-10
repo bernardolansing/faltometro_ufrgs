@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'src/courses_manager.dart';
+import 'src/restaurant_manager.dart';
 import 'src/storage_manager.dart';
 import 'src/theme.dart';
 import 'src/storage.dart';
@@ -12,7 +13,10 @@ import 'src/screens/homepage.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await StorageManager.initialize();
-  await CoursesManager.initialize();
+  await Future.wait([
+    CoursesManager.initialize(),
+    RestaurantManager.initialize(),
+  ]);
   // await Storage.initialize();
   // Courses.load();
   // Settings.load();
