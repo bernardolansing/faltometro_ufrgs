@@ -11,13 +11,6 @@ import 'src/screens/home_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await StorageManager.initialize();
-  await Future.wait([
-    CoursesManager.initialize(),
-    RestaurantManager.initialize(),
-    SettingsManager.initialize(),
-    Notifications.initialize(),
-  ]);
   runApp(const _Faltometro());
 }
 
@@ -29,6 +22,27 @@ class _Faltometro extends StatefulWidget {
 }
 
 class _FaltometroState extends State<_Faltometro> {
+  bool _loading = true;
+
+  @override
+  void initState() {
+    _initApp();
+    super.initState();
+  }
+
+  void _initApp() async {
+    await StorageManager.initialize();
+    await Future.wait([
+      CoursesManager.initialize(),
+      RestaurantManager.initialize(),
+      SettingsManager.initialize(),
+      Notifications.initialize(),
+    ]);
+    if (mounted) {
+      setState(() => _loading = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) =>
       NotificationListener<ThemeModeChangedNotification>(
@@ -45,10 +59,27 @@ class _FaltometroState extends State<_Faltometro> {
           ],
           theme: lightTheme,
           darkTheme: darkTheme,
-          themeMode: SettingsManager.themeMode,
-          home: const HomeScreen(),
+          themeMode: _loading ? ThemeMode.system : SettingsManager.themeMode,
+          home: _loading ? const _LoadingVariant() : const HomeScreen(),
         ),
       );
+}
+
+class _LoadingVariant extends StatelessWidget {
+  const _LoadingVariant();
+
+  @override
+  Widget build(BuildContext context) => const Scaffold(
+    body: SafeArea(
+      child: Center(
+        child: SizedBox(
+          height: 32,
+          width: 32,
+          child: CircularProgressIndicator(),
+        ),
+      ),
+    ),
+  );
 }
 
 extension PercentageFormattingExtension on double {
