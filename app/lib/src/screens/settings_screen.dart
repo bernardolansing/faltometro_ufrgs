@@ -47,7 +47,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     // settings screen and wish them some nice vacations:
     if (answer == true && mounted) {
       const deletionConfirmedSnackbar = SnackBar(
-          content: Text('Aproveite as férias :)')
+        content: Text('Aproveite as férias :)'),
       );
       ScaffoldMessenger.of(context).showSnackBar(deletionConfirmedSnackbar);
       Navigator.of(context).pop(true); // Pop true to indicate that Homepage
@@ -158,6 +158,12 @@ class _InvalidNotificationPermissionsDialog extends StatelessWidget {
 class _RemoveAllCoursesConfirmationDialog extends StatelessWidget {
   const _RemoveAllCoursesConfirmationDialog();
 
+  void _removeAllCourses(BuildContext context) {
+    CoursesManager.deleteAllCourses();
+    Notifications.updateSchedules();
+    Navigator.of(context).pop(true);
+  }
+
   @override
   Widget build(BuildContext context) => AlertDialog(
     title: const Text('Remover todas as disciplinas?'),
@@ -168,10 +174,7 @@ class _RemoveAllCoursesConfirmationDialog extends StatelessWidget {
       ),
 
       ElevatedButton(
-        onPressed: () {
-          CoursesManager.deleteAllCourses();
-          Navigator.of(context).pop(true);
-        },
+        onPressed: () => _removeAllCourses(context),
         child: const Text('Confirmar'),
       ),
     ],
