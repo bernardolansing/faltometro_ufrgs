@@ -3,10 +3,10 @@ import 'package:flutter/rendering.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 import '../../main.dart';
+import '../settings_manager.dart';
 import '../courses_manager.dart';
 import '../models/user_course.dart';
 import '../notifications.dart';
-import '../settings.dart';
 import '../widgets/restaurant_ticket_widget.dart';
 import 'course_screen.dart';
 import 'explanation_screen.dart';
@@ -32,7 +32,7 @@ class _HomepageState extends State<Homepage> {
     if (courseAdded == true && mounted) {
       setState(() {}); // Refresh the screen.
 
-      if (Settings.notificationsEnabled) {
+      if (SettingsManager.notificationsEnabled) {
         // If notifications are enabled, we should check if we got permissions
         // to send them and if they're set up.
 

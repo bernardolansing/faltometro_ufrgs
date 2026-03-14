@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
+import 'src/settings_manager.dart';
 import 'src/courses_manager.dart';
 import 'src/restaurant_manager.dart';
 import 'src/storage_manager.dart';
 import 'src/theme.dart';
-import 'src/storage.dart';
-import 'src/settings.dart';
 import 'src/notifications.dart';
 import 'src/screens/homepage.dart';
 
@@ -16,11 +15,9 @@ void main() async {
   await Future.wait([
     CoursesManager.initialize(),
     RestaurantManager.initialize(),
+    SettingsManager.initialize(),
+    Notifications.initialize(),
   ]);
-  // await Storage.initialize();
-  // Courses.load();
-  // Settings.load();
-  // Notifications.initialize();
   runApp(const _Faltometro());
 }
 

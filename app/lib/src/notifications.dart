@@ -6,8 +6,9 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
+import 'settings_manager.dart';
 import 'courses_manager.dart';
-import 'settings.dart';
+import 'models/settings.dart';
 import 'screens/notification_request_dialog.dart';
 
 class Notifications {
@@ -30,7 +31,7 @@ class Notifications {
   /// course), it will return true. If permissions were denied (and therefore
   /// disabled in Settings), it will return false.
   static Future<bool> checkPermissions(BuildContext context) async {
-    assert (Settings.notificationsEnabled);
+    assert (SettingsManager.notificationsEnabled);
     log('[NOTIFICATIONS] checking for notification permissions');
 
     final permission = await Permission.notification.status;
@@ -62,7 +63,7 @@ class Notifications {
         // User ended up refusing the notifications permission, therefore we
         // change the settings to never notify.
         else {
-          Settings.setNotificationFrequency(NotificationFrequency.never);
+          SettingsManager.setNotificationFrequency(NotificationFrequency.never);
           if (context.mounted) {
             ScaffoldMessenger.of(context)
                 .showSnackBar(_notificationsDisabledSnackbar);
@@ -73,7 +74,7 @@ class Notifications {
 
       // Same as before, user closed the dialog so we opt out of notifications.
       else {
-        Settings.setNotificationFrequency(NotificationFrequency.never);
+        SettingsManager.setNotificationFrequency(NotificationFrequency.never);
         if (context.mounted) {
           ScaffoldMessenger.of(context)
               .showSnackBar(_notificationsDisabledSnackbar);
@@ -87,7 +88,7 @@ class Notifications {
     // requests. However, user may still manually grant the permission in the
     // app settings.
     if (permission.isPermanentlyDenied) {
-      Settings.setNotificationFrequency(NotificationFrequency.never);
+      SettingsManager.setNotificationFrequency(NotificationFrequency.never);
       if (context.mounted) {
         showDialog(
             context: context,
@@ -117,7 +118,7 @@ class Notifications {
       return;
     }
 
-    switch (Settings.notificationFrequency) {
+    switch (SettingsManager.notificationFrequency) {
       case NotificationFrequency.never:
       // If that's the case, we're good as we've just unscheduled all
       // notifications.

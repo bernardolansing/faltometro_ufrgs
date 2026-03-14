@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
+import '../settings_manager.dart';
 import '../courses_manager.dart';
+import '../models/settings.dart';
 import '../notifications.dart';
-import '../settings.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -13,14 +14,14 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  void _applyNotificationFrequency(NotificationFrequency? nf) async {
+  void _applyNotificationFrequency(NotificationFrequency? nf) {
     // nf is nullable in order to match the Radio's onChanged attribute type.
     // It's guaranteed to be non null though.
     try {
-      await Settings.setNotificationFrequency(nf!);
+      SettingsManager.setNotificationFrequency(nf!);
     }
     on InvalidNotificationPermissions {
-      Settings.setNotificationFrequency(NotificationFrequency.never);
+      SettingsManager.setNotificationFrequency(NotificationFrequency.never);
       if (! mounted) { return; }
       showDialog(
         context: context,
@@ -32,7 +33,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   void _applyThemeMode(ThemeMode mode) {
     setState(() {
-      Settings.setThemeMode(context, mode);
+      SettingsManager.setThemeMode(context, mode);
     });
   }
 
@@ -77,13 +78,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
               Text('Notificações', style: sectionTitleTextStyle),
               const Text('Lembrar-me de registrar minhas faltas:'),
               ...NotificationFrequency.values.map((option) => ListTile(
-                title: Text(option.title),
+                title: _notificationFrequencyLabels[option],
                 contentPadding: EdgeInsets.zero,
                 visualDensity: VisualDensity.compact,
                 onTap: () => _applyNotificationFrequency(option),
                 leading: Radio(
                   value: option,
-                  groupValue: Settings.notificationFrequency,
+                  groupValue: SettingsManager.notificationFrequency,
                   onChanged: _applyNotificationFrequency,
                   activeColor: highlightColor,
                 ),
@@ -98,7 +99,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 onTap: () => _applyThemeMode(mode),
                 leading: Radio(
                   value: mode,
-                  groupValue: Settings.themeMode,
+                  groupValue: SettingsManager.themeMode,
                   onChanged: (_) => _applyThemeMode(mode),
                   activeColor: highlightColor,
                 ),
@@ -123,6 +124,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ),
     );
   }
+
+  static const _notificationFrequencyLabels = {
+    NotificationFrequency.never: Text('Nunca'),
+    NotificationFrequency.weekly: Text('Semanalmente'),
+    NotificationFrequency.classDays: Text('Nos dias em que tenho aula'),
+  };
 
   static const _themeModeLabels = {
     ThemeMode.system: 'Padrão do sistema',
