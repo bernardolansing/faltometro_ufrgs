@@ -12,7 +12,7 @@ import '../notifications.dart';
 import '../widgets/restaurant_ticket_widget.dart';
 import 'course_screen.dart';
 import 'explanation_screen.dart';
-import 'notification_request_dialog.dart';
+import '../widgets/notification_permission_dialogs.dart';
 import 'register_absence_screen.dart';
 import 'settings_screen.dart';
 
@@ -45,7 +45,7 @@ class _HomepageState extends State<Homepage> {
               'them now');
           final userWantsToGrantPermission = await showDialog(
             context: context,
-            builder: (context) => const NotificationRequestDialog(),
+            builder: (context) => const NotificationPermissionRequestDialog(),
           );
           if (! userWantsToGrantPermission && mounted) {
             log('User opted out for notifications, disabling them now');
@@ -71,7 +71,7 @@ class _HomepageState extends State<Homepage> {
                 showDialog(
                   context: context,
                   builder: (context) {
-                    return const PermissionPermanentlyDeniedDialog();
+                    return const NotificationPermissionDefinitelyDeniedDialog();
                   },
                 );
               }

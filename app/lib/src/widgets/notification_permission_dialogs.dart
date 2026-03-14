@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 /// A dialog that explains why we need notification permissions. It will pop
 /// returning `true` if user agreed to grant permissions, or false/null
 /// otherwise.
-class NotificationRequestDialog extends StatelessWidget {
-  const NotificationRequestDialog({super.key});
+class NotificationPermissionRequestDialog extends StatelessWidget {
+  const NotificationPermissionRequestDialog({super.key});
 
   @override
   Widget build(BuildContext context) => AlertDialog(
@@ -30,8 +30,8 @@ class NotificationRequestDialog extends StatelessWidget {
       'tarde.';
 }
 
-class PermissionPermanentlyDeniedDialog extends StatelessWidget {
-  const PermissionPermanentlyDeniedDialog({super.key});
+class NotificationPermissionDefinitelyDeniedDialog extends StatelessWidget {
+  const NotificationPermissionDefinitelyDeniedDialog({super.key});
 
   @override
   Widget build(BuildContext context) => AlertDialog(

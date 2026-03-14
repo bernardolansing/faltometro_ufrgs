@@ -6,7 +6,7 @@ import '../courses_manager.dart';
 import '../models/settings.dart';
 import '../notifications.dart';
 import '../theme.dart';
-import 'notification_request_dialog.dart';
+import '../widgets/notification_permission_dialogs.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -47,7 +47,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               showDialog(
                 context: context,
                 builder: (context) {
-                  return const PermissionPermanentlyDeniedDialog();
+                  return const NotificationPermissionDefinitelyDeniedDialog();
                 }
               );
             }
