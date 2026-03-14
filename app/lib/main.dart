@@ -7,7 +7,7 @@ import 'src/restaurant_manager.dart';
 import 'src/storage_manager.dart';
 import 'src/theme.dart';
 import 'src/notifications.dart';
-import 'src/screens/homepage.dart';
+import 'src/screens/home_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -46,7 +46,7 @@ class _FaltometroState extends State<_Faltometro> {
           theme: lightTheme,
           darkTheme: darkTheme,
           themeMode: SettingsManager.themeMode,
-          home: const Homepage(),
+          home: const HomeScreen(),
         ),
       );
 }

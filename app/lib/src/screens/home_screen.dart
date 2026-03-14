@@ -9,21 +9,21 @@ import '../settings_manager.dart';
 import '../courses_manager.dart';
 import '../models/user_course.dart';
 import '../notifications.dart';
+import '../widgets/notification_permission_dialogs.dart';
 import '../widgets/restaurant_ticket_widget.dart';
 import 'course_screen.dart';
 import 'explanation_screen.dart';
-import '../widgets/notification_permission_dialogs.dart';
 import 'register_absence_screen.dart';
 import 'settings_screen.dart';
 
-class Homepage extends StatefulWidget {
-  const Homepage({super.key});
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
 
   @override
-  State<Homepage> createState() => _HomepageState();
+  State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomepageState extends State<Homepage> {
+class _HomeScreenState extends State<HomeScreen> {
   bool _fabVisible = true;
 
   Future<void> _openNewCourseScreen() async {
@@ -39,7 +39,7 @@ class _HomepageState extends State<Homepage> {
         // If notifications are enabled, we should check if we got permissions
         // to send them and if they're set up.
         final permissionsOk = await Notifications.checkPermissions();
-        
+
         if (! permissionsOk && mounted) {
           log('We lack necessary notifications permissions, prompting for '
               'them now');
@@ -54,7 +54,7 @@ class _HomepageState extends State<Homepage> {
             SettingsManager.disableNotifications();
             return;
           }
-          
+
           try {
             log('User agreed to grant permissions, making system call');
             await Notifications.askPermissions();
@@ -170,7 +170,7 @@ class _HomepageState extends State<Homepage> {
       ),
     ),
   );
-  
+
   static const _permissionsDeniedSnackbar = SnackBar(
     content: Text('As notificações estarão desabilitadas'),
   );
