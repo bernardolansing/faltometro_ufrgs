@@ -45,10 +45,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
             }
             else {
               showDialog(
-                context: context,
-                builder: (context) {
-                  return const NotificationPermissionDefinitelyDeniedDialog();
-                }
+                  context: context,
+                  builder: (context) {
+                    return const NotificationPermissionDefinitelyDeniedDialog();
+                  }
               );
             }
           }
@@ -66,10 +66,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
-  void _applyThemeMode(ThemeMode mode) {
+  void _applyThemeMode(ThemeMode? mode) {
     setState(() {
+      SettingsManager.setThemeMode(mode!);
       ThemeModeChangedNotification().dispatch(context);
-      SettingsManager.setThemeMode(mode);
     });
   }
 
@@ -113,33 +113,42 @@ class _SettingsScreenState extends State<SettingsScreen> {
             children: [
               Text('Notificações', style: sectionTitleTextStyle),
               const Text('Lembrar-me de registrar minhas faltas:'),
-              ...NotificationFrequency.values.map((option) => ListTile(
-                title: _notificationFrequencyLabels[option],
-                contentPadding: EdgeInsets.zero,
-                visualDensity: VisualDensity.compact,
-                onTap: () => _applyNotificationFrequency(option),
-                leading: Radio(
-                  value: option,
-                  groupValue: SettingsManager.notificationFrequency,
-                  onChanged: _applyNotificationFrequency,
-                  activeColor: highlightColor,
+              RadioGroup(
+                groupValue: SettingsManager.notificationFrequency,
+                onChanged: _applyNotificationFrequency,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: NotificationFrequency.values.map((option) =>
+                      RadioListTile(
+                        value: option,
+                        contentPadding: EdgeInsets.zero,
+                        visualDensity: VisualDensity.compact,
+                        activeColor: highlightColor,
+                        title: _notificationFrequencyLabels[option],
+                      ))
+                      .toList(),
                 ),
-              )),
+              ),
+
               const SizedBox(height: 8),
 
               Text('Tema', style: sectionTitleTextStyle),
-              ...ThemeMode.values.map((mode) => ListTile(
-                title: Text(_themeModeLabels[mode]!),
-                contentPadding: EdgeInsets.zero,
-                visualDensity: VisualDensity.compact,
-                onTap: () => _applyThemeMode(mode),
-                leading: Radio(
-                  value: mode,
-                  groupValue: SettingsManager.themeMode,
-                  onChanged: (_) => _applyThemeMode(mode),
-                  activeColor: highlightColor,
+              RadioGroup(
+                groupValue: SettingsManager.themeMode,
+                onChanged: _applyThemeMode,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: ThemeMode.values.map((mode) => RadioListTile(
+                    value: mode,
+                    contentPadding: EdgeInsets.zero,
+                    visualDensity: VisualDensity.compact,
+                    activeColor: highlightColor,
+                    title: _themeModeLabels[mode],
+                  ))
+                  .toList(),
                 ),
-              )),
+              ),
+
               const SizedBox(height: 8),
 
               Text('Fim de semestre', style: sectionTitleTextStyle),
@@ -168,9 +177,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
   };
 
   static const _themeModeLabels = {
-    ThemeMode.system: 'Padrão do sistema',
-    ThemeMode.light: 'Claro',
-    ThemeMode.dark: 'Escuro',
+    ThemeMode.system: Text('Padrão do sistema'),
+    ThemeMode.light: Text('Claro'),
+    ThemeMode.dark: Text('Escuro'),
   };
 
   static const _notificationPermissionDeniedSnackbar = SnackBar(

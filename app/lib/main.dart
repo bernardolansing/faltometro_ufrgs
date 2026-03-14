@@ -45,7 +45,7 @@ class _FaltometroState extends State<_Faltometro> {
           ],
           theme: lightTheme,
           darkTheme: darkTheme,
-          // themeMode: Settings.themeMode,
+          themeMode: SettingsManager.themeMode,
           home: const Homepage(),
         ),
       );
