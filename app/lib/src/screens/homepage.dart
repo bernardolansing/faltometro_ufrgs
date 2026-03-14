@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
@@ -10,6 +12,7 @@ import '../notifications.dart';
 import '../widgets/restaurant_ticket_widget.dart';
 import 'course_screen.dart';
 import 'explanation_screen.dart';
+import 'notification_request_dialog.dart';
 import 'register_absence_screen.dart';
 import 'settings_screen.dart';
 
@@ -35,14 +38,50 @@ class _HomepageState extends State<Homepage> {
       if (SettingsManager.notificationsEnabled) {
         // If notifications are enabled, we should check if we got permissions
         // to send them and if they're set up.
+        final permissionsOk = await Notifications.checkPermissions();
+        
+        if (! permissionsOk && mounted) {
+          log('We lack necessary notifications permissions, prompting for '
+              'them now');
+          final userWantsToGrantPermission = await showDialog(
+            context: context,
+            builder: (context) => const NotificationRequestDialog(),
+          );
+          if (! userWantsToGrantPermission && mounted) {
+            log('User opted out for notifications, disabling them now');
+            ScaffoldMessenger.of(context)
+                .showSnackBar(_permissionsDeniedSnackbar);
+            SettingsManager.disableNotifications();
+            return;
+          }
+          
+          try {
+            log('User agreed to grant permissions, making system call');
+            await Notifications.askPermissions();
+          }
+          on NotificationPermissionDenied catch (denial) {
+            SettingsManager.disableNotifications();
 
-        // Check if the app has permission to send notifications. This may
-        // trigger extra dialogs.
-        final permissionsAreOk = await Notifications.checkPermissions(context);
-        // If they are, make sure that they're properly scheduled.
-        if (permissionsAreOk) {
-          Notifications.updateSchedules();
+            if (mounted) {
+              if (denial.weCanAskAgain) {
+                ScaffoldMessenger.of(context)
+                    .showSnackBar(_permissionsDeniedSnackbar);
+              }
+              else {
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    return const PermissionPermanentlyDeniedDialog();
+                  },
+                );
+              }
+            }
+
+            return;
+          }
         }
+
+        await Notifications.updateSchedules();
       }
     }
   }
@@ -130,6 +169,10 @@ class _HomepageState extends State<Homepage> {
         ),
       ),
     ),
+  );
+  
+  static const _permissionsDeniedSnackbar = SnackBar(
+    content: Text('As notificações estarão desabilitadas'),
   );
 }
 

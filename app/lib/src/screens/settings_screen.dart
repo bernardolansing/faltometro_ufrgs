@@ -5,6 +5,8 @@ import '../settings_manager.dart';
 import '../courses_manager.dart';
 import '../models/settings.dart';
 import '../notifications.dart';
+import '../theme.dart';
+import 'notification_request_dialog.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -14,26 +16,60 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  void _applyNotificationFrequency(NotificationFrequency? nf) {
+  void _applyNotificationFrequency(NotificationFrequency? nf) async {
     // nf is nullable in order to match the Radio's onChanged attribute type.
     // It's guaranteed to be non null though.
-    try {
-      SettingsManager.setNotificationFrequency(nf!);
+
+    // If we're about to disable notifications, we don't have to worry about
+    // permissions.
+    if (nf == NotificationFrequency.never) {
+      SettingsManager.disableNotifications();
+      setState(() {
+        Notifications.updateSchedules();
+      });
     }
-    on InvalidNotificationPermissions {
-      SettingsManager.setNotificationFrequency(NotificationFrequency.never);
-      if (! mounted) { return; }
-      showDialog(
-        context: context,
-        builder: (context) => const _InvalidNotificationPermissionsDialog(),
-      );
+    else {
+      // If notifications are to be enabled, however, we do.
+      bool permissionsOkay = await Notifications.checkPermissions();
+      if (! permissionsOkay) {
+        try {
+          await Notifications.askPermissions();
+          permissionsOkay = true;
+        }
+        on NotificationPermissionDenied catch (denial) {
+          SettingsManager.disableNotifications();
+          if (mounted) {
+            if (denial.weCanAskAgain) {
+              ScaffoldMessenger.of(context)
+                  .showSnackBar(_notificationPermissionDeniedSnackbar);
+            }
+            else {
+              showDialog(
+                context: context,
+                builder: (context) {
+                  return const PermissionPermanentlyDeniedDialog();
+                }
+              );
+            }
+          }
+
+          return;
+        }
+      }
+
+      if (permissionsOkay && mounted) {
+        setState(() {
+          SettingsManager.setNotificationFrequency(nf!);
+          Notifications.updateSchedules();
+        });
+      }
     }
-    setState(() {});
   }
 
   void _applyThemeMode(ThemeMode mode) {
     setState(() {
-      SettingsManager.setThemeMode(context, mode);
+      ThemeModeChangedNotification().dispatch(context);
+      SettingsManager.setThemeMode(mode);
     });
   }
 
@@ -136,23 +172,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
     ThemeMode.light: 'Claro',
     ThemeMode.dark: 'Escuro',
   };
-}
 
-class _InvalidNotificationPermissionsDialog extends StatelessWidget {
-  const _InvalidNotificationPermissionsDialog();
-
-  @override
-  Widget build(BuildContext context) => AlertDialog(
-    title: const Text('Erro ao configurar as notificações'),
-    content: const Text(_contentText, textAlign: TextAlign.justify),
-    actions: [
-      TextButton(onPressed: Navigator.of(context).pop, child: const Text('Ok'))
-    ],
+  static const _notificationPermissionDeniedSnackbar = SnackBar(
+    content: Text('Você negou as permissões, tente novamente.'),
   );
-
-  static const _contentText = 'Aparentemente, o Faltômetro não tem permissão '
-      'para exibir notificações. Por favor, habilite-as nas configurações '
-      'do app antes.';
 }
 
 class _RemoveAllCoursesConfirmationDialog extends StatelessWidget {

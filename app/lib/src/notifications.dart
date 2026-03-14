@@ -9,103 +9,128 @@ import 'package:timezone/timezone.dart' as tz;
 import 'settings_manager.dart';
 import 'courses_manager.dart';
 import 'models/settings.dart';
-import 'screens/notification_request_dialog.dart';
 
 class Notifications {
   static late final AndroidFlutterLocalNotificationsPlugin _plugin;
 
   /// Initializes the Notifications plugin without worrying about permissions.
   static Future<void> initialize() async {
-    log('[NOTIFICATIONS] initalizing notification service');
+    log('[Notifications] initalizing notification service');
     tz.initializeTimeZones();
     tz.setLocalLocation(tz.getLocation('America/Sao_Paulo'));
     _plugin = AndroidFlutterLocalNotificationsPlugin();
     await _plugin.initialize(_initializationSettings);
   }
 
-  /// Checks if the app has permission to send push notifications. This function
-  /// assumes that notifications are enabled in settings. In the lack of
-  /// permissions, it will spawn a gentle dialog that asks for permissions.
-  /// Shall the user deny them, it will also change the app settings to opt out
-  /// of notifications. If permissions are enabled (or were enabled during its
-  /// course), it will return true. If permissions were denied (and therefore
-  /// disabled in Settings), it will return false.
-  static Future<bool> checkPermissions(BuildContext context) async {
-    assert (SettingsManager.notificationsEnabled);
-    log('[NOTIFICATIONS] checking for notification permissions');
-
-    final permission = await Permission.notification.status;
-
-    // Notifications are enabled in settings, but we lack permissions to send
-    // them. The permission is "denied" when user has never been prompted about
-    // wheter they consent with the permission or not; in other words it's the
-    // default state for when the app has just been installed.
-    if (permission.isDenied) {
-      if (! context.mounted) { return false; }
-
-      // First, we want to show an in-app dialog explaining why we want
-      // notification permissions, and what kind of notifications will be shown.
-      final userWantsToGrantPermission = await showDialog<bool>(
-          context: context,
-          builder: (context) => const NotificationRequestDialog()
-      );
-
-      // User has confirmed the in-app dialog. Now, show the system dialog.
-      if (userWantsToGrantPermission == true) {
-        final granted = await _plugin.requestNotificationsPermission();
-
-        if (granted == true && context.mounted) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(_notificationsEnabledSnackbar);
-          return true;
-        }
-
-        // User ended up refusing the notifications permission, therefore we
-        // change the settings to never notify.
-        else {
-          SettingsManager.setNotificationFrequency(NotificationFrequency.never);
-          if (context.mounted) {
-            ScaffoldMessenger.of(context)
-                .showSnackBar(_notificationsDisabledSnackbar);
-          }
-          return false;
-        }
-      }
-
-      // Same as before, user closed the dialog so we opt out of notifications.
-      else {
-        SettingsManager.setNotificationFrequency(NotificationFrequency.never);
-        if (context.mounted) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(_notificationsDisabledSnackbar);
-        }
-        return false;
-      }
-    }
-
-    // If user has rejected the permission prompt, this permission will turn
-    // "permanently denied". In this case, we can't invoke new permission
-    // requests. However, user may still manually grant the permission in the
-    // app settings.
-    if (permission.isPermanentlyDenied) {
-      SettingsManager.setNotificationFrequency(NotificationFrequency.never);
-      if (context.mounted) {
-        showDialog(
-            context: context,
-            builder: (context) => const PermissionPermanentlyDeniedDialog()
-        );
-      }
-      return false;
-    }
-
-    assert (permission.isGranted);
-    return true;
+  /// Returns `true` if we have permission to dispatch push notifications.
+  static Future<bool> checkPermissions() async {
+    final granted = await Permission.notification.isGranted;
+    log('[Notifications] notifications permission granted: $granted');
+    return granted;
   }
 
+  static Future<void> askPermissions() async {
+    log('[Notifications] prompting for notifications permission');
+    final granted = await _plugin.requestNotificationsPermission();
+
+    if (granted != true) {
+      final status = await Permission.notification.status;
+      if (status.isDenied) {
+        log('[Notifications] permissions were denied, but we can ask again');
+        throw const NotificationPermissionDenied(true);
+      }
+      else if (status.isPermanentlyDenied) {
+        log("[Notifications] permissions were denied and we're unable to "
+            'prompt for them further');
+        throw const NotificationPermissionDenied(false);
+      }
+    }
+
+    log('[Notifications] permissions were successfully granted');
+  }
+
+  /// Checks if the app has permission to send push notifications. In the lack
+  /// of permissions, it will spawn a gentle dialog that asks for them.
+  /// Shall the user deny them, it will also change the app settings to opt out
+  /// of notifications. If permissions are enabled (or were enabled during its
+  /// course), it will return `true`. If permissions were denied (and therefore
+  /// disabled in Settings), it will return `false`.
+  // static Future<bool> checkPermissions(BuildContext context) async {
+  //   log('[Notifications] checking for notification permissions');
+  //
+  //   final permission = await Permission.notification.status;
+  //
+  //   // Notifications are enabled in settings, but we lack permissions to send
+  //   // them. The permission is "denied" when user has never been prompted about
+  //   // wheter they consent with the permission or not; in other words it's the
+  //   // default state for when the app has just been installed.
+  //   if (permission.isDenied) {
+  //     if (! context.mounted) { return false; }
+  //
+  //     // First, we want to show an in-app dialog explaining why we want
+  //     // notification permissions, and what kind of notifications will be shown.
+  //     final userWantsToGrantPermission = await showDialog<bool>(
+  //         context: context,
+  //         builder: (context) => const NotificationRequestDialog()
+  //     );
+  //
+  //     // User has confirmed the in-app dialog. Now, show the system dialog.
+  //     if (userWantsToGrantPermission == true) {
+  //       final granted = await _plugin.requestNotificationsPermission();
+  //
+  //       if (granted == true && context.mounted) {
+  //         ScaffoldMessenger.of(context)
+  //             .showSnackBar(_notificationsEnabledSnackbar);
+  //         return true;
+  //       }
+  //
+  //       // User ended up refusing the notifications permission, therefore we
+  //       // change the settings to never notify.
+  //       else {
+  //         SettingsManager.setNotificationFrequency(NotificationFrequency.never);
+  //         if (context.mounted) {
+  //           ScaffoldMessenger.of(context)
+  //               .showSnackBar(_notificationsDisabledSnackbar);
+  //         }
+  //         return false;
+  //       }
+  //     }
+  //
+  //     // Same as before, user closed the dialog so we opt out of notifications.
+  //     else {
+  //       SettingsManager.setNotificationFrequency(NotificationFrequency.never);
+  //       if (context.mounted) {
+  //         ScaffoldMessenger.of(context)
+  //             .showSnackBar(_notificationsDisabledSnackbar);
+  //       }
+  //       return false;
+  //     }
+  //   }
+  //
+  //   // If user has rejected the permission prompt, this permission will turn
+  //   // "permanently denied". In this case, we can't invoke new permission
+  //   // requests. However, user may still manually grant the permission in the
+  //   // app settings.
+  //   if (permission.isPermanentlyDenied) {
+  //     SettingsManager.setNotificationFrequency(NotificationFrequency.never);
+  //     if (context.mounted) {
+  //       showDialog(
+  //           context: context,
+  //           builder: (context) => const PermissionPermanentlyDeniedDialog()
+  //       );
+  //     }
+  //     return false;
+  //   }
+  //
+  //   assert (permission.isGranted);
+  //   return true;
+  // }
+
   /// Makes sure that the notifications are properly scheduled according to what
-  /// is configured in [Settings] module.
+  /// is configured in [Settings] module. Make sure that [checkPermissions]
+  /// returned `true` before calling.
   static Future<void> updateSchedules() async {
-    log('[NOTIFICATIONS] updating notification schedules');
+    log('[Notifications] updating notification schedules');
 
     // We start by erasing all living schedules.
     final registeredNotifications = await _plugin.pendingNotificationRequests();
@@ -114,7 +139,7 @@ class Notifications {
     }
 
     if (CoursesManager.courses.isEmpty) {
-      log('[NOTIFICATIONS] cleared schedules as no courses are registered');
+      log('[Notifications] cleared schedules as no courses are registered');
       return;
     }
 
@@ -122,7 +147,7 @@ class Notifications {
       case NotificationFrequency.never:
       // If that's the case, we're good as we've just unscheduled all
       // notifications.
-        log('[NOTIFICATIONS] notifications were disabled');
+        log('[Notifications] notifications were disabled');
         break;
 
       case NotificationFrequency.weekly:
@@ -141,10 +166,10 @@ class Notifications {
   /// aimed to be delivered on Fridays at 8pm. If notification permissions
   /// problems are detected, throws [InvalidNotificationPermissions].
   static Future<void> _scheduleWeeklyNotifications() async {
-    log('[NOTIFICATIONS] scheduling weekly notifications');
+    log('[Notifications] scheduling weekly notifications');
     const title = 'Faltou essa semana?';
     const body = 'Não esqueça de registrar suas faltas.';
-    
+
     await _ensurePermissions();
 
     // Mount the schedule. This is a DateTime-like object that represents the
@@ -171,7 +196,7 @@ class Notifications {
   /// student has classes. If notification permissions problems are detected,
   /// throws [InvalidNotificationPermissions].
   static Future<void> _scheduleClassDaysNotifications() async {
-    log('[NOTIFICATIONS] scheduling class days notifications');
+    log('[Notifications] scheduling class days notifications');
     const title = 'Faltou hoje?';
     const body = 'Não esqueça de registrar.';
 
@@ -201,7 +226,7 @@ class Notifications {
           matchDateTimeComponents: DateTimeComponents.dayOfWeekAndTime);
     }
   }
-  
+
   /// Quietly makes sure that permissions are okay. On the contrary of
   /// [checkPermissions()], this function is used to certify that the
   /// permissions are okay, and throws [InvalidNotificationPermissions] if they
@@ -210,7 +235,7 @@ class Notifications {
   static Future<void> _ensurePermissions() async {
     final permission = await Permission.notification.isGranted;
     if (! permission) {
-      log('[NOTIFICATIONS] tried to schedule notifications, but the app '
+      log('[Notifications] tried to schedule notifications, but the app '
           'permission seems to have been manually revoked.');
       throw InvalidNotificationPermissions();
     }
@@ -218,6 +243,17 @@ class Notifications {
 }
 
 class InvalidNotificationPermissions implements Exception {}
+
+/// Thrown when we wanted to prompt for notification permission but user/OS
+/// denied our request. Contains a field `weCanAskAgain` for checking if we may
+/// as for permissions again.
+class NotificationPermissionDenied implements Exception {
+  /// If `false`, asking for permissions again is useless as we are blocked by
+  /// the OS from requesting them.
+  final bool weCanAskAgain;
+
+  const NotificationPermissionDenied(this.weCanAskAgain);
+}
 
 const _initializationSettings = AndroidInitializationSettings(
     'notification_icon'

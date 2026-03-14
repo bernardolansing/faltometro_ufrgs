@@ -3,9 +3,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 
 import 'models/settings.dart';
-import 'notifications.dart';
 import 'storage_manager.dart';
-import 'theme.dart';
 
 class SettingsManager {
   static final _storageEntry = StorageManager
@@ -42,17 +40,21 @@ class SettingsManager {
     if (freq != _settings.notificationFrequency) {
       log('[SettingsManager] updating notification frequency');
       _settings.notificationFrequency = freq;
-      Notifications.updateSchedules();
       _storageEntry.store(_settings);
     }
   }
 
-  static void setThemeMode(BuildContext context, ThemeMode mode) {
+  static void disableNotifications() {
+    log('[SecretsManager] disabling notifications');
+    _settings.notificationFrequency = NotificationFrequency.never;
+    _storageEntry.store(_settings);
+  }
+
+  static void setThemeMode(ThemeMode mode) {
     if (mode != _settings.themeMode) {
       log('[SettingsManager] updating theme mode');
       _settings.themeMode = mode;
       _storageEntry.store(_settings);
-      ThemeModeChangedNotification().dispatch(context);
     }
   }
 }
