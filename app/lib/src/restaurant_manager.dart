@@ -5,7 +5,7 @@ import 'storage_manager.dart';
 
 class RestaurantManager {
   static RestaurantTicket? ticket;
-  static late final StorageEntry<_RestaurantManagerData> _storageEntry;
+  static late final StorageEntry<RestaurantManagerData> _storageEntry;
 
   static Future<void> initialize() async {
     log('[RestaurantManager] initializing');
@@ -44,27 +44,29 @@ class RestaurantManager {
     _store();
   }
 
-  static void _store() => _storageEntry.store(_RestaurantManagerData(ticket));
+  static void _store() => _storageEntry.store(RestaurantManagerData(ticket));
 }
 
-class _RestaurantManagerData {
+// TODO: Have this class made private once StorageManager legacy conversion is
+// not needed anymore.
+class RestaurantManagerData {
   RestaurantTicket? ticket;
 
-  _RestaurantManagerData(this.ticket);
+  RestaurantManagerData(this.ticket);
 }
 
 class _RestaurantManagerDataConverter
-    implements JsonConverter<_RestaurantManagerData> {
+    implements JsonConverter<RestaurantManagerData> {
   @override
-  _RestaurantManagerData fromJson(json) {
+  RestaurantManagerData fromJson(json) {
     final ticket = json['ticket'] != null
         ? RestaurantTicketConverter().fromJson(json['ticket'])
         : null;
-    return _RestaurantManagerData(ticket);
+    return RestaurantManagerData(ticket);
   }
 
   @override
-  toJson(_RestaurantManagerData entry) => {
+  toJson(RestaurantManagerData entry) => {
     'ticket': entry.ticket != null
         ? RestaurantTicketConverter().toJson(entry.ticket!)
         : null,

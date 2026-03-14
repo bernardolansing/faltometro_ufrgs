@@ -4,21 +4,72 @@ import 'dart:io';
 
 import 'package:path_provider/path_provider.dart';
 
+import 'models/restaurant_ticket.dart';
+import 'models/settings.dart';
+import 'models/user_course.dart';
+import 'restaurant_manager.dart';
+
 class StorageManager {
   static late final Directory _basePath;
+  static late final Map<String, dynamic>? _oldConfig;
 
   static Future<void> initialize() async {
     _basePath = await getApplicationDocumentsDirectory();
+
+    // Try to load the old-fashioned config file. If successful, we're going to
+    // execute the conversion to the new format and then delete the old file.
+    final file = File('${_basePath.path}/config.json');
+    if (! await file.exists()) {
+      log('Old style config has been converted previously');
+      _oldConfig = null;
+      return;
+    }
+    log("Old style config file detected, we're going to make the conversion");
+    final fileContent = await file.readAsString();
+    _oldConfig = jsonDecode(fileContent);
+    file.delete(); // Since it is already loaded in memory and all entries are
+    // going to be loaded soon, we can already delete it.
   }
 
   static StorageEntry<T> getEntry<T>(String name, JsonConverter<T> converter) {
-    return _FileStorageEntry<T>(
+    final entry = _FileStorageEntry<T>(
       name: name,
       file: File('${_basePath.path}/$name.json'),
       jsonConverter: converter,
     );
-  }
 
+    // TODO: remove all this when conversion isn't necessary any longer.
+    if (_oldConfig != null) {
+      switch (name) {
+        case 'restaurant':
+          if (_oldConfig!.containsKey('restaurantTicket')) {
+            final ticket = RestaurantTicketConverter()
+                .fromJson(_oldConfig!['restaurantTicket']);
+            final data = RestaurantManagerData(ticket);
+            entry.store(data as T);
+          }
+          break;
+        case 'courses':
+          if (_oldConfig!.containsKey('courses')) {
+            final converter = UserCourseJsonConverter();
+            final courses = List<dynamic>.from(_oldConfig!['courses'])
+                .map((obj) => converter.fromJson(obj))
+                .toList();
+            entry.store(courses as T);
+          }
+          break;
+        case 'settings':
+          if (_oldConfig!.containsKey('settings')) {
+            final converter = SettingsJsonConverter();
+            final settings = converter.fromJson(_oldConfig!['settings']);
+            entry.store(settings as T);
+          }
+          break;
+      }
+    }
+
+    return entry;
+  }
 }
 
 /// Object capable of expressing `T` as a JSON-like object, or parsing such
