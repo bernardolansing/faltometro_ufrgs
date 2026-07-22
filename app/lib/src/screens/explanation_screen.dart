@@ -94,26 +94,10 @@ class _ContributorWidget extends StatelessWidget {
       ),
       Text(_contributor.bond),
       Text(_contributor.role),
-      Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          if (_contributor.instagramAvailable)
-            IconButton.outlined(
-              onPressed: () => launchUrl(_contributor.instagramUri),
-              icon: const Icon(PhosphorIconsLight.instagramLogo),
-            )
-          else
-            Container(),
-
-          if (_contributor.telegramAvailable)
-            IconButton.outlined(
-              onPressed: () => launchUrl(_contributor.telegramUri),
-              icon: const Icon(PhosphorIconsLight.telegramLogo),
-            )
-          else
-            Container()
-        ],
-      )
+      IconButton.outlined(
+        onPressed: () => launchUrl(_contributor.instagramUri),
+        icon: const Icon(PhosphorIconsLight.instagramLogo),
+      ),
     ],
   );
 }
