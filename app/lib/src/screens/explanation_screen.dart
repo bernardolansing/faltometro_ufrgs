@@ -16,7 +16,7 @@ class ExplanationScreen extends StatelessWidget {
       title: const Text('Sobre o Faltômetro'),
       leading: IconButton(
         onPressed: Navigator.of(context).pop,
-        icon: PhosphorIcon(PhosphorIcons.bold.arrowLeft),
+        icon: const Icon(PhosphorIconsBold.arrowLeft),
       ),
     ),
     body: SafeArea(
@@ -66,7 +66,7 @@ class ExplanationScreen extends StatelessWidget {
                   _repositoryUrl,
                   mode: LaunchMode.externalApplication,
                 ),
-                icon: PhosphorIcon(PhosphorIcons.regular.githubLogo),
+                icon: const Icon(PhosphorIconsRegular.githubLogo),
                 label: const Text(
                   'Faltômetro UFRGS no GitHub',
                   style: TextStyle(decoration: TextDecoration.underline),
@@ -100,7 +100,7 @@ class _ContributorWidget extends StatelessWidget {
           if (_contributor.instagramAvailable)
             IconButton.outlined(
               onPressed: () => launchUrl(_contributor.instagramUri),
-              icon: PhosphorIcon(PhosphorIcons.light.instagramLogo),
+              icon: const Icon(PhosphorIconsLight.instagramLogo),
             )
           else
             Container(),
@@ -108,7 +108,7 @@ class _ContributorWidget extends StatelessWidget {
           if (_contributor.telegramAvailable)
             IconButton.outlined(
               onPressed: () => launchUrl(_contributor.telegramUri),
-              icon: PhosphorIcon(PhosphorIcons.light.telegramLogo),
+              icon: const Icon(PhosphorIconsLight.telegramLogo),
             )
           else
             Container()

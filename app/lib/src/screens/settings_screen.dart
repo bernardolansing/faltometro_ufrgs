@@ -153,9 +153,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
               Text('Fim de semestre', style: sectionTitleTextStyle),
               ListTile(
-                leading: Padding(
-                  padding: const EdgeInsets.only(right: 12),
-                  child: PhosphorIcon(PhosphorIcons.regular.trash),
+                leading: const Padding(
+                  padding: EdgeInsets.only(right: 12),
+                  child: Icon(PhosphorIconsRegular.trash),
                 ),
                 title: const Text('Remover todas as disciplinas'),
                 visualDensity: VisualDensity.compact,

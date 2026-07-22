@@ -77,7 +77,7 @@ class _RegisterAbsenceScreenState extends State<RegisterAbsenceScreen> {
                 CoursesManager.setSkippedDatesForCourse(widget._course, _dates);
                 Navigator.of(context).pop();
               },
-              icon: Icon(PhosphorIcons.regular.checkCircle),
+              icon: const Icon(PhosphorIconsRegular.checkCircle),
               label: const Text('Confirmar'),
             ),
           ],

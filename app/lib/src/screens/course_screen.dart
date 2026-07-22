@@ -141,7 +141,7 @@ class _CourseScreenState extends State<CourseScreen> {
                         _closeKeyboard();
                         _decreasePeriods(index);
                       },
-                      icon: PhosphorIcon(PhosphorIcons.bold.minus),
+                      icon: const Icon(PhosphorIconsBold.minus),
                       color: Theme.of(context).brightness == Brightness.light
                           ? Theme.of(context).colorScheme.primary
                           : Theme.of(context).colorScheme.secondary,
@@ -156,7 +156,7 @@ class _CourseScreenState extends State<CourseScreen> {
                       color: Theme.of(context).brightness == Brightness.light
                           ? Theme.of(context).colorScheme.primary
                           : Theme.of(context).colorScheme.secondary,
-                      icon: PhosphorIcon(PhosphorIcons.bold.plus),
+                      icon: const Icon(PhosphorIconsBold.plus),
                       splashRadius: 28,
                     ),
                   ],
@@ -192,12 +192,12 @@ class _CourseScreenState extends State<CourseScreen> {
                 width: 200,
                 child: ElevatedButton(
                   onPressed: _buttonAvailable ? _buttonAction : null,
-                  child: Row(
+                  child: const Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      PhosphorIcon(PhosphorIcons.regular.floppyDisk),
-                      const Text('Salvar'),
-                      const Icon(Icons.save, color: Colors.transparent),
+                      Icon(PhosphorIconsRegular.floppyDisk),
+                      Text('Salvar'),
+                      Icon(Icons.save, color: Colors.transparent),
                     ],
                   ),
                 ),
@@ -210,8 +210,8 @@ class _CourseScreenState extends State<CourseScreen> {
   );
 
   Widget get _appBarIcon => _isCreatingCourse
-      ? PhosphorIcon(PhosphorIcons.bold.plus)
-      : PhosphorIcon(PhosphorIcons.bold.pencil);
+      ? const Icon(PhosphorIconsBold.plus)
+      : const Icon(PhosphorIconsBold.pencil);
 
   Widget get _appBarTitle => _isCreatingCourse
       ? const Text('Adicionar disciplina')

@@ -132,7 +132,7 @@ class _HomeScreenState extends State<HomeScreen> {
       duration: const Duration(milliseconds: 300),
       child: FloatingActionButton(
         onPressed: _openNewCourseScreen,
-        child: PhosphorIcon(PhosphorIcons.bold.plus, size: 28),
+        child: const Icon(PhosphorIconsBold.plus, size: 28),
       ),
     ),
     resizeToAvoidBottomInset: false, // This prevents a RenderFlex overflow when
@@ -219,12 +219,12 @@ class _Navbar extends StatelessWidget {
               Navigator.of(context).push(route);
             },
             style: ButtonStyle(iconColor: WidgetStatePropertyAll(color)),
-            icon: PhosphorIcon(PhosphorIcons.regular.question),
+            icon: const Icon(PhosphorIconsRegular.question),
           ),
           IconButton(
             onPressed: onOpenSettings,
             style: ButtonStyle(iconColor: WidgetStatePropertyAll(color)),
-            icon: PhosphorIcon(PhosphorIcons.regular.gear),
+            icon: const Icon(PhosphorIconsRegular.gear),
           ),
         ],
       ),
@@ -330,11 +330,11 @@ class _CourseCard extends StatelessWidget {
               children: [
                 IconButton(
                   onPressed: onEdit,
-                  icon: PhosphorIcon(PhosphorIcons.regular.pencil),
+                  icon: const Icon(PhosphorIconsRegular.pencil),
                 ),
                 IconButton(
                   onPressed: onDelete,
-                  icon: PhosphorIcon(PhosphorIcons.regular.trash),
+                  icon: const Icon(PhosphorIconsRegular.trash),
                 ),
               ],
             ),

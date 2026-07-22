@@ -47,7 +47,7 @@ class _RestaurantTicketWidgetState extends State<RestaurantTicketWidget> {
 
   /// Widget to render if the ticket isn't set (or has just been zeroed).
   Widget _buildUnsetTicketVariant() => TextButton.icon(
-    icon: PhosphorIcon(PhosphorIcons.regular.plus, size: 20),
+    icon: const Icon(PhosphorIconsRegular.plus, size: 20),
     onPressed: _openTicketFormDialog,
     label: const Text(
       'Adicionar\nticket RU',
@@ -59,7 +59,7 @@ class _RestaurantTicketWidgetState extends State<RestaurantTicketWidget> {
   /// of the amount of tickets that are consumed.
   Widget _buildTicketWithoutAmountVariant() => TextButton.icon(
     onPressed: _openManageTicketDialog,
-    icon: PhosphorIcon(PhosphorIcons.regular.ticket, size: 22),
+    icon: const Icon(PhosphorIconsRegular.ticket, size: 22),
     label: Text(
       RestaurantManager.ticket!.number,
       style: const TextStyle(fontSize: 18),
@@ -81,7 +81,7 @@ class _RestaurantTicketWidgetState extends State<RestaurantTicketWidget> {
             minimumSize: WidgetStatePropertyAll(Size.zero),
             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
           ),
-          icon: PhosphorIcon(PhosphorIcons.regular.ticket, size: 20),
+          icon: const Icon(PhosphorIconsRegular.ticket, size: 20),
           label: Text(
             RestaurantManager.ticket!.number,
             style: const TextStyle(fontSize: 16),
@@ -143,7 +143,7 @@ class _ManageTicketDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => AlertDialog(
-    icon: PhosphorIcon(PhosphorIcons.regular.ticket),
+    icon: const Icon(PhosphorIconsRegular.ticket),
     content: Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -190,19 +190,19 @@ class _ManageTicketDialog extends StatelessWidget {
         if (RestaurantManager.ticket!.amount != null)
           ElevatedButton.icon(
             onPressed: () => _discountTicket(context),
-            icon: PhosphorIcon(PhosphorIcons.regular.forkKnife),
+            icon: const Icon(PhosphorIconsRegular.forkKnife),
             label: const Text('Descontar um ticket'),
           ),
 
         TextButton.icon(
           onPressed: () => _editTicket(context),
-          icon: PhosphorIcon(PhosphorIcons.regular.pencil),
+          icon: const Icon(PhosphorIconsRegular.pencil),
           label: const Text('Editar ticket'),
         ),
 
         TextButton.icon(
           onPressed: () => _clearTicket(context),
-          icon: PhosphorIcon(PhosphorIcons.regular.x),
+          icon: const Icon(PhosphorIconsRegular.x),
           label: const Text('Limpar ticket'),
         ),
 
@@ -372,7 +372,7 @@ class _ConfirmTicketClearingDialog extends StatelessWidget {
         child: ListTile(
           iconColor: Theme.of(context).colorScheme.error,
           textColor: Theme.of(context).colorScheme.error,
-          leading: PhosphorIcon(PhosphorIcons.regular.trash),
+          leading: const Icon(PhosphorIconsRegular.trash),
           title: const Text('Apagar ticket'),
           onTap: () => Navigator.of(context).pop(true),
         ),
@@ -380,7 +380,7 @@ class _ConfirmTicketClearingDialog extends StatelessWidget {
       SimpleDialogOption(
         padding: _optionPadding,
         child: ListTile(
-          leading: PhosphorIcon(PhosphorIcons.regular.x),
+          leading: const Icon(PhosphorIconsRegular.x),
           title: const Text('Cancelar'),
           onTap: Navigator.of(context).pop,
         ),
