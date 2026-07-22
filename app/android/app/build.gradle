@@ -1,6 +1,5 @@
 plugins {
     id "com.android.application"
-    id "kotlin-android"
     id "dev.flutter.flutter-gradle-plugin"
 }
 
@@ -32,19 +31,18 @@ if (keystorePropertiesFile.exists()) {
 android {
     namespace "com.bernardolansing.faltometro_ufrgs"
     compileSdkVersion 36
-    ndkVersion "27.0.12077973" // Not sure why this is needed, but without this some warnings are
-    // triggered.
+    ndkVersion = "28.2.13676358"
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_18
+        targetCompatibility JavaVersion.VERSION_18
         coreLibraryDesugaringEnabled true // Required by flutter_local_notifications.
     }
 
     defaultConfig {
         applicationId "com.bernardolansing.faltometro_ufrgs"
         minSdkVersion flutter.minSdkVersion
-        targetSdkVersion 35
+        targetSdkVersion 36
         versionCode flutter.versionCode
         versionName flutter.versionName
         multiDexEnabled true // Required by flutter_local_notifications.
@@ -63,6 +61,12 @@ android {
         release {
             signingConfig signingConfigs.release
         }
+    }
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_18
     }
 }
 
