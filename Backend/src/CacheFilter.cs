@@ -1,4 +1,3 @@
-using FaltometroUfrgsBackend.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace FaltometroUfrgsBackend;

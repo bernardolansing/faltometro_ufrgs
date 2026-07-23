@@ -1,7 +1,7 @@
 using FaltometroUfrgsBackend.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace FaltometroUfrgsBackend.Services;
+namespace FaltometroUfrgsBackend;
 
 public class AppDatabase(IConfiguration config) : DbContext
 {

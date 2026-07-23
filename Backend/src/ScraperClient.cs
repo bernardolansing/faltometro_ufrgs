@@ -3,7 +3,7 @@ using System.Text;
 using AngleSharp.Html.Dom;
 using AngleSharp.Html.Parser;
 
-namespace FaltometroUfrgsBackend.Utils;
+namespace FaltometroUfrgsBackend;
 
 /// <summary>
 /// Conveniences around an HTTP client. This object is designed to help making requests to UFRGS' websites, which is

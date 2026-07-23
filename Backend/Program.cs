@@ -1,7 +1,6 @@
 using System.Text.Json;
 using FaltometroUfrgsBackend;
 using FaltometroUfrgsBackend.Models;
-using FaltometroUfrgsBackend.Services;
 using Microsoft.EntityFrameworkCore;
 
 var runningOnCloudRun = Environment.GetEnvironmentVariable("K_SERVICE") != null; // This environment variable is set

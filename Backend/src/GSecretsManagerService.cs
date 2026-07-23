@@ -1,7 +1,7 @@
 using System.Text;
 using Google.Cloud.SecretManager.V1;
 
-namespace FaltometroUfrgsBackend.Services;
+namespace FaltometroUfrgsBackend;
 
 internal static class GSecretsManagerService
 {

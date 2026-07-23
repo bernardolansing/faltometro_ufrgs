@@ -1,8 +1,7 @@
 using System.Net;
-using FaltometroUfrgsBackend.Utils;
 using Microsoft.AspNetCore.Diagnostics;
 
-namespace FaltometroUfrgsBackend.Services;
+namespace FaltometroUfrgsBackend;
 
 public class ExceptionHandler : IExceptionHandler
 {
