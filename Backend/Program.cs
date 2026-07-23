@@ -1,4 +1,6 @@
 using System.Text.Json;
+using FaltometroUfrgsBackend;
+using FaltometroUfrgsBackend.Models;
 using FaltometroUfrgsBackend.Services;
 using Microsoft.EntityFrameworkCore;
 
@@ -26,8 +28,10 @@ builder.Services.AddExceptionHandler<ExceptionHandler>();
 
 var app = builder.Build();
 
-app.MapGet("/courses", (AppDatabase db) => db.Courses.ToArrayAsync());
-app.MapGet("/course_options", (AppDatabase db) => db.CourseOptions.ToArrayAsync());
+app.MapGet("/courses", (AppDatabase db) => db.Courses.ToArrayAsync())
+    .AddEndpointFilter<CacheFilter<Course>>();
+app.MapGet("/course_options", (AppDatabase db) => db.CourseOptions.ToArrayAsync())
+    .AddEndpointFilter<CacheFilter<CourseOption>>();
 
 app.UseExceptionHandler(_ => {});
 
