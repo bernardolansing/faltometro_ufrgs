@@ -4,23 +4,15 @@ using AngleSharp.Dom;
 using AngleSharp.Html.Dom;
 using AngleSharp.Text;
 using FaltometroUfrgsBackend.Models;
-using FaltometroUfrgsBackend.Services;
-using FaltometroUfrgsBackend.Utils;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace FaltometroUfrgsBackend.Controllers.Admin;
+namespace FaltometroUfrgsBackend.Jobs;
 
-[ApiController]
-[Authorize(Roles = "admin")]
-[Route("Admin/UpdateCourses")]
-public class UpdateCoursesController(AppDatabase db)
+internal class UpdateCoursesJob(AppDatabase db) : IExtractionJob<Course>
 {
     private static readonly Regex CourseCodeRegex = new("^[A-Z0-9]{8}$");
     
-    [HttpPost]
-    public async Task RunUpdate()
+    public async Task ExecuteAsync()
     {
         Console.WriteLine("Commencing update on courses list");
         var stopwatch = System.Diagnostics.Stopwatch.StartNew();
@@ -80,8 +72,8 @@ public class UpdateCoursesController(AppDatabase db)
                 .Next(0, int.MaxValue);
             var transaction = await db.Database.BeginTransactionAsync();
             await db.Courses.ExecuteDeleteAsync();
-            await db.Generations.Where(g => g.Id == Generation.CoursesGenerationId)
-                .ExecuteUpdateAsync(s => s.SetProperty(g => g.GenerationNumber, newGenerationNumber));
+            // await db.Generations.Where(g => g.Id == Generation.CoursesGenerationId)
+            //     .ExecuteUpdateAsync(s => s.SetProperty(g => g.GenerationNumber, newGenerationNumber));
             await db.Courses.AddRangeAsync(courses.Select(pair => new Course(pair.Key, pair.Value)));
             await db.SaveChangesAsync();
             await transaction.CommitAsync();
@@ -150,17 +142,4 @@ public class UpdateCoursesController(AppDatabase db)
         
         return (courseCode, courseTitleBuilder.ToString().Trim());
     }
-}
-
-[TestClass]
-public class UpdateCoursesTest
-{
-    // [TestMethod]
-    // public async Task ExecuteUpdateCourses()
-    // {
-    //     var localSecretsService = new LocalDevSecretProviderService();
-    //     var databaseService = new AppDatabase(localSecretsService);
-    //     var instance = new UpdateCoursesController(databaseService);
-    //     await instance.RunUpdate();
-    // }
 }

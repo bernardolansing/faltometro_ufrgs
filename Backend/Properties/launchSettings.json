@@ -18,6 +18,20 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
+    },
+    "updateCourses": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "JOB": "UpdateCourses"
+      }
+    },
+    "updateCourseOptions": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "JOB": "UpdateCourseOptions"
+      }
     }
   }
 }

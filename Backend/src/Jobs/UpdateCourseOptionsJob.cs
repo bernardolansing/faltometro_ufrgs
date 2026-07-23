@@ -3,37 +3,24 @@ using AngleSharp.Dom;
 using AngleSharp.Html.Dom;
 using AngleSharp.Html.Parser;
 using FaltometroUfrgsBackend.Models;
-using FaltometroUfrgsBackend.Services;
-using FaltometroUfrgsBackend.Utils;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace FaltometroUfrgsBackend.Controllers.Admin;
+namespace FaltometroUfrgsBackend.Jobs;
 
-[ApiController]
-[Authorize(Roles = "admin")]
-[Route("Admin/UpdateCourseOptions")]
-public class UpdateCourseOptionsController(AppDatabase db)
+internal class UpdateCourseOptionsJob(AppDatabase db, string ufrgsSessionId) : IExtractionJob<CourseOption>
 {
     /// <summary>
     /// List of weekdays' names as they are found in the student's dashboard.
     /// </summary>
     private static readonly List<string> Weekdays = ["Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
     
-    public struct RequestBody
-    {
-        public string UfrgsSessionId { get; init; }
-    }
-
-    [HttpPost]
-    public async Task RunUpdate(RequestBody body)
+    public async Task ExecuteAsync()
     {
         const string pageUri = "https://www1.ufrgs.br/intranet/portal/public/index.php?cods=1,1,1,224";
         
         Console.WriteLine("Commencing update on course options list");
         var stopwatch = Stopwatch.StartNew();
-        var client = new ScraperClient(body.UfrgsSessionId);
+        var client = new ScraperClient(ufrgsSessionId);
         
         // This page contains a select menu with all undergrad programs. To each program is assigned an identification.
         var classOptionsPerProgramPage = await client.FetchAndParseHtml(pageUri);
@@ -121,13 +108,13 @@ public class UpdateCourseOptionsController(AppDatabase db)
         var allCourseOptions = coursesAndOptions.Values
             .Aggregate(Enumerable.Empty<CourseOption>(), (acc, val) => acc.Concat(val));
 
-        var newGenerationNumber = new Random()
-            .Next(0, int.MaxValue);
+        // var newGenerationNumber = new Random()
+        //     .Next(0, int.MaxValue);
         await db.Database.BeginTransactionAsync();
         await db.CourseOptions.ExecuteDeleteAsync();
         await db.CourseOptions.AddRangeAsync(allCourseOptions);
-        await db.Generations.Where(g => g.Id == Generation.CourseOptionsGenerationId)
-            .ExecuteUpdateAsync(s => s.SetProperty(g => g.GenerationNumber, newGenerationNumber));
+        // await db.Generations.Where(g => g.Id == Generation.CourseOptionsGenerationId)
+        //     .ExecuteUpdateAsync(s => s.SetProperty(g => g.GenerationNumber, newGenerationNumber));
         await db.SaveChangesAsync();
         await db.Database.CommitTransactionAsync();
         
