@@ -2,7 +2,6 @@ using System.Diagnostics;
 using AngleSharp.Dom;
 using AngleSharp.Html.Dom;
 using AngleSharp.Html.Parser;
-using DotNetEnv;
 using FaltometroUfrgsBackend.Models;
 using FaltometroUfrgsBackend.Services;
 using FaltometroUfrgsBackend.Utils;
@@ -277,19 +276,19 @@ public class UpdateCourseOptionsController(AppDatabase db)
             Assert.IsTrue(expectedResponse2.Zip(actualResponse2).All(pair => CheckEquality(pair.First, pair.Second)));
         }
         
-        [TestMethod]
-        public async Task ExecuteUpdateCourseOptions()
-        {
-            Env.TraversePath().Load();
-            var sessionId = Environment.GetEnvironmentVariable("UFRGS_SESSION_ID");
-            if (string.IsNullOrEmpty(sessionId))
-                throw new Exception("Missing UFRGS_SESSION_ID environment variable!");
-
-            var localSecretsService = new LocalDevSecretProviderService();
-            var databaseService = new AppDatabase(localSecretsService);
-            var instance = new UpdateCourseOptionsController(databaseService);
-            await instance.RunUpdate(new RequestBody { UfrgsSessionId = sessionId });
-        }
+        // [TestMethod]
+        // public async Task ExecuteUpdateCourseOptions()
+        // {
+        //     Env.TraversePath().Load();
+        //     var sessionId = Environment.GetEnvironmentVariable("UFRGS_SESSION_ID");
+        //     if (string.IsNullOrEmpty(sessionId))
+        //         throw new Exception("Missing UFRGS_SESSION_ID environment variable!");
+        //
+        //     var localSecretsService = new LocalDevSecretProviderService();
+        //     var databaseService = new AppDatabase(localSecretsService);
+        //     var instance = new UpdateCourseOptionsController(databaseService);
+        //     await instance.RunUpdate(new RequestBody { UfrgsSessionId = sessionId });
+        // }
         
         /// <summary>
         /// AngleSharp doesn't quite support parsing HTML fragments. It is only designed to parse documents. So if you

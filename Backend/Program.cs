@@ -2,14 +2,18 @@ using System.Text.Json;
 using FaltometroUfrgsBackend.Services;
 using Microsoft.EntityFrameworkCore;
 
-DotNetEnv.Env.TraversePath().Load(); // Load environment variables from .env file.
-
 var runningOnCloudRun = Environment.GetEnvironmentVariable("K_SERVICE") != null; // This environment variable is set
 // when we're running on production Cloud Run. You can also set it locally to pretend that we're running on cloud. This,
 // however, requires a configured gcloud service account in your system and CAUTION!!!: it's going to use the production
 // database.
 
 var builder = WebApplication.CreateBuilder(args);
+
+if (runningOnCloudRun)
+{
+    await GSecretsManagerService.InitAsync();
+    builder.Configuration.AddGoogleSecretsManager();
+}
 
 builder.Services.ConfigureHttpJsonOptions(options =>
 {

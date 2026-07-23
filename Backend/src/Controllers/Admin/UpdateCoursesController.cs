@@ -155,12 +155,12 @@ public class UpdateCoursesController(AppDatabase db)
 [TestClass]
 public class UpdateCoursesTest
 {
-    [TestMethod]
-    public async Task ExecuteUpdateCourses()
-    {
-        var localSecretsService = new LocalDevSecretProviderService();
-        var databaseService = new AppDatabase(localSecretsService);
-        var instance = new UpdateCoursesController(databaseService);
-        await instance.RunUpdate();
-    }
+    // [TestMethod]
+    // public async Task ExecuteUpdateCourses()
+    // {
+    //     var localSecretsService = new LocalDevSecretProviderService();
+    //     var databaseService = new AppDatabase(localSecretsService);
+    //     var instance = new UpdateCoursesController(databaseService);
+    //     await instance.RunUpdate();
+    // }
 }
