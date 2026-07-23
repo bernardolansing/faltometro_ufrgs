@@ -1,0 +1,15 @@
+meta {
+  name: Courses
+  type: http
+  seq: 9
+}
+
+get {
+  url: {{ENDPOINT}}/courses
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+}

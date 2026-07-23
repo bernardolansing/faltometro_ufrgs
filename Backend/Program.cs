@@ -1,7 +1,6 @@
 using System.Text.Json;
 using FaltometroUfrgsBackend.Services;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
+using Microsoft.EntityFrameworkCore;
 
 DotNetEnv.Env.TraversePath().Load(); // Load environment variables from .env file.
 
@@ -12,45 +11,21 @@ var runningOnCloudRun = Environment.GetEnvironmentVariable("K_SERVICE") != null;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var mvcBuilder = builder.Services.AddControllers();
-mvcBuilder.AddJsonOptions(options =>
+builder.Services.ConfigureHttpJsonOptions(options =>
 {
-    options.JsonSerializerOptions.AllowDuplicateProperties = false;
-    options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower;
+    options.SerializerOptions.AllowDuplicateProperties = false;
+    options.SerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower;
 });
-SupabaseSecrets? supabaseSecrets;
-if (runningOnCloudRun)
-{
-    var prodService = new ProductionSecretProviderService();
-    await prodService.InitAsync();
-    supabaseSecrets = prodService.GetSupabaseSecrets();
-    mvcBuilder.Services.AddSingleton<ISecretProviderService>(prodService);
-}
-else
-{
-    var localSecretsProvider = new LocalDevSecretProviderService();
-    mvcBuilder.Services.AddSingleton<ISecretProviderService>(localSecretsProvider);
-    supabaseSecrets = localSecretsProvider.GetSupabaseSecrets();
-}
-mvcBuilder.Services.AddDbContext<AppDatabase>();
-mvcBuilder.Services.AddExceptionHandler<ExceptionHandler>();
-mvcBuilder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
-    {
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuerSigningKey = true,
-            IssuerSigningKey = supabaseSecrets.TokenIssuerKey,
-            ValidIssuer = supabaseSecrets.GetTokenIssuerUrl(),
-            ValidAudiences = SupabaseSecrets.TokenAudiences
-        };
-    });
+
+builder.Services.AddDbContext<AppDatabase>();
+builder.Services.AddExceptionHandler<ExceptionHandler>();
 
 var app = builder.Build();
+
+app.MapGet("/courses", (AppDatabase db) => db.Courses.ToArrayAsync());
+app.MapGet("/course_options", (AppDatabase db) => db.CourseOptions.ToArrayAsync());
+
 app.UseExceptionHandler(_ => {});
-app.UseAuthentication();
-app.UseAuthorization();
-app.MapControllers();
 
 // In Google Cloud Run we must serve the app in 0.0.0.0:PORT for it to work. If PORT envvar is not set, we are running
 // in a local development environment, so we can use whatever is configured in the launch settings.
