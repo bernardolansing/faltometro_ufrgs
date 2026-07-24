@@ -4,9 +4,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FaltometroUfrgsBackend.Jobs;
 
-internal class Jobs(bool runningOnCloud)
+internal class Jobs
 {
-    internal async Task RunJob(string jobName, string[] args)
+    internal static async Task RunJob(string jobName, string[] args)
     {
         var config = await GetConfiguration();
         var database = new AppDatabase(config);
@@ -54,8 +54,9 @@ internal class Jobs(bool runningOnCloud)
         }
     }
 
-    private async Task<IConfigurationRoot> GetConfiguration()
+    private static async Task<IConfigurationRoot> GetConfiguration()
     {
+        var runningOnCloud = Environment.GetEnvironmentVariable("CLOUD_RUN_JOB") != null;
         var configBuilder = new ConfigurationBuilder();
         if (runningOnCloud)
         {

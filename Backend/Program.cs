@@ -4,19 +4,18 @@ using FaltometroUfrgsBackend.Jobs;
 using FaltometroUfrgsBackend.Models;
 using Microsoft.EntityFrameworkCore;
 
-var runningOnCloudRun = Environment.GetEnvironmentVariable("K_SERVICE") != null; // This environment variable is set
-// when we're running on production Cloud Run. You can also set it locally to pretend that we're running on cloud. This,
-// however, requires a configured gcloud service account in your system and CAUTION!!!: it's going to use the production
-// database.
-
 var jobName = Environment.GetEnvironmentVariable("JOB"); // If a job is to be run, we'll run it and quit the program.
 // Otherwise, the server ASP.NET app is going to be built and run.
 if (jobName != null)
 {
-    var jobHandler = new Jobs(runningOnCloudRun);
-    await jobHandler.RunJob(jobName, args);
+    await Jobs.RunJob(jobName, args);
     return;
 }
+
+var runningOnCloudRun = Environment.GetEnvironmentVariable("K_SERVICE") != null; // This environment variable is set
+// when we're running on production Cloud Run. You can also set it locally to pretend that we're running on cloud. This,
+// however, requires a configured gcloud service account in your system and CAUTION!!!: it's going to use the production
+// database.
 
 var builder = WebApplication.CreateBuilder(args);
 
