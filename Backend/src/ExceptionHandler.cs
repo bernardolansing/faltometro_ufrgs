@@ -3,40 +3,38 @@ using Microsoft.AspNetCore.Diagnostics;
 
 namespace FaltometroUfrgsBackend;
 
-public class ExceptionHandler : IExceptionHandler
+public class ExceptionHandler(ILogger<ExceptionHandler> logger) : IExceptionHandler
 {
-    public ExceptionHandler()
-    {
-        Console.WriteLine("Starting ExceptionHandler service");
-    }
-    
     public async ValueTask<bool> TryHandleAsync(HttpContext context, Exception exception, CancellationToken cancelToken)
     {
         HttpStatusCode statusCode;
+        
         string message;
+        var errorCode = exception.GetType().Name;
         var serverError = false;
 
         switch (exception)
         {
-            case InvalidUfrgsSessionToken:
-                statusCode = HttpStatusCode.Unauthorized;
-                message = "Missing/invalid UFRGS dashboard session token";
-                break;
             default:
                 Console.WriteLine($"Unhandled exception: {exception}"); // TODO: turn this into a error log.
                 serverError = true;
                 statusCode = HttpStatusCode.InternalServerError;
+                errorCode = "InternalServerError";
                 message = "Internal server error.";
                 break;
         }
         
-        // TODO: turn this into a error log, rather than just a println.
         if (serverError)
-            Console.WriteLine($"Unhandled exception/internal server error: {exception}");
-        context.Response.ContentType = "application/text";
+            logger.LogError("Unhandled exception/internal server error: {Exception}", exception);
+        
         context.Response.StatusCode = (int) statusCode;
-        await context.Response.WriteAsync(message, cancelToken);
-        return !serverError; // Return whether the exception was handled. We consider the exception to be handled if it
-        // is due to a client error, instead of a server error.
+        var body = new Dictionary<string, string>
+        {
+            ["code"] = errorCode,
+            ["message"] = message
+        };
+        await context.Response.WriteAsJsonAsync(body, cancelToken);
+        
+        return true;
     }
 }
