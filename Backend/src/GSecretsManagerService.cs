@@ -3,6 +3,13 @@ using Google.Cloud.SecretManager.V1;
 
 namespace FaltometroUfrgsBackend;
 
+/// <summary>
+/// Helper class for Google Secrets Manager. It is entirely async, and can be used with or without ASP.NET context.
+/// Before anything, await <c>InitAsync()</c> for the secrets to be loaded from GSM. For ASP-less usage, call getter
+/// methods like <c ref="GetDbConnectionString">GetDbConnectionString()</c>. For ASP.NET servers, bind it to the app
+/// configuration using <c>builder.Configuration.AddGoogleSecretsManager()</c>. Secrets are then going to be exposed in
+/// app config. 
+/// </summary>
 internal static class GSecretsManagerService
 {
     private const string ProjectId = "faltometro-ufrgs";
@@ -16,6 +23,13 @@ internal static class GSecretsManagerService
         _dbConnectionString = await GetSecretAsync("database-creds-secret");
     }
     
+    /// <summary>
+    /// Populates ASP.NET app configuration with secrets coming from Secrets Manager.
+    /// 
+    /// <list type="bullet">
+    ///     <item>Database connection string -> ConnectionString:DefaultConnection</item>
+    /// </list>
+    /// </summary>
     internal static IConfigurationBuilder AddGoogleSecretsManager(this IConfigurationBuilder builder)
     {
         builder.Properties.Add("ConnectionString:DefaultConnection", _dbConnectionString);

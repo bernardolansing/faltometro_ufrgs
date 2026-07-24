@@ -2,6 +2,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FaltometroUfrgsBackend;
 
+/// <summary>
+/// Intercepts a GET request towards a given resource, reads (if present) the If-Modified-Since header and checks if the
+/// client's copy is updated. If it is, immediately returns a response with code 304 (not modified). Otherwise, forwards
+/// the request to the filtered endpoint.
+/// </summary>
+/// <typeparam name="T">The type of the resource to be cached.</typeparam>
 internal class CacheFilter<T>(AppDatabase db, ILogger<CacheFilter<T>> logger) : IEndpointFilter
 {
     public async ValueTask<object?> InvokeAsync(EndpointFilterInvocationContext context, EndpointFilterDelegate next)

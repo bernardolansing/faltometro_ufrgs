@@ -3,6 +3,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FaltometroUfrgsBackend.Models;
 
+/// <summary>
+/// Option for enrollment in a given <c ref="Course">Course</c>.
+/// </summary>
 public class CourseOption
 {
     public int Id { get; init; }
