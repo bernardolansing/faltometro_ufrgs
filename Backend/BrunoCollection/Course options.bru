@@ -1,13 +1,17 @@
 meta {
   name: Course options
   type: http
-  seq: 10
+  seq: 2
 }
 
 get {
   url: {{ENDPOINT}}/course_options
   body: none
   auth: inherit
+}
+
+headers {
+  ~If-Modified-Since: 2026-07-23T18:01:13.934597
 }
 
 settings {
