@@ -32,12 +32,14 @@ internal static class GSecretsManagerService
     /// </summary>
     internal static IConfigurationBuilder AddGoogleSecretsManager(this IConfigurationBuilder builder)
     {
-        builder.Properties.Add("ConnectionString:DefaultConnection", _dbConnectionString);
+        var secretsToAdd = new Dictionary<string, string?>
+        {
+            ["ConnectionStrings:DefaultConnection"] = _dbConnectionString
+        };
+        builder.AddInMemoryCollection(secretsToAdd);
         
         return builder;
     }
-
-    internal static string GetDbConnectionString() => _dbConnectionString;
 
     private static async Task<string> GetSecretAsync(string secretName)
     {
@@ -57,6 +59,9 @@ public class GSecretsManagerServiceTests
         // Obviously, it'll only work if you have a working and authorized Google credential available in the
         // environment.
         await GSecretsManagerService.InitAsync();
-        Console.WriteLine("DB connection string: " + GSecretsManagerService.GetDbConnectionString());
+        var config = new ConfigurationBuilder()
+            .AddGoogleSecretsManager()
+            .Build();
+        Assert.IsNotNull(config.GetConnectionString("DefaultConnection"));
     }
 }
