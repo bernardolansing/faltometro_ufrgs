@@ -102,6 +102,9 @@ public class UpdateCourseOptionsJob(AppDatabase db, string ufrgsSessionId) : IEx
                 validOptions++;
             }
         }));
+
+        if (validOptions == 0)
+            throw new Exception("No valid course options were found, a problem must have occurred.");
         
         Console.WriteLine($"Found {validOptions} course options in total");
         Console.WriteLine("Adding them to the database now");

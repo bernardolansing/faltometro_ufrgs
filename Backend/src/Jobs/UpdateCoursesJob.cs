@@ -61,6 +61,9 @@ public class UpdateCoursesJob(AppDatabase db) : IExtractionJob
                 await Console.Error.WriteLineAsync(error.StackTrace);
             }
         }));
+
+        if (courses.Count == 0)
+            throw new Exception("No courses were found, a problem must have occurred");
         Console.WriteLine($"Found {courses.Count} courses across {programCards.Count - errors} programs.");
 
         // Now, if no errors ocurred, we're going to clear the courses table from the database and populate it again
