@@ -8,14 +8,15 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FaltometroUfrgsBackend.Jobs;
 
-internal class UpdateCoursesJob(AppDatabase db) : IExtractionJob<Course>
+public class UpdateCoursesJob(AppDatabase db) : IExtractionJob
 {
     private static readonly Regex CourseCodeRegex = new("^[A-Z0-9]{8}$");
+    
+    public Type GetModelType() => typeof(Course);
     
     public async Task ExecuteAsync()
     {
         Console.WriteLine("Commencing update on courses list");
-        var stopwatch = System.Diagnostics.Stopwatch.StartNew();
         var client = new ScraperClient();
         
         // Fetch a list of UFRGS undegrad programs.
@@ -68,12 +69,8 @@ internal class UpdateCoursesJob(AppDatabase db) : IExtractionJob<Course>
         if (errors == 0)
         {
             Console.WriteLine("Repopulating courses table in database");
-            var newGenerationNumber = new Random()
-                .Next(0, int.MaxValue);
             var transaction = await db.Database.BeginTransactionAsync();
             await db.Courses.ExecuteDeleteAsync();
-            // await db.Generations.Where(g => g.Id == Generation.CoursesGenerationId)
-            //     .ExecuteUpdateAsync(s => s.SetProperty(g => g.GenerationNumber, newGenerationNumber));
             await db.Courses.AddRangeAsync(courses.Select(pair => new Course(pair.Key, pair.Value)));
             await db.SaveChangesAsync();
             await transaction.CommitAsync();
@@ -83,8 +80,6 @@ internal class UpdateCoursesJob(AppDatabase db) : IExtractionJob<Course>
             await Console.Error.WriteLineAsync($"Scraping failed for {errors} programs");
             await Console.Error.WriteLineAsync("Aborting upload to database as errors ocurred");
         }
-            
-        Console.WriteLine($"Execution took {stopwatch.Elapsed.TotalSeconds}s");
     }
     
     /// <summary>

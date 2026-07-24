@@ -16,6 +16,14 @@ public class AppDatabase(IConfiguration config) : DbContext
         optionsBuilder.UseNpgsql(config.GetConnectionString("DefaultConnection"))
             .UseSnakeCaseNamingConvention();
     }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Extraction>()
+            .Property(e => e.ExtractionDate)
+            .HasDefaultValueSql("current_timestamp")
+            .ValueGeneratedOnAdd();
+    }
 }
 
 [TestClass]

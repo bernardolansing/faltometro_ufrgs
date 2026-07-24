@@ -1,3 +1,7 @@
+using System.Diagnostics;
+using FaltometroUfrgsBackend.Models;
+using Microsoft.EntityFrameworkCore;
+
 namespace FaltometroUfrgsBackend.Jobs;
 
 internal class Jobs(bool runningOnCloud)
@@ -23,7 +27,31 @@ internal class Jobs(bool runningOnCloud)
                 throw new Exception($"Unrecognized job name '{jobName}'");
         }
         
-        await job.ExecuteAsync();
+        var stopwatch = new Stopwatch();
+        bool success;
+        try
+        {
+            stopwatch.Start();
+            await job.ExecuteAsync();
+            success = true;
+        }
+        catch (Exception error)
+        {
+            await Console.Error.WriteLineAsync($"Error while executing job {jobName}: {error.Message}");
+            await Console.Error.WriteLineAsync(error.StackTrace);
+            success = false;
+        }
+            
+        await Console.Out.WriteLineAsync($"Job execution time: {stopwatch.Elapsed.TotalSeconds} seconds");
+        
+        if (job is IExtractionJob extractionJob)
+        {
+            await Console.Out.WriteLineAsync($"Registering new {(success ? "successful" : "failed")} extraction entry");
+            var entityType = database.Model.FindEntityType(extractionJob.GetModelType())!;
+            var resourceName = entityType.GetTableName()!;
+            await database.Extractions.AddAsync(new Extraction { Resource = resourceName, Successful = success });
+            await database.SaveChangesAsync();
+        }
     }
 
     private async Task<IConfigurationRoot> GetConfiguration()
@@ -43,7 +71,10 @@ internal class Jobs(bool runningOnCloud)
     }
 }
 
-internal interface IExtractionJob<T> : IJob;
+internal interface IExtractionJob : IJob
+{
+    internal Type GetModelType();
+}
 
 internal interface IJob
 {

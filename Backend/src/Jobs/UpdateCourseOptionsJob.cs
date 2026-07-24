@@ -7,19 +7,20 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FaltometroUfrgsBackend.Jobs;
 
-internal class UpdateCourseOptionsJob(AppDatabase db, string ufrgsSessionId) : IExtractionJob<CourseOption>
+public class UpdateCourseOptionsJob(AppDatabase db, string ufrgsSessionId) : IExtractionJob
 {
     /// <summary>
     /// List of weekdays' names as they are found in the student's dashboard.
     /// </summary>
     private static readonly List<string> Weekdays = ["Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
+
+    public Type GetModelType() => typeof(CourseOption);
     
     public async Task ExecuteAsync()
     {
         const string pageUri = "https://www1.ufrgs.br/intranet/portal/public/index.php?cods=1,1,1,224";
         
         Console.WriteLine("Commencing update on course options list");
-        var stopwatch = Stopwatch.StartNew();
         var client = new ScraperClient(ufrgsSessionId);
         
         // This page contains a select menu with all undergrad programs. To each program is assigned an identification.
@@ -107,18 +108,12 @@ internal class UpdateCourseOptionsJob(AppDatabase db, string ufrgsSessionId) : I
         Console.WriteLine($"{invalidOptions} options were invalid and will be discarded");
         var allCourseOptions = coursesAndOptions.Values
             .Aggregate(Enumerable.Empty<CourseOption>(), (acc, val) => acc.Concat(val));
-
-        // var newGenerationNumber = new Random()
-        //     .Next(0, int.MaxValue);
+        
         await db.Database.BeginTransactionAsync();
         await db.CourseOptions.ExecuteDeleteAsync();
         await db.CourseOptions.AddRangeAsync(allCourseOptions);
-        // await db.Generations.Where(g => g.Id == Generation.CourseOptionsGenerationId)
-        //     .ExecuteUpdateAsync(s => s.SetProperty(g => g.GenerationNumber, newGenerationNumber));
         await db.SaveChangesAsync();
         await db.Database.CommitTransactionAsync();
-        
-        Console.WriteLine($"Execution took {stopwatch.Elapsed.TotalSeconds}s");
     }
     
     /// <summary>
